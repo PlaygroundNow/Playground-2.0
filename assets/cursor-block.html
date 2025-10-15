@@ -1,0 +1,37 @@
+<style>
+  div {
+    display: flex;
+    flex-direction: column;
+  }
+  img {
+    width: 20px;
+    height: 20px;
+  }
+</style>
+
+<div @peer-mouse.window="positionUpdated($event)">
+  <span x-text="label"></span>
+  <img src="/assets/img/cursor.png" />
+</div>
+
+<script>
+  export default () => ({
+    label: "",
+    timeoutId: null,
+    positionUpdated(event) {
+      const { senderId, mouseX, mouseY } = event.detail;
+      if (senderId !== this.peer) return;
+      this.$el.style.transform = `translate(${mouseX}px, ${mouseY}px)`;
+      clearTimeout(this.timeoutId);
+      this.timeoutId = setTimeout(() => {
+        this.$el.getRootNode().host.remove();
+      }, 1000);
+    },
+    init() {
+      const shadowRoot = this.$el.getRootNode();
+      const host = shadowRoot.host;
+      this.peer = host.getAttribute("peer");
+      this.label = this.peer;
+    },
+  });
+</script>

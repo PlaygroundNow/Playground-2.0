@@ -1,0 +1,102 @@
+<style>
+  .world {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+  }
+  .world::before {
+    z-index: -1;
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    text-align: center;
+    background: white; /*#22333b*/
+  }
+  .space {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4096px;
+    height: 4096px;
+    background-size: 32px 32px;
+    background-image: linear-gradient(
+        to right,
+        rgba(40, 126, 255, 0.1) 1px,
+        transparent 1px
+      ),
+      linear-gradient(to bottom, rgba(40, 126, 255, 0.1) 1px, transparent 1px);
+    transform: translate3d(0, 0, 0);
+  }
+</style>
+
+<div class="world" @peer-mouse.window="peerMouseMove($event)">
+  <div class="space">
+    <slot></slot>
+  </div>
+</div>
+
+<script type="module">
+  function handleScroll(e) {
+    e.preventDefault();
+
+    const newScrollX = this.scrollX + e.deltaX;
+    const newScrollY = this.scrollY + e.deltaY;
+
+    const maxScrollX = this.space.offsetWidth - this.shadowWorld.offsetWidth;
+    const maxScrollY = this.space.offsetHeight - this.shadowWorld.offsetHeight;
+
+    this.scrollX = Math.max(0, Math.min(newScrollX, maxScrollX));
+    this.scrollY = Math.max(0, Math.min(newScrollY, maxScrollY));
+
+    // Update attributes
+    this.host.setAttribute("scroll-x", this.scrollX);
+    this.host.setAttribute("scroll-y", this.scrollY);
+
+    this.space.style.transform = `translate(${-this.scrollX}px, ${-this
+      .scrollY}px)`;
+  }
+
+  function init() {
+    this.shadowRoot = this.$el.getRootNode();
+    this.host = this.shadowRoot.host;
+
+    this.scrollX = this.host.getAttribute("scroll-x") || 0;
+    this.scrollY = this.host.getAttribute("scroll-y") || 0;
+
+    this.shadowWorld = this.shadowRoot.querySelector(".world");
+    this.space = this.shadowRoot.querySelector(".space");
+
+    this._boundHandleScroll = handleScroll.bind(this);
+    this.shadowWorld.addEventListener("wheel", this._boundHandleScroll, {
+      passive: false,
+    });
+
+    document.addEventListener("mousemove", (event) => {
+      handle.broadcast({
+        type: "peer-mouse",
+        mouseX: event.clientX + Number(this.host.getAttribute("scroll-x")),
+        mouseY: event.clientY + Number(this.host.getAttribute("scroll-y")),
+      });
+    });
+  }
+
+  function peerMouseMove(e) {
+    let cursor = this.shadowWorld.querySelector(
+      `cursor-block[peer="${e.detail.senderId}"]`
+    );
+    if (!cursor) {
+      cursor = document.createElement("cursor-block");
+      this.shadowWorld.appendChild(cursor);
+      cursor.setAttribute("peer", e.detail.senderId);
+    }
+  }
+
+  export default () => ({
+    peerMouseMove,
+    init,
+  });
+</script>

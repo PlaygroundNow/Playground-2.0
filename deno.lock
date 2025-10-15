@@ -1,0 +1,45 @@
+{
+  "version": "5",
+  "specifiers": {
+    "npm:@types/node@*": "22.15.15"
+  },
+  "npm": {
+    "@types/node@22.15.15": {
+      "integrity": "sha512-R5muMcZob3/Jjchn5LcO8jdKwSCbzqmPB6ruBxMcf9kbxtniZHP327s6C37iOfuw8mbKK3cAQa7sEl7afLrQ8A==",
+      "dependencies": [
+        "undici-types"
+      ]
+    },
+    "undici-types@6.21.0": {
+      "integrity": "sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ=="
+    }
+  },
+  "redirects": {
+    "https://esm.sh/@automerge/automerge-repo-network-websocket?bundle-deps": "https://esm.sh/@automerge/automerge-repo-network-websocket@2.3.0?bundle-deps",
+    "https://esm.sh/@automerge/automerge-repo-storage-indexeddb?bundle-deps": "https://esm.sh/@automerge/automerge-repo-storage-indexeddb@2.3.0?bundle-deps",
+    "https://esm.sh/@automerge/automerge-repo/slim?bundle-deps": "https://esm.sh/@automerge/automerge-repo@2.3.0/slim?bundle-deps",
+    "https://esm.sh/@types/alpinejs@~3.13.11/index.d.ts": "https://esm.sh/@types/alpinejs@3.13.11/index.d.ts",
+    "https://esm.sh/@types/ws@~8.5.13/index.d.mts": "https://esm.sh/@types/ws@8.5.14/index.d.mts",
+    "https://esm.sh/alpinejs/builds/module.js?bundle-deps": "https://esm.sh/alpinejs@3.15.0/builds/module.js?bundle-deps",
+    "https://esm.sh/alpinejs?bundle-deps": "https://esm.sh/alpinejs@3.15.0?bundle-deps"
+  },
+  "remote": {
+    "https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.js": "a0bac13959d09d8c6afed59cfd01f05cecc003244edb257c096c415d8074c87a",
+    "https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js": "e041f1b639d1e6b2fc2736d8d7638a409afcd444a6ec90446f8f4e44fa36f406",
+    "https://esm.sh/@automerge/automerge-repo-network-websocket@2.3.0/denonext/automerge-repo-network-websocket.bundle.mjs": "cc5246f08ae82b538aa7b7d3c2b9e265403cbf7d7bee49442cb07ad3c55b1d79",
+    "https://esm.sh/@automerge/automerge-repo-network-websocket@2.3.0?bundle-deps": "5f1a0e433a3d8888fcc1fab7f8c6409f95017d7ac274aed72693de44e60f8413",
+    "https://esm.sh/@automerge/automerge-repo-storage-indexeddb@2.3.0/denonext/automerge-repo-storage-indexeddb.bundle.mjs": "a6ae468eea31569f0082f788445db3ad50a9af8946e0728ff97660f8d2a481c6",
+    "https://esm.sh/@automerge/automerge-repo-storage-indexeddb@2.3.0?bundle-deps": "3f3e168056aa51bc4e9a820dc10750bb3f445b6ce39d970b60cca77932bce56f",
+    "https://esm.sh/@automerge/automerge-repo@2.3.0/denonext/slim.bundle.mjs": "5fd032c3f0a15b7e542e5f8e037531f08302e8faca2e3033f6edae1222623b2a",
+    "https://esm.sh/@automerge/automerge-repo@2.3.0/slim?bundle-deps": "03183f5f33566962b34ee6158910754d36f043b4bd8ace127b4b1b60792627b2",
+    "https://esm.sh/@vue/reactivity@3.1.5/es2022/reactivity.mjs": "8306aa1661b59b76fcd0bf480d20899aee23d4273cf22f9402deb8ca45a9e316",
+    "https://esm.sh/@vue/reactivity@~3.1.1?target=es2022": "064420eea0ff21741ec808e5680d9037148260bbdef2aa8d6e4fa047fedace53",
+    "https://esm.sh/@vue/shared@3.1.5/es2022/shared.mjs": "6236771d5d77b847d92671c3c81390a5c1f027a98a8a09fab27244e5071baac7",
+    "https://esm.sh/alpinejs/builds/module.js": "456e39e8a1609b751b73297b6b5015ac928587e0a3f821e090cec36b25efc5d2",
+    "https://esm.sh/alpinejs@3.15.0/builds/module.js?bundle-deps": "87a590881f13fa037b3c4c04eb124d115269e953bf1640b533f56d6284ac1c26",
+    "https://esm.sh/alpinejs@3.15.0/denonext/alpinejs.bundle.mjs": "638c83deeea89cb69f3b693f0866f6816cdaf17b3a6bd2fdb02b3b9e49ad09be",
+    "https://esm.sh/alpinejs@3.15.0/denonext/builds/module.bundle.mjs": "f7f1e97c5d76ac7ddc62b8e13af2035a4a5445afc5933961c7b363f67b84eb9e",
+    "https://esm.sh/alpinejs@3.15.0/es2022/builds/module.mjs": "01be631278a6b440a70876bb72802b0ae713c1600420ddb68242fd2517d70faf",
+    "https://esm.sh/alpinejs@3.15.0?bundle-deps": "0d457df8faf653eafc57e7c8dd80d2759957f796e027202a46b8b4b4412873d0"
+  }
+}

@@ -1,0 +1,26 @@
+<style>
+  button {
+    position: absolute;
+    top: 200px;
+    left: 200px;
+  }
+</style>
+
+<button>
+  <span x-text="defaultText"></span>
+  <slot></slot>
+</button>
+
+<script>
+  export default () => ({
+    defaultText: "my awesome button",
+    init() {
+      this.shadowRoot = this.$el.getRootNode();
+      const slot = this.shadowRoot.querySelector("slot");
+
+      if (slot.assignedNodes().length > 0) {
+        this.$data.defaultText = "";
+      }
+    },
+  });
+</script>

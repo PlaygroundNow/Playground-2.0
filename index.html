@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Playground 2.0</title>
+    <link
+      rel="icon"
+      href="./assets/img/favicon.svg"
+      sizes="any"
+      type="image/svg+xml"
+    />
+    <style>
+      html,
+      body {
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body x-data="playground">
+    <world-block>
+      <button-block></button-block>
+    </world-block>
+
+    <script>
+      window.ALPINE_VERSION = "3.15.0";
+    </script>
+
+    <script src="/assets/alpine-block.js"></script>
+    <script src="/assets/playground.js" type="module"></script>
+  </body>
+</html>

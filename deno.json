@@ -1,0 +1,6 @@
+{
+  "tasks": {
+    "dev": "deno run --watch --allow-all playground.ts"
+  },
+  "importMap": "./import_map.json"
+}
