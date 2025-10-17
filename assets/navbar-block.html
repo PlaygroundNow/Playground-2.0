@@ -1,0 +1,50 @@
+<style>
+  .wrapper {
+    z-index: 1000;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: calc(100vw - 48px);
+    margin: 10px 12px 0 12px;
+    background: #36454f;
+    border-radius: 8px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: white;
+    padding: 0 12px;
+    font-size: 24px;
+  }
+
+  @media (max-width: 600px) {
+    .wrapper span {
+      display: none;
+    }
+  }
+
+  img {
+    margin-right: 8px;
+  }
+</style>
+
+<div @resize.window="width = window.innerWidth" class="wrapper">
+  <div><img src="/assets/img/favicon.svg" /><span>Playground</span></div>
+  <div
+    :style="{
+      position: 'absolute',
+      left: width <= 800 ? '60px' : '50%',
+      top: '50%',
+      transform: 'translate(-50%,-50%)'
+    }"
+  >
+    Home
+  </div>
+  <spotlight-button-block></spotlight-button-block>
+</div>
+
+<script type="module">
+  export default {
+    width: window.innerWidth,
+  };
+</script>

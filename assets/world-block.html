@@ -38,16 +38,47 @@
   class="world"
   @peer-mousemove.document="peerMouseMove"
   @mousemove.document="handleMouseMove"
+  @touchmove.document="handleTouch"
 >
   <div
     class="space"
     :style="{ transform: `translate(-${scrollX}px, -${scrollY}px)`}"
   >
+    <template x-teleport="body">
+      <navbar-block></navbar-block>
+    </template>
+
     <slot></slot>
   </div>
 </div>
 
 <script type="module">
+  import blockMixin from "@playground/block-mixin";
+
+  export default {
+    mixins: [blockMixin],
+    scrollX: 0,
+    scrollY: 0,
+    peerMouseMove,
+    handleMouseMove,
+    handleTouch,
+    init() {
+      this.world = this.$host.shadowRoot.querySelector(".world");
+      this.space = this.$host.shadowRoot.querySelector(".space");
+
+      if (!this.$props.scrollX && !this.$props.scrollY) {
+        this.scrollX = (this.space.offsetWidth - this.world.offsetWidth) / 2;
+        this.scrollY = (this.space.offsetHeight - this.world.offsetHeight) / 2;
+
+        this.$props.scrollX = this.scrollX;
+        this.$props.scrollY = this.scrollY;
+      }
+
+      document.addEventListener("wheel", handleScroll.bind(this), {
+        passive: false,
+      });
+    },
+  };
   function peerMouseMove(e) {
     let cursor = this.$host.querySelector(
       `cursor-block[peer="${e.detail.senderId}"]`
@@ -61,6 +92,13 @@
 
   function handleMouseMove(e) {
     this.$broadcast("mousemove", {
+      mouseX: e.clientX + this.scrollX,
+      mouseY: e.clientY + this.scrollY,
+    });
+  }
+
+  function handleTouch(e) {
+    this.$broadcast("touchstart", {
       mouseX: e.clientX + this.scrollX,
       mouseY: e.clientY + this.scrollY,
     });
@@ -81,19 +119,4 @@
     this.$props.scrollX = this.scrollX;
     this.$props.scrollY = this.scrollY;
   }
-
-  export default {
-    scrollX: 0,
-    scrollY: 0,
-    peerMouseMove,
-    handleMouseMove,
-    init() {
-      this.world = this.$host.shadowRoot.querySelector(".world");
-      this.space = this.$host.shadowRoot.querySelector(".space");
-
-      document.addEventListener("wheel", handleScroll.bind(this), {
-        passive: false,
-      });
-    },
-  };
 </script>

@@ -57,7 +57,9 @@ export default class AlpineBlock extends HTMLElement {
       (node) =>
         !(
           node.nodeType === Node.ELEMENT_NODE &&
-          (node.tagName === "SCRIPT" || node.tagName === "STYLE")
+          (node.tagName === "SCRIPT" ||
+            node.tagName === "STYLE" ||
+            node.tagName === "TEMPLATE")
         ) &&
         !(node.nodeType === Node.TEXT_NODE && node.textContent.trim() === "")
     );
@@ -83,13 +85,21 @@ export default class AlpineBlock extends HTMLElement {
       const module = await import(url);
       URL.revokeObjectURL(url);
 
-      let mergedExport = module.default || {};
+      const mergedExport = module.default || {};
+      const mixinInits = [];
+      const mixinDestroys = [];
+      const mainKeys = new Set(Object.keys(mergedExport));
+      const templates = [];
       if (Array.isArray(module.default?.mixins)) {
         for (const mixinSFC of module.default.mixins) {
           const mixinDoc = new DOMParser().parseFromString(
             mixinSFC,
             "text/html"
           );
+
+          mixinDoc.querySelectorAll("template").forEach((tpl) => {
+            templates.push(tpl);
+          });
           mixinDoc.querySelectorAll("style").forEach((style) => {
             this.shadowRoot.appendChild(style.cloneNode(true));
           });
@@ -101,11 +111,23 @@ export default class AlpineBlock extends HTMLElement {
             const mixinUrl = URL.createObjectURL(mixinBlob);
             try {
               const mixinModule = await import(mixinUrl);
-              mergedExport = Object.assign(
-                {},
-                mixinModule.default || {},
-                mergedExport
-              );
+              const mixinExport = mixinModule.default || {};
+              for (const key of Object.keys(mixinExport)) {
+                if (key === "init") {
+                  mixinInits.push(mixinExport.init);
+                } else if (key === "destroy") {
+                  mixinDestroys.push(mixinExport.destroy);
+                } else if (key === "mixins") {
+                  mergedExport.mixins.push(...mixinExport.mixins);
+                } else if (mainKeys.has(key)) {
+                  throw new Error(
+                    `Mixin is attempting to override already defined key: ${key}`
+                  );
+                } else {
+                  mergedExport[key] = mixinExport[key];
+                  mainKeys.add(key);
+                }
+              }
             } finally {
               URL.revokeObjectURL(mixinUrl);
             }
@@ -113,7 +135,40 @@ export default class AlpineBlock extends HTMLElement {
         }
       }
 
+      // Compose lifecycle methods: call all mixin inits, then main init
+      if (typeof mergedExport.init === "function" || mixinInits.length > 0) {
+        const mainInit = mergedExport.init;
+        mergedExport.init = function (...args) {
+          for (const fn of mixinInits) {
+            if (typeof fn === "function") fn.apply(this, args);
+          }
+          if (typeof mainInit === "function") mainInit.apply(this, args);
+        };
+      }
+      // Compose destroy methods: call all mixin destroys, then main destroy
+      if (
+        typeof mergedExport.destroy === "function" ||
+        mixinDestroys.length > 0
+      ) {
+        const mainDestroy = mergedExport.destroy;
+        mergedExport.destroy = function (...args) {
+          for (const fn of mixinDestroys) {
+            if (typeof fn === "function") fn.apply(this, args);
+          }
+          if (typeof mainDestroy === "function") mainDestroy.apply(this, args);
+        };
+      }
+
       const rootContent = this.rootNodes[0].cloneNode(true);
+
+      doc.querySelectorAll("template").forEach((tpl) => {
+        rootContent.appendChild(tpl.cloneNode(true));
+      });
+
+      templates.forEach((tpl) => {
+        rootContent.appendChild(tpl.cloneNode(true));
+      });
+
       rootContent.setAttribute("x-data", "block");
       this.shadowRoot.appendChild(rootContent);
 

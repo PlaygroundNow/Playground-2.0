@@ -1,5 +1,10 @@
 <style>
   ul {
+    margin: 0;
+    z-index: 1000;
+    position: fixed;
+    padding-left: 0;
+    list-style: none;
     border-radius: 5px;
     padding-top: 5px;
     padding-bottom: 5px;
@@ -8,8 +13,18 @@
   }
 
   li {
+    width: 75px;
+    cursor: pointer;
+    list-style: none;
     padding: 5px;
     display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+  }
+
+  li:hover {
+    background: #eee;
   }
 
   img {
@@ -18,12 +33,29 @@
   }
 </style>
 
-<template id="right-click">
-  <ul>
-    <li><img src="/assets/img/htmx.svg" alt="undefined" /> Code</li>
+<template x-if="menuOpen">
+  <ul
+    :style="{ transform: `translate(${x}px, ${y}px )`}"
+    @click.outside="menuOpen = false"
+  >
+    <li><img src="/assets/img/htmx.svg" /> Code</li>
   </ul>
 </template>
 
 <script type="module">
-  export default {};
+  export default {
+    menuOpen: false,
+    x: 0,
+    y: 0,
+    init() {
+      this.$host.addEventListener("contextmenu", (e) => {
+        e.preventDefault();
+        console.log(e);
+
+        this.x = e.x;
+        this.y = e.y;
+        this.menuOpen = true;
+      });
+    },
+  };
 </script>

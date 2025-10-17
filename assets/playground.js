@@ -20,18 +20,26 @@ window.Alpine = Alpine;
 // Then set up an automerge repo (loading with our annoying WASM hack)
 const repo = new Repo({
   storage: new IndexedDBStorageAdapter(),
-  network: [new WebSocketClientAdapter("ws://localhost:3030")],
+  network: [new WebSocketClientAdapter("ws://192.168.1.219:3030")],
 });
+
+console.log(repo);
 
 window.repo = repo;
 window.handle = null;
 const docUrl = window.location.hash.slice(1);
 if (docUrl) {
+  console.log(docUrl);
   handle = await repo.find(docUrl);
+  console.log("handle", handle);
 } else {
-  handle = repo.create({});
+  handle = repo.create({
+    customer: {},
+  });
   window.location.hash = handle.url;
 }
+
+console.log(handle);
 
 handle.on("change", (evt) => {
   if (!window.lock) {
@@ -112,11 +120,13 @@ function defineBlock(tagName, template) {
   }
 }
 
-const blocks = [...document.querySelectorAll("*")]
-  .filter((el) => el.tagName.toLowerCase().endsWith("-block"))
-  .map((el) => el.tagName.toLowerCase());
-
-[...blocks, "cursor-block"].forEach((block) => {
+[
+  "world-block",
+  "navbar-block",
+  "cursor-block",
+  "spotlight-button-block",
+  "spotlight-block",
+].forEach((block) => {
   fetch(`/assets/${block}.html`, {
     method: "GET",
     headers: { Accept: "text/html" },
