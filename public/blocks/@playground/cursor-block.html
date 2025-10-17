@@ -1,4 +1,10 @@
 <style>
+  :host {
+    position: absolute;
+    display: block;
+    top: 0;
+    left: 0;
+  }
   div {
     display: flex;
     flex-direction: column;
@@ -20,11 +26,10 @@
 </div>
 
 <script type="module">
-  import rightClick from "@playground/right-click-mixin";
-  import canvas from "@playground/canvas-mixin";
+  import blockMixin from "@playground/block-mixin";
 
   export default {
-    mixins: [rightClick, canvas],
+    mixins: [blockMixin],
     mouseX: 0,
     mouseY: 0,
     positionUpdated(event) {

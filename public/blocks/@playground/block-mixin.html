@@ -1,14 +1,17 @@
 <style>
-  * {
+  *,
+  *::before,
+  *::after {
     font-family: "Nanum Pen Script", Cambria, Cochin, Georgia, Times,
       "Times New Roman", serif;
+    box-sizing: border-box;
   }
 </style>
 
 <script type="module">
-  import rightClick from "@playground/right-click-mixin";
+  import menuClick from "@playground/menu-mixin";
 
   export default {
-    mixins: [rightClick],
+    mixins: [menuClick],
   };
 </script>

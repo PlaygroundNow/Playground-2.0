@@ -1,0 +1,99 @@
+<style>
+  .wrapper {
+    z-index: 1000;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: calc(100vw - 48px);
+    margin: 10px 12px 0 12px;
+    background: #36454f;
+    border-radius: 8px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: white;
+    padding: 0 12px;
+    font-size: 24px;
+  }
+
+  @media (max-width: 600px) {
+    .wrapper span {
+      display: none;
+    }
+  }
+
+  .peers {
+    display: flex;
+    gap: 8px;
+    margin-left: 16px;
+    align-items: center;
+  }
+
+  .peer {
+    width: 24px;
+    height: 24px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: black;
+    font-size: 18px;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+
+  img {
+    margin-right: 8px;
+  }
+</style>
+
+<div
+  @peer-heartbeat.window="heartbeat"
+  @resize.window="width = window.innerWidth"
+  class="wrapper"
+>
+  <div><img src="/assets/img/favicon.svg" /><span>Playground</span></div>
+  <div
+    :style="{
+      display: 'flex',
+      position: 'absolute',
+      left: width <= 800 ? '60px' : '50%',
+      top: '50%',
+      transform: 'translate(-50%,-50%)'
+    }"
+  >
+    Home
+    <div class="peers">
+      <template x-for="peer in Array.from(peers)">
+        <div class="peer" x-text="peer.slice(0,2)"></div>
+      </template>
+    </div>
+  </div>
+  <spotlight-button-block></spotlight-button-block>
+</div>
+
+<script type="module">
+  export default {
+    heartbeats: {},
+    peers: new Set(["Me"]),
+    width: window.innerWidth,
+    heartbeat(event) {
+      this.peers.add(event.detail.senderId.split("-")[1]);
+      this.heartbeat[event.detail.senderId] = new Date();
+    },
+    init() {
+      setInterval(() => {
+        const now = Date.now();
+        for (const [senderId, last] of Object.entries(this.heartbeat)) {
+          if (now - new Date(last).getTime() > 1000 * 10) {
+            const peerName = senderId.split("-")[1];
+            this.peers.delete(peerName);
+            delete this.heartbeat[senderId];
+          }
+        }
+      }, 1000 * 10);
+    },
+  };
+</script>

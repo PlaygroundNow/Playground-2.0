@@ -1,0 +1,59 @@
+<style>
+  :host {
+    position: absolute;
+  }
+
+  .wrapper {
+    position: fixed;
+    top: 120px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    border-radius: 8px;
+    background: #36454f11;
+  }
+
+  @media (max-width: 600px) {
+    .wrapper {
+      width: 400px;
+    }
+  }
+
+  input {
+    width: 100%;
+    padding: 16px 64px;
+    background: none;
+    border: none;
+    font-size: 24px;
+  }
+
+  .wrapper img {
+    display: block;
+    z-index: 1;
+    pointer-events: none;
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+  }
+</style>
+
+<div @click.stop @click.outside="spotlightOpen = false" class="wrapper">
+  <div>
+    <img src="/assets/img/search.svg" /><input autofocus x-model="search" />
+  </div>
+</div>
+
+<script type="module">
+  import blockMixin from "@playground/block-mixin";
+
+  export default {
+    search: "",
+    mixins: [blockMixin],
+    init() {
+      this.$el.querySelector("input").focus();
+    },
+  };
+</script>

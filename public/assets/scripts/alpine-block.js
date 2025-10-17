@@ -161,8 +161,11 @@ export default class AlpineBlock extends HTMLElement {
 
       const rootContent = this.rootNodes[0].cloneNode(true);
 
+      // Move <template> nodes that are not already inside the root node into the root node
       doc.querySelectorAll("template").forEach((tpl) => {
-        rootContent.appendChild(tpl.cloneNode(true));
+        if (!this.rootNodes[0].contains(tpl)) {
+          rootContent.appendChild(tpl.cloneNode(true));
+        }
       });
 
       templates.forEach((tpl) => {

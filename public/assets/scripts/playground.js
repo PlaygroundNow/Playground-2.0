@@ -23,23 +23,17 @@ const repo = new Repo({
   network: [new WebSocketClientAdapter("ws://192.168.1.219:3030")],
 });
 
-console.log(repo);
-
 window.repo = repo;
 window.handle = null;
 const docUrl = window.location.hash.slice(1);
 if (docUrl) {
-  console.log(docUrl);
   handle = await repo.find(docUrl);
-  console.log("handle", handle);
 } else {
   handle = repo.create({
     customer: {},
   });
   window.location.hash = handle.url;
 }
-
-console.log(handle);
 
 handle.on("change", (evt) => {
   if (!window.lock) {
@@ -126,8 +120,9 @@ function defineBlock(tagName, template) {
   "cursor-block",
   "spotlight-button-block",
   "spotlight-block",
+  "minimap-block",
 ].forEach((block) => {
-  fetch(`/assets/${block}.html`, {
+  fetch(`/blocks/@playground/${block}.html`, {
     method: "GET",
     headers: { Accept: "text/html" },
   })

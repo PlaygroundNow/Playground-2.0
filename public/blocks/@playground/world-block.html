@@ -38,7 +38,7 @@
   class="world"
   @peer-mousemove.document="peerMouseMove"
   @mousemove.document="handleMouseMove"
-  @touchmove.document="handleTouch"
+  @touchmove.document="handleMouseMove"
 >
   <div
     class="space"
@@ -46,6 +46,9 @@
   >
     <template x-teleport="body">
       <navbar-block></navbar-block>
+    </template>
+    <template x-teleport="body">
+      <minimap-block></minimap-block>
     </template>
 
     <slot></slot>
@@ -61,7 +64,6 @@
     scrollY: 0,
     peerMouseMove,
     handleMouseMove,
-    handleTouch,
     init() {
       this.world = this.$host.shadowRoot.querySelector(".world");
       this.space = this.$host.shadowRoot.querySelector(".space");
@@ -77,6 +79,13 @@
       document.addEventListener("wheel", handleScroll.bind(this), {
         passive: false,
       });
+      document.addEventListener("touchmove", handleScroll.bind(this), {
+        passive: true,
+      });
+
+      this._heartbeatInterval = setInterval(() => {
+        this.$broadcast("heartbeat", { timestamp: Date.now() });
+      }, 3000);
     },
   };
   function peerMouseMove(e) {
@@ -91,24 +100,48 @@
   }
 
   function handleMouseMove(e) {
+    let mouseX, mouseY;
+    if (e.type.startsWith("touch")) {
+      const touch = e.touches[0] || e.changedTouches[0];
+      mouseX = touch.clientX + this.scrollX;
+      mouseY = touch.clientY + this.scrollY;
+    } else {
+      mouseX = e.clientX + this.scrollX;
+      mouseY = e.clientY + this.scrollY;
+    }
     this.$broadcast("mousemove", {
-      mouseX: e.clientX + this.scrollX,
-      mouseY: e.clientY + this.scrollY,
-    });
-  }
-
-  function handleTouch(e) {
-    this.$broadcast("touchstart", {
-      mouseX: e.clientX + this.scrollX,
-      mouseY: e.clientY + this.scrollY,
+      mouseX,
+      mouseY,
     });
   }
 
   function handleScroll(e) {
-    e.preventDefault();
+    if (this.menuOpen) {
+      return;
+    }
 
-    const newScrollX = this.scrollX + e.deltaX;
-    const newScrollY = this.scrollY + e.deltaY;
+    // Handle both wheel and touchmove events
+    let deltaX = 0;
+    let deltaY = 0;
+
+    if (e.type === "wheel") {
+      deltaX = e.deltaX;
+      deltaY = e.deltaY;
+      e.preventDefault();
+    } else if (e.type === "touchmove") {
+      if (!this._lastTouch) {
+        this._lastTouch = e.touches[0];
+        return;
+      }
+      const touch = e.touches[0];
+      deltaX = this._lastTouch.clientX - touch.clientX;
+      deltaY = this._lastTouch.clientY - touch.clientY;
+      this._lastTouch = touch;
+      e.preventDefault();
+    }
+
+    const newScrollX = this.scrollX + deltaX;
+    const newScrollY = this.scrollY + deltaY;
 
     const maxScrollX = this.space.offsetWidth - this.world.offsetWidth;
     const maxScrollY = this.space.offsetHeight - this.world.offsetHeight;

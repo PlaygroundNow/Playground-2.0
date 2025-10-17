@@ -1,19 +1,21 @@
 <style>
   ul {
+    position: fixed;
+    top: 0;
+    left: 0;
     margin: 0;
     z-index: 1000;
-    position: fixed;
     padding-left: 0;
     list-style: none;
     border-radius: 5px;
-    padding-top: 5px;
     padding-bottom: 5px;
     background: white;
     border: 1px solid black;
+    width: 140px;
   }
 
   li {
-    width: 75px;
+    width: 138px;
     cursor: pointer;
     list-style: none;
     padding: 5px;
@@ -21,6 +23,7 @@
     justify-content: center;
     align-items: center;
     gap: 8px;
+    font-size: 18px;
   }
 
   li:hover {
@@ -28,8 +31,8 @@
   }
 
   img {
-    width: 18px;
-    height: 18px;
+    width: 14px;
+    height: 14px;
   }
 </style>
 
@@ -37,8 +40,13 @@
   <ul
     :style="{ transform: `translate(${x}px, ${y}px )`}"
     @click.outside="menuOpen = false"
+    @click.stop
   >
-    <li><img src="/assets/img/htmx.svg" /> Code</li>
+    <div
+      :style="{ textTransform: 'capitalize', backgroundColor: '#36454f', color: 'white', padding: '4px 8px', fontSize: '20px' }"
+      x-text="$host.tagName.toLowerCase().split('-').slice(0, -1).join(' ')"
+    ></div>
+    <li @click.stop><img src="/assets/img/htmx.svg" /> Code</li>
   </ul>
 </template>
 
@@ -48,14 +56,17 @@
     x: 0,
     y: 0,
     init() {
-      this.$host.addEventListener("contextmenu", (e) => {
-        e.preventDefault();
-        console.log(e);
+      this.$host.addEventListener(
+        "contextmenu",
+        (e) => {
+          e.preventDefault();
 
-        this.x = e.x;
-        this.y = e.y;
-        this.menuOpen = true;
-      });
+          this.x = e.x;
+          this.y = e.y;
+          this.menuOpen = true;
+        },
+        true
+      );
     },
   };
 </script>

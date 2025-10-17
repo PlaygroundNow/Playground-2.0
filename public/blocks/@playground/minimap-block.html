@@ -1,0 +1,106 @@
+<style>
+  .minimap {
+    position: fixed;
+    top: 56px;
+    left: 12px;
+    z-index: 1001;
+    display: flex;
+    color: white;
+    font-size: 14px;
+    overflow: hidden;
+  }
+  .minimap-canvas {
+    width: 120px;
+    height: 120px;
+    background: #36454f11;
+    border-radius: 8px;
+    margin-bottom: 2px;
+  }
+  .minimap-label {
+    font-size: 13px;
+    opacity: 0.7;
+    margin-bottom: 2px;
+  }
+</style>
+
+<div
+  @wheel.document.throttle.20ms="drawMinimap"
+  @touchmove.document.throttle.20ms="drawMinimap"
+  class="minimap"
+>
+  <canvas class="minimap-canvas" width="120" height="120"></canvas>
+</div>
+
+<script type="module">
+  export default {
+    init() {
+      this.drawMinimap();
+
+      const canvas = this.$host.shadowRoot.querySelector(".minimap-canvas");
+      if (canvas) {
+        canvas.addEventListener("click", (e) => {
+          const rect = canvas.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          const worldWidth = 4096;
+          const worldHeight = 4096;
+          const scaleX = canvas.width / worldWidth;
+          const scaleY = canvas.height / worldHeight;
+          const viewportWidth = window.innerWidth;
+          const viewportHeight = window.innerHeight;
+          let newScrollX = Math.round(x / scaleX - viewportWidth / 2);
+          let newScrollY = Math.round(y / scaleY - viewportHeight / 2);
+          newScrollX = Math.max(
+            0,
+            Math.min(newScrollX, worldWidth - viewportWidth)
+          );
+          newScrollY = Math.max(
+            0,
+            Math.min(newScrollY, worldHeight - viewportHeight)
+          );
+          const world = document.querySelector("world-block");
+          if (world) {
+            this.scrollX = newScrollX;
+            this.scrollY = newScrollY;
+          }
+
+          this.drawMinimap();
+        });
+      }
+    },
+    drawMinimap() {
+      const canvas = this.$host.shadowRoot.querySelector(".minimap-canvas");
+
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // World and viewport sizes (example values, replace with real ones if available)
+      const worldWidth = 4096;
+      const worldHeight = 4096;
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+      // If you have access to scrollX/scrollY, use them
+      const scrollX = this.scrollX ? Number(this.scrollX) : 0;
+      const scrollY = this.scrollY ? Number(this.scrollY) : 0;
+
+      // Minimap scale
+      const scaleX = canvas.width / worldWidth;
+      const scaleY = canvas.height / worldHeight;
+
+      // Draw world border
+      ctx.strokeStyle = "#fff";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(0, 0, canvas.width, canvas.height);
+
+      // Draw viewport rectangle
+      ctx.strokeStyle = "#40a0ff";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(
+        scrollX * scaleX,
+        scrollY * scaleY,
+        viewportWidth * scaleX,
+        viewportHeight * scaleY
+      );
+    },
+  };
+</script>
