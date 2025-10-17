@@ -13,7 +13,20 @@ const handler = async (req: Request): Promise<Response> => {
 
   // Serve assets
   if (req.method === "GET" && url.pathname.startsWith("/assets/")) {
-    const filePath = "." + url.pathname;
+    let filePath = "." + url.pathname;
+    // If no extension, check for .html and wrap as JS module
+    if (!filePath.match(/\.[a-zA-Z0-9]+$/)) {
+      const htmlPath = filePath + ".html";
+      try {
+        const html = await Deno.readTextFile(htmlPath);
+        const jsModule = `export default ${JSON.stringify(html)};\n`;
+        return new Response(jsModule, {
+          headers: { "content-type": "application/javascript" },
+        });
+      } catch {
+        // Fall through to normal asset handling if .html not found
+      }
+    }
     try {
       const file = await Deno.readFile(filePath);
       // Basic content type detection
@@ -24,7 +37,12 @@ const handler = async (req: Request): Promise<Response> => {
         contentType = "image/jpeg";
       else if (filePath.endsWith(".gif")) contentType = "image/gif";
       else if (filePath.endsWith(".css")) contentType = "text/css";
-      else if (filePath.endsWith(".js")) contentType = "application/javascript";
+      else if (
+        filePath.endsWith(".js") ||
+        filePath.endsWith(".mjs") ||
+        filePath.endsWith(".cjs")
+      )
+        contentType = "application/javascript";
       return new Response(file, {
         headers: { "content-type": contentType },
       });

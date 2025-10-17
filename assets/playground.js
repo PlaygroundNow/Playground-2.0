@@ -7,6 +7,8 @@ import {
 import { IndexedDBStorageAdapter } from "https://esm.sh/@automerge/automerge-repo-storage-indexeddb?bundle-deps";
 import { WebSocketClientAdapter } from "https://esm.sh/@automerge/automerge-repo-network-websocket?bundle-deps";
 
+import AlpineBlock from "./alpine-block.js";
+
 await initializeWasm(
   fetch("https://esm.sh/@automerge/automerge/dist/automerge.wasm")
 );
@@ -55,6 +57,22 @@ function applyProps(target, source) {
   }
 }
 
+Alpine.magic("props", (el) => {
+  const host = el.getRootNode().host;
+  return host.props;
+});
+
+Alpine.magic("host", (el) => {
+  return el.getRootNode().host;
+});
+
+Alpine.magic("broadcast", () => (type, data) => {
+  handle.broadcast({
+    type: "peer-" + type,
+    ...data,
+  });
+});
+
 Alpine.data("playground", () => {
   return {
     doc: handle.doc(),
@@ -83,6 +101,17 @@ Alpine.data("playground", () => {
 
 Alpine.start();
 
+function defineBlock(tagName, template) {
+  if (!customElements.get(tagName)) {
+    class AlpineBlockSFC extends AlpineBlock {}
+    AlpineBlockSFC.tagName = tagName;
+    AlpineBlockSFC.template = template;
+    customElements.define(tagName, AlpineBlockSFC);
+  } else {
+    customElements.get(tagName).template = template;
+  }
+}
+
 const blocks = [...document.querySelectorAll("*")]
   .filter((el) => el.tagName.toLowerCase().endsWith("-block"))
   .map((el) => el.tagName.toLowerCase());
@@ -94,6 +123,6 @@ const blocks = [...document.querySelectorAll("*")]
   })
     .then((res) => res.text())
     .then((sfc) => {
-      alpineBlockSFC(block, sfc);
+      defineBlock(block, sfc);
     });
 });

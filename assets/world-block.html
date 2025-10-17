@@ -17,6 +17,7 @@
     background: white; /*#22333b*/
   }
   .space {
+    touch-action: none;
     position: absolute;
     top: 0;
     left: 0;
@@ -33,70 +34,66 @@
   }
 </style>
 
-<div class="world" @peer-mouse.window="peerMouseMove($event)">
-  <div class="space">
+<div
+  class="world"
+  @peer-mousemove.document="peerMouseMove"
+  @mousemove.document="handleMouseMove"
+>
+  <div
+    class="space"
+    :style="{ transform: `translate(-${scrollX}px, -${scrollY}px)`}"
+  >
     <slot></slot>
   </div>
 </div>
 
 <script type="module">
+  function peerMouseMove(e) {
+    let cursor = this.$host.querySelector(
+      `cursor-block[peer="${e.detail.senderId}"]`
+    );
+    if (!cursor) {
+      cursor = document.createElement("cursor-block");
+      this.$host.appendChild(cursor);
+      cursor.props.peer = e.detail.senderId;
+    }
+  }
+
+  function handleMouseMove(e) {
+    this.$broadcast("mousemove", {
+      mouseX: e.clientX + this.scrollX,
+      mouseY: e.clientY + this.scrollY,
+    });
+  }
+
   function handleScroll(e) {
     e.preventDefault();
 
     const newScrollX = this.scrollX + e.deltaX;
     const newScrollY = this.scrollY + e.deltaY;
 
-    const maxScrollX = this.space.offsetWidth - this.shadowWorld.offsetWidth;
-    const maxScrollY = this.space.offsetHeight - this.shadowWorld.offsetHeight;
+    const maxScrollX = this.space.offsetWidth - this.world.offsetWidth;
+    const maxScrollY = this.space.offsetHeight - this.world.offsetHeight;
 
     this.scrollX = Math.max(0, Math.min(newScrollX, maxScrollX));
     this.scrollY = Math.max(0, Math.min(newScrollY, maxScrollY));
 
-    // Update attributes
-    this.host.setAttribute("scroll-x", this.scrollX);
-    this.host.setAttribute("scroll-y", this.scrollY);
-
-    this.space.style.transform = `translate(${-this.scrollX}px, ${-this
-      .scrollY}px)`;
+    this.$props.scrollX = this.scrollX;
+    this.$props.scrollY = this.scrollY;
   }
 
-  function init() {
-    this.shadowRoot = this.$el.getRootNode();
-    this.host = this.shadowRoot.host;
-
-    this.scrollX = this.host.getAttribute("scroll-x") || 0;
-    this.scrollY = this.host.getAttribute("scroll-y") || 0;
-
-    this.shadowWorld = this.shadowRoot.querySelector(".world");
-    this.space = this.shadowRoot.querySelector(".space");
-
-    this._boundHandleScroll = handleScroll.bind(this);
-    this.shadowWorld.addEventListener("wheel", this._boundHandleScroll, {
-      passive: false,
-    });
-
-    document.addEventListener("mousemove", (event) => {
-      handle.broadcast({
-        type: "peer-mouse",
-        mouseX: event.clientX + Number(this.host.getAttribute("scroll-x")),
-        mouseY: event.clientY + Number(this.host.getAttribute("scroll-y")),
-      });
-    });
-  }
-
-  function peerMouseMove(e) {
-    let cursor = this.shadowWorld.querySelector(
-      `cursor-block[peer="${e.detail.senderId}"]`
-    );
-    if (!cursor) {
-      cursor = document.createElement("cursor-block");
-      this.shadowWorld.appendChild(cursor);
-      cursor.setAttribute("peer", e.detail.senderId);
-    }
-  }
-
-  export default () => ({
+  export default {
+    scrollX: 0,
+    scrollY: 0,
     peerMouseMove,
-    init,
-  });
+    handleMouseMove,
+    init() {
+      this.world = this.$host.shadowRoot.querySelector(".world");
+      this.space = this.$host.shadowRoot.querySelector(".space");
+
+      document.addEventListener("wheel", handleScroll.bind(this), {
+        passive: false,
+      });
+    },
+  };
 </script>
