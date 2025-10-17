@@ -20,7 +20,7 @@ window.Alpine = Alpine;
 // Then set up an automerge repo (loading with our annoying WASM hack)
 const repo = new Repo({
   storage: new IndexedDBStorageAdapter(),
-  network: [new WebSocketClientAdapter("ws://192.168.1.219:3030")],
+  network: [new WebSocketClientAdapter("wss://sync.automerge.org")],
 });
 
 window.repo = repo;
