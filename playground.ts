@@ -1,11 +1,76 @@
 import { serveDir } from "https://deno.land/std@0.224.0/http/file_server.ts";
+import path from "node:path";
 
 Deno.serve(async (req) => {
   const { pathname } = new URL(req.url);
 
-  if (pathname.startsWith("/blocks/") && !/\.[a-z0-9]+$/i.test(pathname)) {
+  // REST application/json
+  if (req.headers.get("accept")?.includes("application/json")) {
+    if (pathname === "/blocks") {
+      return Response.json([{ name: "@playground" }]);
+    }
+
+    if (pathname === "/blocks/@playground") {
+      const files = [];
+      for await (const dirEntry of Deno.readDir("./blocks/@playground")) {
+        if (dirEntry.isFile) {
+          const [namePart, typePartWithExt] = dirEntry.name.split("-");
+          if (namePart && typePartWithExt) {
+            const type = typePartWithExt.split(".")[0];
+            files.push({ name: namePart, type });
+          }
+        }
+      }
+      return Response.json(files);
+    }
+
+    if (pathname.startsWith("/blocks/@playground/")) {
+      const entity = pathname.replace("/blocks/@playground/", "");
+      const filePath = `./blocks/@playground/${entity}`;
+
+      switch (req.method) {
+        case "GET": {
+          try {
+            const content = await Deno.readTextFile(filePath);
+            return new Response(content, {
+              headers: { "content-type": "text/plain" },
+            });
+          } catch {
+            return new Response("Not Found", { status: 404 });
+          }
+        }
+        case "POST":
+        case "PUT": {
+          const body = await req.text();
+          await Deno.writeTextFile(filePath, body);
+          return new Response("Saved", { status: 200 });
+        }
+        case "DELETE": {
+          try {
+            await Deno.remove(filePath);
+            return new Response("Deleted", { status: 200 });
+          } catch {
+            return new Response("Not Found", { status: 404 });
+          }
+        }
+        default:
+          return new Response("Method Not Allowed", { status: 405 });
+      }
+    }
+  }
+
+  if (pathname.startsWith("/blocks/") && pathname.endsWith(".html")) {
     try {
-      const html = await Deno.readTextFile("./public" + pathname + ".html");
+      const html = await Deno.readTextFile("." + pathname);
+      return new Response(html, {
+        headers: { "content-type": "text/html" },
+      });
+    } catch {
+      // fallback to public
+    }
+  } else if (pathname.startsWith("/blocks/") && !pathname.endsWith(".html")) {
+    try {
+      const html = await Deno.readTextFile("." + pathname + ".html");
       return new Response(`export default ${JSON.stringify(html)};`, {
         headers: { "content-type": "application/javascript" },
       });

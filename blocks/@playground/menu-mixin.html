@@ -1,0 +1,31 @@
+<template x-if="menuOpen">
+  <template x-teleport="body">
+    <menu-block :x="menuX" :y="menuY" @click.window="menuOpen = false" />
+  </template>
+</template>
+
+<script type="module">
+  export default {
+    menuOpen: false,
+    label: "",
+    menuX: 0,
+    menuY: 0,
+    init() {
+      this.label = this.$host.tagName
+        .toLowerCase()
+        .split("-")
+        .slice(0, -1)
+        .join(" ");
+
+      this.$host.addEventListener("contextmenu", (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+
+        this.menuX = e.x;
+        this.menuY = e.y;
+
+        this.menuOpen = true;
+      });
+    },
+  };
+</script>

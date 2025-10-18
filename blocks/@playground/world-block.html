@@ -50,7 +50,6 @@
     <template x-teleport="body">
       <minimap-block></minimap-block>
     </template>
-
     <slot></slot>
   </div>
 </div>
@@ -90,9 +89,10 @@
       `cursor-block[peer="${e.detail.senderId}"]`
     );
     if (!cursor) {
-      cursor = document.createElement("cursor-block");
-      this.space.appendChild(cursor);
-      cursor.props.peer = e.detail.senderId;
+      this.space.insertAdjacentHTML(
+        "beforeend",
+        `<cursor-block peer="${e.detail.senderId}"></cursor-block>`
+      );
     }
   }
 

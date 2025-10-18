@@ -25,31 +25,30 @@ export default class AlpineBlock extends HTMLElement {
     return this._template;
   }
 
-  #props = Object.fromEntries(
-    Array.from(this.attributes).map((attr) => [
-      toCamelCase(attr.name),
-      attr.value,
-    ])
-  );
-
-  #propsProxy = new Proxy(this.#props, {
-    get: (target, prop) => {
-      return target[prop];
-    },
-    set: (target, prop, value) => {
-      target[prop] = value;
-      this.setAttribute(toDashCase(prop), value);
-      return true;
-    },
-  });
-
-  get props() {
-    return this.#propsProxy;
-  }
-
   constructor() {
     super();
     this.Alpine = window.Alpine ? window.Alpine : false;
+
+    this.observer = new MutationObserver((mutationRecords) => {
+      mutationRecords.forEach((record) => {
+        const name = record.attributeName;
+
+        if (name.startsWith("@") || name.startsWith(":")) return;
+
+        const value = this.getAttribute(record.attributeName);
+        const props =
+          this.rootContent && this.Alpine.$data(this.rootContent).props;
+
+        if (!props) return;
+
+        console.log(name, value, props[toCamelCase(name)]);
+        if (props[toCamelCase(name)] === value) return;
+
+        this.Alpine.nextTick(() => {
+          props[toCamelCase(name)] = value;
+        });
+      });
+    }).observe(this, { attributes: true });
 
     this.loadModule(this.constructor.template);
   }
@@ -188,7 +187,28 @@ export default class AlpineBlock extends HTMLElement {
       this.rootContent.setAttribute("x-data", "block");
       this.shadowRoot.appendChild(this.rootContent);
 
-      mergedExport.props = this.props;
+      const self = this;
+      mergedExport.props = new Proxy(
+        {},
+        {
+          set(target, prop, value) {
+            target[prop] = value;
+            if (!prop.startsWith("@") && !prop.startsWith(":")) {
+              self.setAttribute(toDashCase(prop), value);
+            }
+            return true;
+          },
+          get(target, prop) {
+            return target[prop];
+          },
+        }
+      );
+      Array.from(this.attributes).forEach((attr) => {
+        if (!attr.name.startsWith("@") && !attr.name.startsWith(":")) {
+          mergedExport.props[toCamelCase(attr.name)] = attr.value;
+        }
+      });
+      this.props = mergedExport.props;
 
       if (Alpine) {
         Alpine.data("block", () => mergedExport);
@@ -211,13 +231,7 @@ export default class AlpineBlock extends HTMLElement {
 
   connectedMoveCallback() {}
 
-  attributeChangedCallback(name, oldValue, newValue) {
-    if (oldValue !== newValue && this.rootContent) {
-      if (this.Alpine.$data(this.rootContent).props) {
-        this.Alpine.$data(this.rootContent).props[toCamelCase(name)] = newValue;
-      }
-    }
-  }
+  attributeChangedCallback(name, oldValue, newValue) {}
 
   disconnectedCallback() {}
 }

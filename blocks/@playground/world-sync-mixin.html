@@ -1,12 +1,7 @@
 <script type="module">
   export default {
     init() {
-      this.doc.world = JSON.stringify({
-        tagName: "world-block",
-        props: [],
-        children: [],
-      });
-
+      syncDocToWorld(JSON.parse(this.doc.world), this.$host);
       startObserver.call(this);
 
       this.$watch("doc.world", (newVal, oldVal) => {
@@ -73,7 +68,7 @@
           (c) =>
             `<${c.tagName} ${c.props
               .map(([k, v]) => `${k}="${v}"`)
-              .join(" ")}></${c.tagName}>}`
+              .join(" ")}></${c.tagName}>`
         )
         .join("\n");
     }

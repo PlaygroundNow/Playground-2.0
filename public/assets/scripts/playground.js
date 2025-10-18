@@ -23,7 +23,7 @@ const repo = new Repo({
   storage: new IndexedDBStorageAdapter(),
   network: [
     new WebSocketClientAdapter(
-      isProd ? "wss://sync.automerge.org" : "ws://localhost:3030"
+      !isProd ? "wss://sync.automerge.org" : "ws://localhost:3030"
     ),
   ],
 });
@@ -134,11 +134,9 @@ function defineBlock(tagName, template) {
   "minimap-block",
   "window-block",
   "library-block",
+  "menu-block",
 ].forEach((block) => {
-  fetch(`/blocks/@playground/${block}.html`, {
-    method: "GET",
-    headers: { Accept: "text/html" },
-  })
+  fetch(`/blocks/@playground/${block}.html`)
     .then((res) => res.text())
     .then((sfc) => {
       defineBlock(block, sfc);

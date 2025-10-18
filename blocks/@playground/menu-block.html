@@ -1,0 +1,71 @@
+<style>
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  ul {
+    position: fixed;
+    top: 0;
+    left: 0;
+    margin: 0;
+    z-index: 99999;
+    padding-left: 0;
+    list-style: none;
+    border-radius: 5px;
+    padding-bottom: 5px;
+    background: white;
+    border: 1px solid black;
+    width: 140px;
+    color: black;
+  }
+
+  li {
+    width: 138px;
+    cursor: pointer;
+    list-style: none;
+    padding: 3px 5px 3px 8px;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    gap: 8px;
+    font-size: 20px;
+  }
+
+  li:hover {
+    background: #eee;
+  }
+
+  .menu img {
+    width: 14px;
+    height: 14px;
+  }
+</style>
+
+<ul
+  class="menu"
+  :style="{ transform: `translate(${props.x || 0}px, ${props.y || 0}px)`}"
+>
+  <div
+    :style="{ textTransform: 'capitalize', backgroundColor: '#36454f', color: 'white', padding: '4px 8px', fontSize: label.length > 12 ? '18px' : '22px' }"
+    x-text="label"
+  ></div>
+  <li @click="openLibrary"><img src="/assets/img/board.svg" /> Library</li>
+  <li @click><img src="/assets/img/htmx.svg" /> Script</li>
+</ul>
+
+<script type="module">
+  export default {
+    openLibrary() {
+      const libraryHtml = `<library-block selected-package="@playground" x="${
+        Number(this.props.x) + this.scrollX
+      }" y="${Number(this.props.y) + this.scrollY}"></library-block>`;
+      const world = document.querySelector("world-block");
+      if (world) {
+        world.insertAdjacentHTML("beforeend", libraryHtml);
+      }
+      this.menuOpen = false;
+    },
+  };
+</script>

@@ -1,0 +1,83 @@
+<style>
+  :host {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  .wrapper {
+    display: flex;
+    height: 300px;
+    font-size: 20px;
+  }
+
+  .section {
+    border-right: 1px solid #36454f;
+    min-width: 160px;
+    overflow-y: scroll;
+  }
+
+  .package {
+    padding: 6px 12px;
+    cursor: pointer;
+  }
+
+  .package:hover {
+    background: #eee;
+  }
+</style>
+
+<window-block
+  nav-title="Library"
+  @close.stop="$host.remove()"
+  x-effect="getPackageFiles"
+>
+  <div class="wrapper">
+    <div class="section">
+      <template x-for="package in packages">
+        <div
+          class="package"
+          :style="{ background: props.selectedPackage === package.name ? '#eee' : '' }"
+          x-text="package.name"
+          @click="props.selectedPackage = package.name"
+        ></div>
+      </template>
+    </div>
+    <div class="section">
+      <template x-for="file in files">
+        <div
+          class="package"
+          :style="{ background: props.selectedFile === file.name + '-' + file.type ? '#eee' : '' }"
+          x-text="file.name"
+          @click="props.selectedFile = file.name + '-' + file.type"
+        ></div>
+      </template>
+    </div>
+  </div>
+</window-block>
+
+<script type="module">
+  import block from "@playground/block-mixin";
+  import draggable from "@playground/draggable-mixin";
+
+  export default {
+    mixins: [block, draggable],
+
+    files: [],
+    packages: [],
+
+    async init() {
+      this.packages = fetch("/blocks", {
+        headers: { accept: "application/json" },
+      }).then((resp) => resp.json());
+    },
+
+    getPackageFiles() {
+      if (!this.props.selectedPackage) return;
+
+      this.files = fetch("/blocks/" + this.props.selectedPackage, {
+        headers: { accept: "application/json" },
+      }).then((resp) => resp.json());
+    },
+  };
+</script>
