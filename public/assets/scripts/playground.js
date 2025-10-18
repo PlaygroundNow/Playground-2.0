@@ -17,10 +17,13 @@ window.lock = false;
 window.Automerge = Automerge;
 window.Alpine = Alpine;
 
-// Then set up an automerge repo (loading with our annoying WASM hack)
 const repo = new Repo({
   storage: new IndexedDBStorageAdapter(),
-  network: [new WebSocketClientAdapter("wss://sync.automerge.org")],
+  network: [
+    new WebSocketClientAdapter(
+      isProd ? "wss://sync.automerge.org" : "ws://localhost:3030"
+    ),
+  ],
 });
 
 window.repo = repo;
@@ -30,7 +33,7 @@ if (docUrl) {
   handle = await repo.find(docUrl);
 } else {
   handle = repo.create({
-    customer: {},
+    world: new Automerge.ImmutableString(),
   });
   window.location.hash = handle.url;
 }
@@ -121,6 +124,8 @@ function defineBlock(tagName, template) {
   "spotlight-button-block",
   "spotlight-block",
   "minimap-block",
+  "window-block",
+  "library-block",
 ].forEach((block) => {
   fetch(`/blocks/@playground/${block}.html`, {
     method: "GET",

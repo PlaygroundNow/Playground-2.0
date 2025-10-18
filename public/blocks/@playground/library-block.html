@@ -1,0 +1,18 @@
+<style>
+  :host {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+</style>
+
+<window-block nav-title="Library"> I'm the libary </window-block>
+
+<script type="module">
+  import block from "@playground/block-mixin";
+  import draggable from "@playground/draggable-mixin";
+
+  export default {
+    mixins: [block, draggable],
+  };
+</script>

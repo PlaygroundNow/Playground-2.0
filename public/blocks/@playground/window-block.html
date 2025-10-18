@@ -1,0 +1,25 @@
+<style>
+  .window {
+    width: 400px;
+    background: white;
+    border-radius: 8px;
+  }
+
+  .window-nav {
+    height: 20px;
+    background: #36454f;
+  }
+</style>
+
+<div class="window">
+  <div class="window-nav" x-text="props.navTitle"></div>
+  <slot></slot>
+</div>
+
+<script type="module">
+  import block from "@playground/block-mixin";
+
+  export default {
+    mixins: [block],
+  };
+</script>

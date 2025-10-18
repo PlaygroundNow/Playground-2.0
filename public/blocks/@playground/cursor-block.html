@@ -22,7 +22,7 @@
   :style="{ transform: `translate(${mouseX}px, ${mouseY}px)`}"
 >
   <img src="/assets/img/cursor.png" />
-  <span x-text="$props.peer"></span>
+  <span x-text="props.peer"></span>
 </div>
 
 <script type="module">
@@ -34,7 +34,7 @@
     mouseY: 0,
     positionUpdated(event) {
       const { senderId, mouseX, mouseY } = event.detail;
-      if (senderId !== this.$props.peer) return;
+      if (senderId !== this.props.peer) return;
 
       this.mouseX = mouseX;
       this.mouseY = mouseY;

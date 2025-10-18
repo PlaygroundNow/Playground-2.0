@@ -32,7 +32,10 @@
 </div>
 
 <script type="module">
+  import blockMixin from "@playground/block-mixin";
+
   export default {
+    mixins: [blockMixin],
     init() {
       this.drawMinimap();
 

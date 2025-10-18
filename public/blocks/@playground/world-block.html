@@ -57,9 +57,10 @@
 
 <script type="module">
   import blockMixin from "@playground/block-mixin";
+  import worldSyncMixin from "@playground/world-sync-mixin";
 
   export default {
-    mixins: [blockMixin],
+    mixins: [blockMixin, worldSyncMixin],
     scrollX: 0,
     scrollY: 0,
     peerMouseMove,
@@ -68,13 +69,8 @@
       this.world = this.$host.shadowRoot.querySelector(".world");
       this.space = this.$host.shadowRoot.querySelector(".space");
 
-      if (!this.$props.scrollX && !this.$props.scrollY) {
-        this.scrollX = (this.space.offsetWidth - this.world.offsetWidth) / 2;
-        this.scrollY = (this.space.offsetHeight - this.world.offsetHeight) / 2;
-
-        this.$props.scrollX = this.scrollX;
-        this.$props.scrollY = this.scrollY;
-      }
+      this.scrollX = (this.space.offsetWidth - this.world.offsetWidth) / 2;
+      this.scrollY = (this.space.offsetHeight - this.world.offsetHeight) / 2;
 
       document.addEventListener("wheel", handleScroll.bind(this), {
         passive: false,
@@ -85,16 +81,17 @@
 
       this._heartbeatInterval = setInterval(() => {
         this.$broadcast("heartbeat", { timestamp: Date.now() });
-      }, 3000);
+      }, 1000);
     },
   };
+
   function peerMouseMove(e) {
-    let cursor = this.$host.querySelector(
+    let cursor = this.space.querySelector(
       `cursor-block[peer="${e.detail.senderId}"]`
     );
     if (!cursor) {
       cursor = document.createElement("cursor-block");
-      this.$host.appendChild(cursor);
+      this.space.appendChild(cursor);
       cursor.props.peer = e.detail.senderId;
     }
   }
@@ -120,7 +117,6 @@
       return;
     }
 
-    // Handle both wheel and touchmove events
     let deltaX = 0;
     let deltaY = 0;
 
@@ -146,10 +142,7 @@
     const maxScrollX = this.space.offsetWidth - this.world.offsetWidth;
     const maxScrollY = this.space.offsetHeight - this.world.offsetHeight;
 
-    this.scrollX = Math.max(0, Math.min(newScrollX, maxScrollX));
-    this.scrollY = Math.max(0, Math.min(newScrollY, maxScrollY));
-
-    this.$props.scrollX = this.scrollX;
-    this.$props.scrollY = this.scrollY;
+    this.scrollX = Math.round(Math.max(0, Math.min(newScrollX, maxScrollX)));
+    this.scrollY = Math.round(Math.max(0, Math.min(newScrollY, maxScrollY)));
   }
 </script>

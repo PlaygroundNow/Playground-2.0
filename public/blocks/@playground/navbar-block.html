@@ -59,9 +59,9 @@
     :style="{
       display: 'flex',
       position: 'absolute',
-      left: width <= 800 ? '60px' : '50%',
+      left: width <= 800 ? '40px' : '50%',
       top: '50%',
-      transform: 'translate(-50%,-50%)'
+      transform: width <= 800 ? 'translateY(-50%)' : 'translate(-50%,-50%)'
     }"
   >
     Home
@@ -75,7 +75,10 @@
 </div>
 
 <script type="module">
+  import block from "@playground/block-mixin";
+
   export default {
+    mixins: [block],
     heartbeats: {},
     peers: new Set(["Me"]),
     width: window.innerWidth,
@@ -87,13 +90,13 @@
       setInterval(() => {
         const now = Date.now();
         for (const [senderId, last] of Object.entries(this.heartbeat)) {
-          if (now - new Date(last).getTime() > 1000 * 10) {
+          if (now - new Date(last).getTime() > 1000 * 3) {
             const peerName = senderId.split("-")[1];
             this.peers.delete(peerName);
             delete this.heartbeat[senderId];
           }
         }
-      }, 1000 * 10);
+      }, 1000 * 3);
     },
   };
 </script>

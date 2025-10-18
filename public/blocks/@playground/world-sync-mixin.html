@@ -1,0 +1,102 @@
+<script type="module">
+  export default {
+    init() {
+      this.doc.world = JSON.stringify({
+        tagName: "world-block",
+        props: [],
+        children: [],
+      });
+
+      startObserver.call(this);
+
+      this.$watch("doc.world", (newVal, oldVal) => {
+        const tree = getWorldAsDoc(this.$host);
+        if (JSON.stringify(tree) !== newVal) {
+          stopObserver.call(this);
+
+          syncDocToWorld(JSON.parse(newVal), this.$host);
+
+          startObserver.call(this);
+        }
+      });
+    },
+  };
+
+  function stopObserver() {
+    if (this._mutationObserver) {
+      this._mutationObserver.disconnect();
+      this._mutationObserver = null;
+    }
+  }
+
+  function startObserver() {
+    this._mutationObserver = new MutationObserver((mutationsList) => {
+      const tree = getWorldAsDoc(this.$host);
+
+      if (JSON.stringify(tree) !== JSON.stringify(this.doc.world)) {
+        this.doc.world = JSON.stringify(tree);
+      }
+    });
+    this._mutationObserver.observe(this.$host, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: undefined,
+    });
+  }
+
+  function syncDocToWorld(node, el) {
+    const { tagName, props, children } = node;
+
+    if (tagName !== el.tagName.toLowerCase()) {
+      throw new Error("Tag name of node does not match element.");
+    }
+
+    for (let [key, val] of props) {
+      el.setAttribute(key, val);
+    }
+
+    for (let { name, value } of el.attributes) {
+      if (!props.find(([k, v]) => k === name)) {
+        el.removeAttribute(name);
+      }
+    }
+
+    const elChildrenOrder = Array.from(el.children).map((el) =>
+      el.tagName.toLowerCase()
+    );
+    const nodeChildrenOrder = children.map((c) => c.tagName);
+
+    if (JSON.stringify(elChildrenOrder) !== JSON.stringify(nodeChildrenOrder)) {
+      el.innerHTML = children
+        .map(
+          (c) =>
+            `<${c.tagName} ${c.props
+              .map(([k, v]) => `${k}="${v}"`)
+              .join(" ")}></${c.tagName}>}`
+        )
+        .join("\n");
+    }
+
+    for (let i = 0; i < children.length; i++) {
+      const docChild = node.children[i];
+      const elChild = Array.from(el.children)[i];
+
+      syncDocToWorld(docChild, elChild);
+    }
+  }
+
+  function getWorldAsDoc(el) {
+    const node = {
+      tagName: el.tagName.toLowerCase(),
+      props: Array.from(el.attributes).map((a) => [a.name, a.value]),
+      children: [],
+    };
+
+    for (let child of el.children) {
+      node.children.push(getWorldAsDoc(child));
+    }
+
+    return node;
+  }
+</script>

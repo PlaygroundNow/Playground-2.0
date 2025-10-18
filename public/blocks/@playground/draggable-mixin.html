@@ -1,0 +1,26 @@
+<script type="module">
+  export default {
+    dragging: false,
+    init() {
+      this.$el.addEventListener("mousedown", this.mousedown.bind(this));
+      document.addEventListener("mousemove", this.mousemove.bind(this));
+      document.addEventListener("mouseup", this.mouseup.bind(this));
+    },
+    mousedown(e) {
+      this.dragging = true;
+      this.startX = Number(this.props.x);
+      this.startY = Number(this.props.y);
+      this.startClientX = e.clientX;
+      this.startClientY = e.clientY;
+    },
+    mousemove(e) {
+      if (!this.dragging) return;
+
+      this.props.x = this.startX + (e.clientX - this.startClientX);
+      this.props.y = this.startY + (e.clientY - this.startClientY);
+    },
+    mouseup(e) {
+      this.dragging = false;
+    },
+  };
+</script>

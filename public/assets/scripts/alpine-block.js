@@ -3,6 +3,8 @@ function toDashCase(str) {
 }
 
 export default class AlpineBlock extends HTMLElement {
+  static observedAttributes = ["x", "y"];
+
   static tagName = "";
 
   static set template(newTemplate) {
@@ -22,16 +24,20 @@ export default class AlpineBlock extends HTMLElement {
   #props = Object.fromEntries(
     Array.from(this.attributes).map((attr) => [attr.name, attr.value])
   );
+
+  #propsProxy = new Proxy(this.#props, {
+    get: (target, prop) => {
+      return target[prop];
+    },
+    set: (target, prop, value) => {
+      target[prop] = value;
+      this.setAttribute(toDashCase(prop), value);
+      return true;
+    },
+  });
+
   get props() {
-    return new Proxy(this.#props, {
-      get: (target, prop) => {
-        return this.getAttribute(toDashCase(prop));
-      },
-      set: (target, prop, value) => {
-        this.setAttribute(toDashCase(prop), value);
-        return true;
-      },
-    });
+    return this.#propsProxy;
   }
 
   constructor() {
@@ -120,9 +126,9 @@ export default class AlpineBlock extends HTMLElement {
                 } else if (key === "mixins") {
                   mergedExport.mixins.push(...mixinExport.mixins);
                 } else if (mainKeys.has(key)) {
-                  throw new Error(
+                  /* throw new Error(
                     `Mixin is attempting to override already defined key: ${key}`
-                  );
+                  ); */
                 } else {
                   mergedExport[key] = mixinExport[key];
                   mainKeys.add(key);
@@ -159,21 +165,23 @@ export default class AlpineBlock extends HTMLElement {
         };
       }
 
-      const rootContent = this.rootNodes[0].cloneNode(true);
+      this.rootContent = this.rootNodes[0].cloneNode(true);
 
       // Move <template> nodes that are not already inside the root node into the root node
       doc.querySelectorAll("template").forEach((tpl) => {
         if (!this.rootNodes[0].contains(tpl)) {
-          rootContent.appendChild(tpl.cloneNode(true));
+          this.rootContent.appendChild(tpl.cloneNode(true));
         }
       });
 
       templates.forEach((tpl) => {
-        rootContent.appendChild(tpl.cloneNode(true));
+        this.rootContent.appendChild(tpl.cloneNode(true));
       });
 
-      rootContent.setAttribute("x-data", "block");
-      this.shadowRoot.appendChild(rootContent);
+      this.rootContent.setAttribute("x-data", "block");
+      this.shadowRoot.appendChild(this.rootContent);
+
+      mergedExport.props = this.props;
 
       if (Alpine) {
         Alpine.data("block", () => mergedExport);
@@ -196,7 +204,13 @@ export default class AlpineBlock extends HTMLElement {
 
   connectedMoveCallback() {}
 
-  attributeChangedCallback() {}
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (oldValue !== newValue && this.rootContent) {
+      if (this.Alpine.$data(this.rootContent).props) {
+        this.Alpine.$data(this.rootContent).props[name] = newValue;
+      }
+    }
+  }
 
   disconnectedCallback() {}
 }

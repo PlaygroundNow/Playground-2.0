@@ -12,25 +12,26 @@
     background: white;
     border: 1px solid black;
     width: 140px;
+    color: black;
   }
 
   li {
     width: 138px;
     cursor: pointer;
     list-style: none;
-    padding: 5px;
+    padding: 3px 5px 3px 8px;
     display: flex;
-    justify-content: center;
+    justify-content: start;
     align-items: center;
     gap: 8px;
-    font-size: 18px;
+    font-size: 20px;
   }
 
   li:hover {
     background: #eee;
   }
 
-  img {
+  .menu img {
     width: 14px;
     height: 14px;
   }
@@ -38,35 +39,61 @@
 
 <template x-if="menuOpen">
   <ul
+    class="menu"
     :style="{ transform: `translate(${x}px, ${y}px )`}"
     @click.outside="menuOpen = false"
     @click.stop
   >
     <div
-      :style="{ textTransform: 'capitalize', backgroundColor: '#36454f', color: 'white', padding: '4px 8px', fontSize: '20px' }"
-      x-text="$host.tagName.toLowerCase().split('-').slice(0, -1).join(' ')"
+      :style="{ textTransform: 'capitalize', backgroundColor: '#36454f', color: 'white', padding: '4px 8px', fontSize: label.length > 12 ? '18px' : '22px' }"
+      x-text="$host.tagName
+          .toLowerCase()
+          .split('-')
+          .slice(0, -1)
+          .join(' ');"
     ></div>
-    <li @click.stop><img src="/assets/img/htmx.svg" /> Code</li>
+    <li @click.stop="openLibrary">
+      <img src="/assets/img/board.svg" /> Library
+    </li>
+    <li @click.stop><img src="/assets/img/htmx.svg" /> Script</li>
   </ul>
 </template>
 
 <script type="module">
   export default {
     menuOpen: false,
+    label: "",
     x: 0,
     y: 0,
     init() {
-      this.$host.addEventListener(
-        "contextmenu",
-        (e) => {
-          e.preventDefault();
+      this.$host.addEventListener("contextmenu", (e) => {
+        e.stopPropagation();
+        e.preventDefault();
 
+        const style = window.getComputedStyle(this.$host);
+        const position = style.position;
+        if (position === "absolute" || position === "fixed") {
+          const rect = this.$host.getBoundingClientRect();
+
+          this.x = e.x - rect.x;
+          this.y = e.y - rect.y;
+        } else {
           this.x = e.x;
           this.y = e.y;
-          this.menuOpen = true;
-        },
-        true
-      );
+        }
+
+        this.menuOpen = true;
+      });
+    },
+    openLibrary() {
+      const libraryHtml = `<library-block x="${this.x + this.scrollX}" y="${
+        this.y + this.scrollY
+      }"></library-block>`;
+      const world = document.querySelector("world-block");
+      if (world) {
+        world.insertAdjacentHTML("beforeend", libraryHtml);
+      }
+      this.menuOpen = false;
     },
   };
 </script>
