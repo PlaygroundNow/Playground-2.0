@@ -2,6 +2,10 @@ function toDashCase(str) {
   return str.replace(/[A-Z]/g, (m) => "-" + m.toLowerCase());
 }
 
+function toCamelCase(str) {
+  return str.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
+}
+
 export default class AlpineBlock extends HTMLElement {
   static observedAttributes = ["x", "y"];
 
@@ -22,7 +26,10 @@ export default class AlpineBlock extends HTMLElement {
   }
 
   #props = Object.fromEntries(
-    Array.from(this.attributes).map((attr) => [attr.name, attr.value])
+    Array.from(this.attributes).map((attr) => [
+      toCamelCase(attr.name),
+      attr.value,
+    ])
   );
 
   #propsProxy = new Proxy(this.#props, {
@@ -207,7 +214,7 @@ export default class AlpineBlock extends HTMLElement {
   attributeChangedCallback(name, oldValue, newValue) {
     if (oldValue !== newValue && this.rootContent) {
       if (this.Alpine.$data(this.rootContent).props) {
-        this.Alpine.$data(this.rootContent).props[name] = newValue;
+        this.Alpine.$data(this.rootContent).props[toCamelCase(name)] = newValue;
       }
     }
   }

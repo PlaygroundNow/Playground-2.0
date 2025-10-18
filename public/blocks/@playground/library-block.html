@@ -4,9 +4,14 @@
     top: 0;
     left: 0;
   }
+
+  .wrapper {
+  }
 </style>
 
-<window-block nav-title="Library"> I'm the libary </window-block>
+<window-block nav-title="Library" @close="$host.remove()">
+  <div class="wrapper"></div>
+</window-block>
 
 <script type="module">
   import block from "@playground/block-mixin";

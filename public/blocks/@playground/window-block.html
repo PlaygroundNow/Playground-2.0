@@ -6,14 +6,40 @@
   }
 
   .window-nav {
-    height: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
     background: #36454f;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    color: white;
+    padding: 2px 8px 0 8px;
+    font-size: 20px;
+  }
+
+  .content {
+    padding: 8px;
+    border: 1px solid #36454f;
+    border-bottom-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+  }
+
+  img {
+    filter: invert(1);
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
   }
 </style>
 
 <div class="window">
-  <div class="window-nav" x-text="props.navTitle"></div>
-  <slot></slot>
+  <div class="window-nav">
+    <img src="/assets/img/close-o.svg" @click="$dispatch('close')" />
+    <span x-text="props.navTitle"></span>
+  </div>
+  <div class="content">
+    <slot></slot>
+  </div>
 </div>
 
 <script type="module">
@@ -21,5 +47,8 @@
 
   export default {
     mixins: [block],
+    init() {
+      console.log(this.props);
+    },
   };
 </script>
