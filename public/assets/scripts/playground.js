@@ -17,6 +17,10 @@ window.lock = false;
 window.Automerge = Automerge;
 window.Alpine = Alpine;
 
+const isProd =
+  location.hostname === "playground.now" ||
+  location.hostname === "beta.playground.now";
+
 const repo = new Repo({
   storage: new IndexedDBStorageAdapter(),
   network: [
