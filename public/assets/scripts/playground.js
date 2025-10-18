@@ -17,9 +17,7 @@ window.lock = false;
 window.Automerge = Automerge;
 window.Alpine = Alpine;
 
-const isProd =
-  location.hostname === "playground.now" ||
-  location.hostname === "beta.playground.now";
+const isProd = location.hostname.endsWith("playground.now");
 
 const repo = new Repo({
   storage: new IndexedDBStorageAdapter(),
@@ -37,7 +35,13 @@ if (docUrl) {
   handle = await repo.find(docUrl);
 } else {
   handle = repo.create({
-    world: new Automerge.ImmutableString(),
+    world: new Automerge.ImmutableString(
+      JSON.stringify({
+        tagName: "world-block",
+        props: [],
+        children: [],
+      })
+    ),
   });
   window.location.hash = handle.url;
 }
