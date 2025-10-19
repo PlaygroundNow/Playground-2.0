@@ -11,7 +11,7 @@
     transform: translateX(-50%);
     width: 600px;
     border-radius: 8px;
-    background: white;
+    background: #fefefefe;
   }
 
   @media (max-width: 600px) {
@@ -46,11 +46,14 @@
 
   .results {
     border-top: 1px solid #36454f;
+    max-height: 600px;
+    overflow-y: auto;
   }
 
   .item {
-    padding: 8px;
+    padding: 8px 24px;
     font-size: 24px;
+    text-transform: capitalize;
   }
   
 </style>
@@ -59,9 +62,9 @@
   <div class="search">
     <img src="/assets/img/search.svg" /><input autofocus x-model="search" />
   </div>
-  <div class="results">
+  <div class="results" x-effect="filter(search)">
     <template x-for="item in items">
-      <div class="item" x-text="item.name"></div>
+      <div class="item" x-text="item.name" @click="openLibrary(item.name)"></div>
     </template>
   </div>
 </div>
@@ -79,6 +82,35 @@
       this.items = await fetch('/blocks/@playground', {
         headers: {'accept': 'application/json'}
       }).then(resp => resp.json());
+    },
+    filter() {
+      this.items = this.items.filter(i => i.name.toLowerCase().includes(this.search.toLowerCase()))
+    },
+    openLibrary(location) {
+      const x = Number(this.props.x);
+      const y = Number(this.props.y);
+
+      this.world = document
+        .querySelector("world-block")
+        .shadowRoot.querySelector(".world");
+      this.space = document
+        .querySelector("world-block")
+        .shadowRoot.querySelector(".space");
+
+      const screenWidth = window.innerWidth / 2 - 500;
+      const screenHeight = window.innerHeight / 2 - 200;
+
+      const libraryHtml = `<library-block selected-package="@playground" ${
+        typeof location === "string" ? `selected-file="${location + '-block'}"` : ""
+      } x="${screenWidth + this.scrollX}" y="${
+        screenHeight + this.scrollY
+      }"></library-block>`;
+
+      const world = document.querySelector("world-block");
+      if (world) {
+        world.insertAdjacentHTML("beforeend", libraryHtml);
+      }
+      this.spotlightOpen = false;
     },
   };
 </script>
