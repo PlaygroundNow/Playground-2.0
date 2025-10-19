@@ -4,11 +4,9 @@
       if (!this.props.x && !this.props.y) return;
 
       this.$el.style.position = "absolute";
-      this.$el.style.transform = `translate(${Number(this.props.x)}px, ${Number(
-        this.props.y
-      )}px)`;
+      this.$el.style.transform = `translate(${this.props.x}px, ${this.props.y}px)`;
 
-      this.$watch("props", () => {
+      this.$watch("props.x", () => {
         this.$el.style.transform = `translate(${this.props.x}px, ${this.props.y}px)`;
       });
     },

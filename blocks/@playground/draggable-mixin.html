@@ -7,6 +7,18 @@
       document.addEventListener("mouseup", this.mouseup.bind(this));
     },
     mousedown(e) {
+      if (e.target.shadowRoot) {
+        const elements = e.target.shadowRoot.elementsFromPoint(
+          e.clientX,
+          e.clientY
+        );
+
+        if (!elements[0]?.hasAttribute("drag-handle")) {
+          return;
+        }
+      } else if (!e.target.hasAttribute("drag-handle")) {
+        return;
+      }
       this.dragging = true;
       this.startX = Number(this.props.x);
       this.startY = Number(this.props.y);

@@ -6,20 +6,39 @@
   }
 
   .wrapper {
-    display: flex;
-    height: 300px;
+    max-height: 600px;
     font-size: 20px;
+
+    display: flex;
+    align-items: stretch;
   }
 
   .section {
-    border-right: 1px solid #36454f;
-    min-width: 160px;
+    min-width: 120px;
     overflow-y: scroll;
+  }
+
+  .section:nth-child(2) {
+    min-width: 180px;
+  }
+
+  .section:not(:last-child) {
+    border-right: 1px solid #36454f;
   }
 
   .package {
     padding: 6px 12px;
     cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-transform: capitalize;
+  }
+
+  .package img {
+    width: 14px;
+    height: 14px;
   }
 
   .package:hover {
@@ -47,10 +66,20 @@
       <template x-for="file in files">
         <div
           class="package"
+          :data-selected="props.selectedFile === file.name + '-' + file.type ? 'true' : null"
           :style="{ background: props.selectedFile === file.name + '-' + file.type ? '#eee' : '' }"
-          x-text="file.name"
           @click="props.selectedFile = file.name + '-' + file.type"
-        ></div>
+        >
+          <img
+            :src="file.type === 'block' ? '/assets/img/extension.svg' : '/assets/img/plug.svg'"
+          />
+          <span x-text="file.name"></span>
+        </div>
+      </template>
+    </div>
+    <div class="section" x-show="props.selectedFile">
+      <template x-if="props.selectedFile">
+        <block-editor-block :file="props.selectedFile"></block-editor-block>
       </template>
     </div>
   </div>
@@ -63,6 +92,7 @@
   export default {
     mixins: [block, draggable],
 
+    height: 0,
     files: [],
     packages: [],
 
@@ -72,12 +102,24 @@
       }).then((resp) => resp.json());
     },
 
-    getPackageFiles() {
+    async getPackageFiles() {
       if (!this.props.selectedPackage) return;
 
-      this.files = fetch("/blocks/" + this.props.selectedPackage, {
+      this.files = await fetch("/blocks/" + this.props.selectedPackage, {
         headers: { accept: "application/json" },
       }).then((resp) => resp.json());
+
+      const file = this.files[0];
+      if (!this.props.selectedFile && file) {
+        this.props.selectedFile = file.name + "-" + file.type;
+      }
+
+      setTimeout(() => {
+        const el = this.$el.querySelector(
+          '.section:nth-child(2) .package[data-selected="true"]'
+        );
+        if (el) el.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      }, 50);
     },
   };
 </script>

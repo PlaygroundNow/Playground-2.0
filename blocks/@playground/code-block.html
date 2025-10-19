@@ -1,0 +1,76 @@
+<style>
+  .wrapper {
+    width: 800px;
+    height: 600px;
+    background: rgb(40, 44, 52);
+  }
+</style>
+
+<div class="wrapper"></div>
+
+<script type="module">
+  import { basicSetup } from "https://esm.sh/codemirror";
+  import {
+    EditorView,
+    ViewPlugin,
+    keymap,
+  } from "https://esm.sh/@codemirror/view";
+  import { ChangeSet, Annotation } from "https://esm.sh/@codemirror/state";
+  import { html } from "https://esm.sh/@codemirror/lang-html";
+  import { oneDark } from "https://esm.sh/@codemirror/theme-one-dark";
+  import { vscodeKeymap } from "https://esm.sh/@replit/codemirror-vscode-keymap";
+
+  const playgroundTheme = EditorView.theme({
+    "&": {
+      fontSize: "13px",
+    },
+    ".cm-editor": {
+      height: "100%",
+    },
+    ".cm-scroller": {
+      height: "600px",
+      overflow: "auto",
+    },
+  });
+
+  export default {
+    init() {
+      this.loadEditor();
+
+      this.$watch("props.source", () => {
+        this.loadEditor();
+      });
+    },
+    loadEditor(source) {
+      const name = "source-" + this.props.file;
+      this.$el.replaceChildren();
+      this.doc[name] = this.props.source;
+
+      const view = new EditorView({
+        doc: handle.doc()[name],
+        parent: this.$el,
+        extensions: [
+          basicSetup,
+          window.automergeSyncPlugin({
+            handle,
+            path: [name],
+            automerge: window.Automerge,
+            codemirror: {
+              state: {
+                Annotation,
+                ChangeSet,
+              },
+              view: {
+                ViewPlugin,
+              },
+            },
+          }),
+          playgroundTheme,
+          oneDark,
+          keymap.of(vscodeKeymap),
+          html(),
+        ],
+      });
+    },
+  };
+</script>

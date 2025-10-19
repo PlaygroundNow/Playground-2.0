@@ -41,7 +41,6 @@ export default class AlpineBlock extends HTMLElement {
 
         if (!props) return;
 
-        console.log(name, value, props[toCamelCase(name)]);
         if (props[toCamelCase(name)] === value) return;
 
         this.Alpine.nextTick(() => {
@@ -64,7 +63,6 @@ export default class AlpineBlock extends HTMLElement {
       throw new Error("SFC must contain exactly one <script>.");
     }
 
-    // Find root nodes (excluding <script> and <style>)
     this.rootNodes = Array.from(doc.body.childNodes).filter(
       (node) =>
         !(
@@ -147,7 +145,6 @@ export default class AlpineBlock extends HTMLElement {
         }
       }
 
-      // Compose lifecycle methods: call all mixin inits, then main init
       if (typeof mergedExport.init === "function" || mixinInits.length > 0) {
         const mainInit = mergedExport.init;
         mergedExport.init = function (...args) {
@@ -157,7 +154,6 @@ export default class AlpineBlock extends HTMLElement {
           if (typeof mainInit === "function") mainInit.apply(this, args);
         };
       }
-      // Compose destroy methods: call all mixin destroys, then main destroy
       if (
         typeof mergedExport.destroy === "function" ||
         mixinDestroys.length > 0

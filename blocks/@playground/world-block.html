@@ -40,10 +40,7 @@
   @mousemove.document="handleMouseMove"
   @touchmove.document="handleMouseMove"
 >
-  <div
-    class="space"
-    :style="{ transform: `translate(-${scrollX}px, -${scrollY}px)`}"
-  >
+  <div class="space">
     <template x-teleport="body">
       <navbar-block></navbar-block>
     </template>
@@ -55,46 +52,23 @@
 </div>
 
 <script type="module">
-  import blockMixin from "@playground/block-mixin";
-  import worldSyncMixin from "@playground/world-sync-mixin";
+  import block from "@playground/block-mixin";
+  import worldSync from "@playground/world-sync-mixin";
+  import worldScroll from "@playground/world-scroll-mixin";
 
   export default {
-    mixins: [blockMixin, worldSyncMixin],
-    scrollX: 0,
-    scrollY: 0,
+    mixins: [block, worldSync, worldScroll],
     peerMouseMove,
     handleMouseMove,
     init() {
       this.world = this.$host.shadowRoot.querySelector(".world");
       this.space = this.$host.shadowRoot.querySelector(".space");
 
-      this.scrollX = (this.space.offsetWidth - this.world.offsetWidth) / 2;
-      this.scrollY = (this.space.offsetHeight - this.world.offsetHeight) / 2;
-
-      document.addEventListener("wheel", handleScroll.bind(this), {
-        passive: false,
-      });
-      document.addEventListener("touchmove", handleScroll.bind(this), {
-        passive: true,
-      });
-
       this._heartbeatInterval = setInterval(() => {
         this.$broadcast("heartbeat", { timestamp: Date.now() });
       }, 1000);
     },
   };
-
-  function peerMouseMove(e) {
-    let cursor = this.space.querySelector(
-      `cursor-block[peer="${e.detail.senderId}"]`
-    );
-    if (!cursor) {
-      this.space.insertAdjacentHTML(
-        "beforeend",
-        `<cursor-block peer="${e.detail.senderId}"></cursor-block>`
-      );
-    }
-  }
 
   function handleMouseMove(e) {
     let mouseX, mouseY;
@@ -112,37 +86,15 @@
     });
   }
 
-  function handleScroll(e) {
-    if (this.menuOpen) {
-      return;
+  function peerMouseMove(e) {
+    let cursor = this.space.querySelector(
+      `cursor-block[peer="${e.detail.senderId}"]`
+    );
+    if (!cursor) {
+      this.space.insertAdjacentHTML(
+        "beforeend",
+        `<cursor-block peer="${e.detail.senderId}"></cursor-block>`
+      );
     }
-
-    let deltaX = 0;
-    let deltaY = 0;
-
-    if (e.type === "wheel") {
-      deltaX = e.deltaX;
-      deltaY = e.deltaY;
-      e.preventDefault();
-    } else if (e.type === "touchmove") {
-      if (!this._lastTouch) {
-        this._lastTouch = e.touches[0];
-        return;
-      }
-      const touch = e.touches[0];
-      deltaX = this._lastTouch.clientX - touch.clientX;
-      deltaY = this._lastTouch.clientY - touch.clientY;
-      this._lastTouch = touch;
-      e.preventDefault();
-    }
-
-    const newScrollX = this.scrollX + deltaX;
-    const newScrollY = this.scrollY + deltaY;
-
-    const maxScrollX = this.space.offsetWidth - this.world.offsetWidth;
-    const maxScrollY = this.space.offsetHeight - this.world.offsetHeight;
-
-    this.scrollX = Math.round(Math.max(0, Math.min(newScrollX, maxScrollX)));
-    this.scrollY = Math.round(Math.max(0, Math.min(newScrollY, maxScrollY)));
   }
 </script>

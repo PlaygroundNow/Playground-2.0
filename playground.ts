@@ -1,5 +1,4 @@
 import { serveDir } from "https://deno.land/std@0.224.0/http/file_server.ts";
-import path from "node:path";
 
 Deno.serve(async (req) => {
   const { pathname } = new URL(req.url);
@@ -14,10 +13,15 @@ Deno.serve(async (req) => {
       const files = [];
       for await (const dirEntry of Deno.readDir("./blocks/@playground")) {
         if (dirEntry.isFile) {
-          const [namePart, typePartWithExt] = dirEntry.name.split("-");
-          if (namePart && typePartWithExt) {
-            const type = typePartWithExt.split(".")[0];
-            files.push({ name: namePart, type });
+          const blockMatch = dirEntry.name.match(/^(.+)-block\.html$/);
+          const mixinMatch = dirEntry.name.match(/^(.+)-mixin\.html$/);
+
+          if (blockMatch) {
+            const [, name] = blockMatch;
+            files.push({ name, type: "block" });
+          } else if (mixinMatch) {
+            const [, name] = mixinMatch;
+            files.push({ name, type: "mixin" });
           }
         }
       }

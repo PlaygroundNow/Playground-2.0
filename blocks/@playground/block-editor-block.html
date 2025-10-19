@@ -1,0 +1,27 @@
+<style>
+  code {
+    font-size: 12px;
+  }
+</style>
+
+<div x-effect="getFile(props.file)">
+  <template x-if="html">
+    <code-block :file="props.file" :source="html"></code-block>
+  </template>
+</div>
+
+<script type="module">
+  import block from "@playground/block-mixin";
+
+  export default {
+    html: "",
+    mixins: [block],
+    async getFile(file) {
+      const html = await fetch("/blocks/@playground/" + file + ".html").then(
+        (res) => res.text()
+      );
+
+      this.html = html;
+    },
+  };
+</script>

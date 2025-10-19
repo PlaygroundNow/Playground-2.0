@@ -1,6 +1,6 @@
 <style>
   .window {
-    width: 400px;
+    min-width: 400px;
     background: white;
     border-radius: 8px;
   }
@@ -32,7 +32,7 @@
 </style>
 
 <div class="window">
-  <div class="window-nav">
+  <div drag-handle class="window-nav">
     <img src="/assets/img/close-o.svg" @click="$dispatch('close')" />
     <span x-text="props.navTitle"></span>
   </div>
