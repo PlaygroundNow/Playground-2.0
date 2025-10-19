@@ -39,7 +39,7 @@
     init() {
       this.drawMinimap();
 
-      const canvas = this.$host.shadowRoot.querySelector(".minimap-canvas");
+      const canvas = this.$host?.shadowRoot?.querySelector(".minimap-canvas");
       if (canvas) {
         canvas.addEventListener("click", (e) => {
           const rect = canvas.getBoundingClientRect();
@@ -72,7 +72,8 @@
       }
     },
     drawMinimap() {
-      const canvas = this.$host.shadowRoot.querySelector(".minimap-canvas");
+      const canvas = this.$host?.shadowRoot?.querySelector(".minimap-canvas");
+      if (!canvas) return;
 
       const ctx = canvas.getContext("2d");
       ctx.clearRect(0, 0, canvas.width, canvas.height);

@@ -12,13 +12,30 @@ export default class AlpineBlock extends HTMLElement {
   static tagName = "";
 
   static set template(newTemplate) {
+    const skip = !this._template;
     this._template = newTemplate;
 
-    document.querySelectorAll(this.tagName.toLowerCase()).forEach((el) => {
-      if (typeof el.reloadFromTemplate === "function") {
-        el.reloadFromTemplate(newTemplate);
-      }
-    });
+    if (skip) return;
+
+    function reloadAllBlocks(root) {
+      const elements = root.querySelectorAll(this.tagName.toLowerCase());
+      elements.forEach((el) => {
+        if (typeof el.reloadFromTemplate === "function") {
+          el.reloadFromTemplate(newTemplate);
+        }
+      });
+      // Recursively search shadowRoots of elements ending with -block
+      root.querySelectorAll("*").forEach((el) => {
+        if (
+          el.tagName &&
+          el.tagName.toLowerCase().endsWith("-block") &&
+          el.shadowRoot
+        ) {
+          reloadAllBlocks.call(this, el.shadowRoot);
+        }
+      });
+    }
+    reloadAllBlocks.call(this, document);
   }
 
   static get template() {
@@ -28,6 +45,8 @@ export default class AlpineBlock extends HTMLElement {
   constructor() {
     super();
     this.Alpine = window.Alpine ? window.Alpine : false;
+
+    this.attachShadow({ mode: "open" });
 
     this.observer = new MutationObserver((mutationRecords) => {
       mutationRecords.forEach((record) => {
@@ -79,8 +98,6 @@ export default class AlpineBlock extends HTMLElement {
         "SFC must contain exactly one root node (excluding <script> and <style>)."
       );
     }
-
-    this.attachShadow({ mode: "open" });
 
     styles.forEach((style) => {
       this.shadowRoot.appendChild(style.cloneNode(true));

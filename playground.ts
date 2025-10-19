@@ -25,6 +25,7 @@ Deno.serve(async (req) => {
           }
         }
       }
+      files.sort((a, b) => a.name.localeCompare(b.name));
       return Response.json(files);
     }
 

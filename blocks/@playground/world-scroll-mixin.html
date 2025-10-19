@@ -26,6 +26,13 @@
       document.addEventListener("touchmove", handleScroll.bind(this), {
         passive: true,
       });
+
+      this.$watch('scrollX', () => {
+        this.space.style.transform = `translate(-${this.scrollX}px, -${this.scrollY}px)`;
+      })
+      this.$watch('scrollY', () => {
+        this.space.style.transform = `translate(-${this.scrollX}px, -${this.scrollY}px)`;
+      })
     },
   };
 
@@ -82,8 +89,6 @@
 
     this.scrollX = Math.round(Math.max(0, Math.min(newScrollX, maxScrollX)));
     this.scrollY = Math.round(Math.max(0, Math.min(newScrollY, maxScrollY)));
-
-    this.space.style.transform = `translate(-${this.scrollX}px, -${this.scrollY}px)`;
   }
 
   function findScrollable(start, x, y) {

@@ -4,7 +4,7 @@
   }
 </style>
 
-<div x-effect="getFile(props.file)">
+<div @save="save" x-effect="getFile(props.file)">
   <template x-if="html">
     <code-block :file="props.file" :source="html"></code-block>
   </template>
@@ -22,6 +22,30 @@
       );
 
       this.html = html;
+    },
+    async save(event) {
+      const source = event.detail.source;
+      const [_, ...name] = source.split("-");
+
+      const file = "/blocks/@playground/" + name.join("-") + ".html";
+
+      const html = handle.doc()[source];
+
+      if (!html) {
+        throw new Error("Cannot save text, missing from handle");
+      }
+
+      await fetch(file, {
+        method: "PUT",
+        headers: {
+          accept: "application/json",
+        },
+        body: html,
+      });
+
+      const wc = customElements.get(name.join("-"));
+
+      wc.template = html;
     },
   };
 </script>

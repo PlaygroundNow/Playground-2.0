@@ -41,10 +41,21 @@
         this.loadEditor();
       });
     },
+    save(view) {
+      this.$dispatch("save", { source: "source-" + this.props.file });
+      return true;
+    },
     loadEditor(source) {
       const name = "source-" + this.props.file;
       this.$el.replaceChildren();
       this.doc[name] = this.props.source;
+
+      const saveKeymap = keymap.of([
+        {
+          key: "Meta-s",
+          run: this.save.bind(this),
+        },
+      ]);
 
       const view = new EditorView({
         doc: handle.doc()[name],
@@ -65,6 +76,7 @@
               },
             },
           }),
+          saveKeymap,
           playgroundTheme,
           oneDark,
           keymap.of(vscodeKeymap),

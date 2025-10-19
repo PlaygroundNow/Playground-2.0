@@ -28,7 +28,11 @@
     font-size: 24px;
   }
 
-  .wrapper div > img {
+  .search {
+    position: relative;
+  }
+
+  .search > img {
     display: block;
     z-index: 1;
     pointer-events: none;
@@ -39,11 +43,26 @@
     width: 24px;
     height: 24px;
   }
+
+  .results {
+    border-top: 1px solid #36454f;
+  }
+
+  .item {
+    padding: 8px;
+    font-size: 24px;
+  }
+  
 </style>
 
 <div @click.stop @click.outside="spotlightOpen = false" class="wrapper">
-  <div>
+  <div class="search">
     <img src="/assets/img/search.svg" /><input autofocus x-model="search" />
+  </div>
+  <div class="results">
+    <template x-for="item in items">
+      <div class="item" x-text="item.name"></div>
+    </template>
   </div>
 </div>
 
@@ -52,9 +71,14 @@
 
   export default {
     search: "",
+    items: [],
     mixins: [blockMixin],
-    init() {
+    async init() {
       this.$el.querySelector("input").focus();
+
+      this.items = await fetch('/blocks/@playground', {
+        headers: {'accept': 'application/json'}
+      }).then(resp => resp.json());
     },
   };
 </script>
