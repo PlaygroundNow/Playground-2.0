@@ -98,7 +98,7 @@
 </style>
 
 <window-block
-  nav-title="Library"
+  :nav-title="'Library' + (props.selectedFile ? ' - ' + props.selectedFile : '')"
   @close.stop="$host.remove()"
   x-effect="getPackageFiles"
 >
@@ -131,6 +131,7 @@
         <template x-for="file in filtered">
           <div
             class="package"
+            :data-selected="props.selectedFile === file.name + '-' + file.type"
             :class="{ selected: props.selectedFile === file.name + '-' + file.type }"
             @click="props.selectedFile = file.name + '-' + file.type"
           >
