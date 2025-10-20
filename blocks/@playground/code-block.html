@@ -46,62 +46,57 @@
       return true;
     },
     loadEditor(source) {
-      setTimeout(() => {
-        console.log(this.props.scrollTop, " from loadEditor");
+      const name = "source-" + this.props.file;
+      this.$el.replaceChildren();
+      this.doc[name] = this.props.source;
 
-        const name = "source-" + this.props.file;
-        this.$el.replaceChildren();
-        this.doc[name] = this.props.source;
+      const saveKeymap = keymap.of([
+        {
+          key: "Meta-s",
+          run: this.save.bind(this),
+        },
+      ]);
 
-        const saveKeymap = keymap.of([
-          {
-            key: "Meta-s",
-            run: this.save.bind(this),
-          },
-        ]);
-
-        const view = new EditorView({
-          doc: handle.doc()[name],
-          parent: this.$el,
-          extensions: [
-            basicSetup,
-            window.automergeSyncPlugin({
-              handle,
-              path: [name],
-              automerge: window.Automerge,
-              codemirror: {
-                state: {
-                  Annotation,
-                  ChangeSet,
-                },
-                view: {
-                  ViewPlugin,
-                },
+      const view = new EditorView({
+        doc: handle.doc()[name],
+        parent: this.$el,
+        extensions: [
+          basicSetup,
+          window.automergeSyncPlugin({
+            handle,
+            path: [name],
+            automerge: window.Automerge,
+            codemirror: {
+              state: {
+                Annotation,
+                ChangeSet,
               },
-            }),
-            saveKeymap,
-            playgroundTheme,
-            oneDark,
-            keymap.of(vscodeKeymap),
-            html(),
-          ],
-        });
+              view: {
+                ViewPlugin,
+              },
+            },
+          }),
+          saveKeymap,
+          playgroundTheme,
+          oneDark,
+          keymap.of(vscodeKeymap),
+          html(),
+        ],
+      });
 
-        this.$nextTick(() => {
-          const scroller = this.$el.querySelector(".cm-scroller");
+      // this.$nextTick(() => {
+      //   const scroller = this.$el.querySelector(".cm-scroller");
 
-          if (this.props.scrollTop) {
-            scroller.scrollTo({
-              top: this.props.scrollTop,
-              behavior: "smooth",
-            });
-          }
+      //   if (this.props.scrollTop && scroller.scrollTop !== this.props.scrollTop) {
+      //     scroller.scrollTo({
+      //       top: this.props.scrollTop,
+      //     });
+      //   }
 
-          scroller.addEventListener("scroll", (e) => {
-            this.props.scrollTop = e.target.scrollTop;
-          });
-        });
-      }, 1000);
+      //   scroller.addEventListener("scroll", (e) => {
+      //     this.props.scrollTop = e.target.scrollTop;
+      //   });
+      // });
     },
   };
 </script>

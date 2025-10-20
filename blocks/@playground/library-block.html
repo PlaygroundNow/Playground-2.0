@@ -15,15 +15,21 @@
 
   .section {
     min-width: 120px;
-    overflow-y: scroll;
-  }
-
-  .section:nth-child(2) {
-    min-width: 180px;
+    display:flex;
+    flex-direction:column;
+    min-height:0; 
   }
 
   .section:not(:last-child) {
-    border-right: 1px solid #36454f;
+    border-right: 1px solid lightblue;
+  }
+
+  .selected {
+    background: #3285fc;
+    color: white;
+  }
+  .selected img {
+    filter: invert(1);
   }
 
   .package {
@@ -32,17 +38,73 @@
 
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
     text-transform: capitalize;
   }
 
   .package img {
-    width: 14px;
-    height: 14px;
+    width: 16px;
+    height: 16px;
   }
 
   .package:hover {
     background: #eee;
+    color: black;
+  }
+
+  .package:hover img {
+    filter: unset;
+  }
+
+  .file-menu {
+    display: flex;
+    flex-direction: column;
+    padding: 6px 12px;
+    border-bottom: 1px solid lightblue;
+  }
+
+  .file-menu input {
+    font-size: 18px;
+    padding: 0 8px;
+  }
+
+  .actions {
+    display: flex;
+    gap: 8px;
+    padding-bottom: 8px;
+  }
+
+  .actions button {
+    position: relative;
+    background: white;
+    border: 1px solid lightblue;
+    border-radius: 4px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 10px;
+
+    cursor: pointer;
+  }
+
+  .actions img {
+    height: 16px;
+    width: 16px;
+  }
+
+  .actions img.plus {
+    position: absolute;
+    top: -5px;
+    left: -5px;
+
+    height: 16px;
+    width: 16px;
+    background: white;
+    border-radius: 50%;
+    border: 1px solid lightblue;
+    padding: 2px;
   }
 </style>
 
@@ -56,26 +118,40 @@
       <template x-for="package in packages">
         <div
           class="package"
-          :style="{ background: props.selectedPackage === package.name ? '#eee' : '' }"
+          :class="{ selected: props.selectedPackage === package.name }"
           x-text="package.name"
           @click="props.selectedPackage = package.name"
         ></div>
       </template>
     </div>
     <div class="section">
-      <template x-for="file in files">
-        <div
-          class="package"
-          :data-selected="props.selectedFile === file.name + '-' + file.type ? 'true' : null"
-          :style="{ background: props.selectedFile === file.name + '-' + file.type ? '#eee' : '' }"
-          @click="props.selectedFile = file.name + '-' + file.type"
-        >
-          <img
-            :src="file.type === 'block' ? '/assets/img/extension.svg' : '/assets/img/plug.svg'"
-          />
-          <span x-text="file.name"></span>
+      <div class="file-menu">
+        <div class="actions">
+          <button @click="createBlock" title="Create Block">
+            <img class="plus" src="/assets/img/math-plus.svg" />
+            <img src="/assets/img/extension.svg" />
+          </button>
+          <button @click="createMixin" title="Create Mixin">
+            <img class="plus" src="/assets/img/math-plus.svg" />
+            <img src="/assets/img/plug.svg" />
+          </button>
         </div>
-      </template>
+        <input placeholder="Filter..." x-model="props.search" x-effect="filter(props.search)" />
+      </div>
+      <div :style="{ overflowY: 'scroll' }">
+        <template x-for="file in filtered">
+          <div
+            class="package"
+            :class="{ selected: props.selectedFile === file.name + '-' + file.type }"
+            @click="props.selectedFile = file.name + '-' + file.type"
+          >
+            <img
+              :src="file.type === 'block' ? '/assets/img/extension.svg' : '/assets/img/plug.svg'"
+            />
+            <span x-text="file.name"></span>
+          </div>
+        </template>
+      </div>
     </div>
     <div class="section" x-show="props.selectedFile">
       <template x-if="props.selectedFile">
@@ -87,16 +163,17 @@
 
 <script type="module">
   import block from "@playground/block-mixin";
+  import files from '@playground/files-mixin';
   import draggable from "@playground/draggable-mixin";
 
   export default {
     mixins: [block, draggable],
 
-    height: 0,
     files: [],
     packages: [],
 
     async init() {
+      this.props.search="";
       this.packages = fetch("/blocks", {
         headers: { accept: "application/json" },
       }).then((resp) => resp.json());
@@ -108,6 +185,7 @@
       this.files = await fetch("/blocks/" + this.props.selectedPackage, {
         headers: { accept: "application/json" },
       }).then((resp) => resp.json());
+      this.filtered = this.files;
 
       const file = this.files[0];
       if (!this.props.selectedFile && file) {
@@ -121,5 +199,9 @@
         if (el) el.scrollIntoView({ block: "nearest", behavior: "smooth" });
       }, 50);
     },
+
+    filter(search) {
+      this.filtered = this.files.filter(f => f.name.includes(search.toLowerCase()));
+    }
   };
 </script>

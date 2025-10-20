@@ -1,7 +1,4 @@
 <style>
-  code {
-    font-size: 12px;
-  }
 </style>
 
 <div @save="save" x-effect="getFile(props.file)">
@@ -22,19 +19,18 @@
     mixins: [block],
     scrollTop: 0,
     async getFile(file) {
-      this.scrollTop = 0;
       const html = await fetch("/blocks/@playground/" + file + ".html").then(
         (res) => res.text()
       );
 
       this.html = html;
+      this.scrollTop = 0;
     },
     async save(event) {
       const source = event.detail.source;
       const [_, ...name] = source.split("-");
 
       const file = "/blocks/@playground/" + name.join("-") + ".html";
-
       const html = handle.doc()[source];
 
       if (!html) {
@@ -49,10 +45,12 @@
         body: html,
       });
 
-      this.$broadcast('updated-file', {
+      this.$broadcast("updated-file", {
         file,
-        name: name.join('-')
+        name: name.join("-"),
       });
+
+      if (source.endsWith('mixin')) return;
 
       const wc = customElements.get(name.join("-"));
 

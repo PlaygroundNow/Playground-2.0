@@ -1,6 +1,11 @@
 <template x-if="menuOpen">
   <template x-teleport="body">
-    <menu-block :x="menuX" :y="menuY" @click.window="menuOpen = false" />
+    <menu-block
+      data-block="menu-mixin"
+      :x="menuX"
+      :y="menuY"
+      @click.window="menuOpen = false"
+    />
   </template>
 </template>
 

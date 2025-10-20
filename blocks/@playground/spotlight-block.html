@@ -80,17 +80,19 @@
 
   export default {
     search: "",
+    results: [],
     items: [],
     mixins: [blockMixin],
     async init() {
       this.$el.querySelector("input").focus();
 
-      this.items = await fetch('/blocks/@playground', {
+      this.results = await fetch('/blocks/@playground', {
         headers: {'accept': 'application/json'}
       }).then(resp => resp.json());
+      this.items = this.results;
     },
     filter() {
-      this.items = this.items.filter(i => i.name.toLowerCase().includes(this.search.toLowerCase()))
+      this.items = this.results.filter(i => i.name.toLowerCase().includes(this.search.toLowerCase()))
     },
     openLibrary(location) {
       const x = Number(this.props.x);

@@ -6,6 +6,8 @@
 
       this.$watch("doc.world", (newVal, oldVal) => {
         const tree = getWorldAsDoc(this.$host);
+        if (tree === undefined) return;
+        
         if (JSON.stringify(tree) !== newVal) {
           stopObserver.call(this);
 
@@ -27,6 +29,7 @@
   function startObserver() {
     this._mutationObserver = new MutationObserver((mutationsList) => {
       const tree = getWorldAsDoc(this.$host);
+      if (tree === undefined) return;
 
       if (JSON.stringify(tree) !== JSON.stringify(this.doc.world)) {
         this.doc.world = JSON.stringify(tree);
@@ -82,8 +85,10 @@
   }
 
   function getWorldAsDoc(el) {
+    if (!el) return
+    
     const node = {
-      tagName: el.tagName.toLowerCase(),
+      tagName: el.tagName?.toLowerCase(),
       props: Array.from(el.attributes).map((a) => [a.name, a.value]),
       children: [],
     };

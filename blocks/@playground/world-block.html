@@ -14,7 +14,7 @@
     right: 0;
     bottom: 0;
     text-align: center;
-    background: white; /*#22333b*/
+    background: white;
   }
   .space {
     touch-action: none;
@@ -43,10 +43,10 @@
 >
   <div class="space">
     <template x-teleport="body">
-      <navbar-block></navbar-block>
+      <navbar-block data-block="world-block"></navbar-block>
     </template>
     <template x-teleport="body">
-      <minimap-block></minimap-block>
+      <minimap-block data-block="world-block"></minimap-block>
     </template>
     <slot></slot>
   </div>
@@ -61,12 +61,14 @@
     mixins: [block, worldSync, worldScroll],
     peerMouseMove,
     handleMouseMove,
+    
     async updatedFile(event) {
-      const { file, name } = event.detail;
+      const { file, name, senderId } = event.detail;
 
       const html = await fetch(file).then((resp) => resp.text());
-      const wc = customElements.get(name);
 
+      if (name.endsWith('mixin')) return;
+      const wc = customElements.get(name);
       wc.template = html;
     },
     init() {

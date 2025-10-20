@@ -53,10 +53,6 @@ export default class AlpineBlock extends HTMLElement {
         if (name.startsWith("@") || name.startsWith(":")) return;
 
         const value = this.getAttribute(record.attributeName);
-        if (name === "scroll-top") {
-          console.log(name, value);
-        }
-
         const props =
           this.rootContent && this.Alpine.$data(this.rootContent).props;
 
@@ -238,6 +234,10 @@ export default class AlpineBlock extends HTMLElement {
     if (this.shadowRoot) {
       this.shadowRoot.replaceChildren();
     }
+
+    document
+      .querySelectorAll(`[data-block="${this.tagName.toLowerCase()}"]`)
+      .forEach((el) => el.remove());
 
     this.loadModule(newTemplate);
   }
