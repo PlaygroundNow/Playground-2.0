@@ -15,9 +15,9 @@
 
   .section {
     min-width: 120px;
-    display:flex;
-    flex-direction:column;
-    min-height:0; 
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
   }
 
   .section:not(:last-child) {
@@ -125,7 +125,11 @@
             <img src="/assets/img/plug.svg" />
           </button>
         </div>
-        <input placeholder="Filter..." x-model="props.search" x-effect="filter(props.search)" />
+        <input
+          placeholder="Filter..."
+          x-model="props.search"
+          x-effect="filter(props.search)"
+        />
       </div>
       <div :style="{ overflowY: 'scroll' }">
         <template x-for="file in filtered">
@@ -153,7 +157,7 @@
 
 <script type="module">
   import block from "@playground/block-mixin";
-  import files from '@playground/files-mixin';
+  import files from "@playground/files-mixin";
   import draggable from "@playground/draggable-mixin";
 
   export default {
@@ -163,7 +167,7 @@
     packages: [],
 
     async init() {
-      this.props.search="";
+      this.props.search = "";
       this.packages = fetch("/blocks", {
         headers: { accept: "application/json" },
       }).then((resp) => resp.json());
@@ -191,7 +195,9 @@
     },
 
     filter(search) {
-      this.filtered = this.files.filter(f => f.name.includes(search.toLowerCase()));
-    }
+      this.filtered = this.files.filter((f) =>
+        f.name.includes(search.toLowerCase())
+      );
+    },
   };
 </script>
