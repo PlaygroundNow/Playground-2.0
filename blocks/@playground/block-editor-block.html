@@ -6,7 +6,11 @@
 
 <div @save="save" x-effect="getFile(props.file)">
   <template x-if="html">
-    <code-block :file="props.file" :source="html"></code-block>
+    <code-block
+      :file="props.file"
+      :source="html"
+      :scroll-top="scrollTop"
+    ></code-block>
   </template>
 </div>
 
@@ -16,7 +20,9 @@
   export default {
     html: "",
     mixins: [block],
+    scrollTop: 0,
     async getFile(file) {
+      this.scrollTop = 0;
       const html = await fetch("/blocks/@playground/" + file + ".html").then(
         (res) => res.text()
       );
@@ -41,6 +47,11 @@
           accept: "application/json",
         },
         body: html,
+      });
+
+      this.$broadcast('updated-file', {
+        file,
+        name: name.join('-')
       });
 
       const wc = customElements.get(name.join("-"));

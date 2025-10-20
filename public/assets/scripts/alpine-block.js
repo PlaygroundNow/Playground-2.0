@@ -7,8 +7,6 @@ function toCamelCase(str) {
 }
 
 export default class AlpineBlock extends HTMLElement {
-  static observedAttributes = ["x", "y"];
-
   static tagName = "";
 
   static set template(newTemplate) {
@@ -55,6 +53,10 @@ export default class AlpineBlock extends HTMLElement {
         if (name.startsWith("@") || name.startsWith(":")) return;
 
         const value = this.getAttribute(record.attributeName);
+        if (name === "scroll-top") {
+          console.log(name, value);
+        }
+
         const props =
           this.rootContent && this.Alpine.$data(this.rootContent).props;
 
@@ -244,7 +246,7 @@ export default class AlpineBlock extends HTMLElement {
 
   connectedMoveCallback() {}
 
-  attributeChangedCallback(name, oldValue, newValue) {}
+  attributeChangedCallback() {}
 
   disconnectedCallback() {}
 }

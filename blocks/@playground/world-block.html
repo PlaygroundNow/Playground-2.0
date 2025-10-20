@@ -39,6 +39,7 @@
   @peer-mousemove.document="peerMouseMove"
   @mousemove.document="handleMouseMove"
   @touchmove.document="handleMouseMove"
+  @peer-updated-file.window="updatedFile"
 >
   <div class="space">
     <template x-teleport="body">
@@ -60,6 +61,14 @@
     mixins: [block, worldSync, worldScroll],
     peerMouseMove,
     handleMouseMove,
+    async updatedFile(event) {
+      const { file, name } = event.detail;
+
+      const html = await fetch(file).then((resp) => resp.text());
+      const wc = customElements.get(name);
+
+      wc.template = html;
+    },
     init() {
       this.world = this.$host.shadowRoot.querySelector(".world");
       this.space = this.$host.shadowRoot.querySelector(".space");
