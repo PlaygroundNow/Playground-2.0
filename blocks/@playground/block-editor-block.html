@@ -6,7 +6,6 @@
     <code-block
       :file="props.file"
       :source="html"
-      :scroll-top="scrollTop"
     ></code-block>
   </template>
 </div>
@@ -17,14 +16,12 @@
   export default {
     html: "",
     mixins: [block],
-    scrollTop: 0,
     async getFile(file) {
       const html = await fetch("/blocks/@playground/" + file + ".html").then(
         (res) => res.text()
       );
 
       this.html = html;
-      this.scrollTop = 0;
     },
     async save(event) {
       const source = event.detail.source;
@@ -55,7 +52,7 @@
       const wc = customElements.get(name.join("-"));
 
       wc.template = html;
-      this.html = html;
+      //this.html = html;
     },
   };
 </script>

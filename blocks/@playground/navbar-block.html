@@ -6,7 +6,7 @@
     left: 0;
     width: calc(100vw - 48px);
     margin: 10px 12px 0 12px;
-    background: #3185FC;
+    background: #19647E;
     border-radius: 8px;
     height: 40px;
     display: flex;
@@ -28,6 +28,7 @@
     gap: 8px;
     margin-left: 16px;
     align-items: center;
+    
   }
 
   .peer {
@@ -38,7 +39,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
+    color: black;
     font-size: 18px;
     font-weight: bold;
     text-transform: uppercase;
@@ -66,9 +67,10 @@
   >
     Home
     <div class="peers">
-      <template x-for="peer in Array.from(peers)">
+      <div class="peer" x-text="Array.from(peers).length"></div>
+      <!--<template x-for="peer in Array.from(peers)">
         <div class="peer" x-text="peer.slice(0,2)"></div>
-      </template>
+      </template>-->
     </div>
   </div>
   <spotlight-button-block></spotlight-button-block>
