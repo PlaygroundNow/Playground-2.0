@@ -36,10 +36,8 @@
   }
 </style>
 
-<template x-teleport="body">
-  <template data-block="spotlight-button-block" x-if="spotlightOpen">
-    <spotlight-block></spotlight-block>
-  </template>
+<template x-if="spotlightOpen">
+  <spotlight-block></spotlight-block>
 </template>
 
 <button
