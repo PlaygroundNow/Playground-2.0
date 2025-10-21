@@ -6,75 +6,59 @@
   }
 </style>
 
-<div @peer-code-scrolled.window="scroll" class="wrapper"></div>
+<div class="wrapper"></div>
 
 <script type="module">
+  import codePeers from "@playground/code-peers-mixin";
+  import scroll from "@playground/code-scroll-mixin";
+
   import { basicSetup } from "https://esm.sh/codemirror@6.0.2";
   import {
     EditorView,
     ViewPlugin,
+    Decoration,
     keymap,
+    WidgetType,
   } from "https://esm.sh/@codemirror/view@6.38.6";
   import {
     ChangeSet,
     Annotation,
+    StateField,
+    RangeSetBuilder,
+    StateEffect,
   } from "https://esm.sh/@codemirror/state@6.5.2";
   import { html } from "https://esm.sh/@codemirror/lang-html@6.4.11";
   import { oneDark } from "https://esm.sh/@codemirror/theme-one-dark@6.1.3";
   import { vscodeKeymap } from "https://esm.sh/@replit/codemirror-vscode-keymap@6.0.2";
 
   const playgroundTheme = EditorView.theme({
-    "&": {
-      fontSize: "13px",
-    },
-    ".cm-editor": {
-      height: "100%",
-    },
-    ".cm-scroller": {
-      height: "600px",
-      overflow: "auto",
-    },
+    "&": { fontSize: "13px" },
+    ".cm-editor": { height: "100%" },
+    ".cm-scroller": { height: "600px", overflow: "auto" },
   });
 
   export default {
+    mixins: [codePeers, scroll],
     init() {
       this.loadEditor();
-
-      this.$watch("props.source", () => {
-        this.loadEditor();
-      });
+      this.$watch("props.source", () => this.loadEditor());
     },
     save(view) {
       this.$dispatch("save", { source: "source-" + this.props.file });
       return true;
     },
-    scroll(event) {
-      const { file, scrollTop } = event.detail;
 
-      if (file === this.props.file) {
-        this.silentScroll = true;
-        this.scroller.scrollTo({
-          top: scrollTop,
-        });
-      }
-    },
-    loadEditor(source) {
+    loadEditor() {
       const name = "source-" + this.props.file;
       this.$el.replaceChildren();
       this.doc[name] = this.props.source;
 
       const saveKeymap = keymap.of([
-        {
-          key: "Meta-s",
-          run: this.save.bind(this),
-        },
-        {
-          key: "Ctrl-s",
-          run: this.save.bind(this),
-        },
+        { key: "Meta-s", run: this.save.bind(this) },
+        { key: "Ctrl-s", run: this.save.bind(this) },
       ]);
 
-      const view = new EditorView({
+      this.view = new EditorView({
         doc: handle.doc()[name],
         parent: this.$el,
         extensions: [
@@ -84,13 +68,8 @@
             path: [name],
             automerge: window.Automerge,
             codemirror: {
-              state: {
-                Annotation,
-                ChangeSet,
-              },
-              view: {
-                ViewPlugin,
-              },
+              state: { Annotation, ChangeSet },
+              view: { ViewPlugin },
             },
           }),
           saveKeymap,
@@ -99,21 +78,6 @@
           keymap.of(vscodeKeymap),
           html(),
         ],
-      });
-
-      this.$nextTick(() => {
-        this.scroller = this.$el.querySelector(".cm-scroller");
-
-        this.scroller.addEventListener("scroll", (e) => {
-          if (this.silentScroll) {
-            this.silentScroll = false;
-            return;
-          }
-          this.$broadcast("code-scrolled", {
-            file: this.props.file,
-            scrollTop: this.scroller.scrollTop,
-          });
-        });
       });
     },
   };
