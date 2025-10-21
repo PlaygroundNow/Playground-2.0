@@ -1,38 +1,49 @@
 <script type="module">
   export default {
     dragging: false,
+    x: 0,
+    y: 0,
     init() {
+      // start at prop values, render locally
+      this.x = Number(this.props.x) || 0;
+      this.y = Number(this.props.y) || 0;
+      this.render();
+
       this.$el.addEventListener("mousedown", this.mousedown.bind(this));
       document.addEventListener("mousemove", this.mousemove.bind(this));
       document.addEventListener("mouseup", this.mouseup.bind(this));
     },
     mousedown(e) {
       if (e.target.shadowRoot) {
-        const elements = e.target.shadowRoot.elementsFromPoint(
-          e.clientX,
-          e.clientY
-        );
+        const els = e.target.shadowRoot.elementsFromPoint(e.clientX, e.clientY);
+        if (!els[0]?.hasAttribute("drag-handle")) return;
+      } else if (!e.target.hasAttribute("drag-handle")) return;
 
-        if (!elements[0]?.hasAttribute("drag-handle")) {
-          return;
-        }
-      } else if (!e.target.hasAttribute("drag-handle")) {
-        return;
-      }
       this.dragging = true;
-      this.startX = Number(this.props.x);
-      this.startY = Number(this.props.y);
+      this.startX = this.x;
+      this.startY = this.y;
       this.startClientX = e.clientX;
       this.startClientY = e.clientY;
+
+      this.$el.style.willChange = "transform";
+      e.preventDefault();
     },
     mousemove(e) {
       if (!this.dragging) return;
-
-      this.props.x = this.startX + (e.clientX - this.startClientX);
-      this.props.y = this.startY + (e.clientY - this.startClientY);
+      this.x = this.startX + (e.clientX - this.startClientX);
+      this.y = this.startY + (e.clientY - this.startClientY);
+      this.render();
     },
-    mouseup(e) {
+    mouseup() {
+      if (!this.dragging) return;
       this.dragging = false;
+      this.$el.style.willChange = "";
+
+      if (this.props.x !== this.x) this.props.x = this.x;
+      if (this.props.y !== this.y) this.props.y = this.y;
+    },
+    render() {
+      this.$el.style.transform = `translate(${this.x}px, ${this.y}px)`;
     },
   };
 </script>
