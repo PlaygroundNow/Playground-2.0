@@ -9,7 +9,7 @@
 <div class="wrapper"></div>
 
 <script type="module">
-  import codePeers from "@playground/code-peers-mixin";
+  import peers from "@playground/code-peers-mixin";
   import scroll from "@playground/code-scroll-mixin";
 
   import { basicSetup } from "https://esm.sh/codemirror@6.0.2";
@@ -38,7 +38,7 @@
   });
 
   export default {
-    mixins: [codePeers, scroll],
+    mixins: [peers, scroll],
     init() {
       this.loadEditor();
       this.$watch("props.source", () => this.loadEditor());
@@ -51,7 +51,10 @@
     loadEditor() {
       const name = "source-" + this.props.file;
       this.$el.replaceChildren();
-      this.doc[name] = this.props.source;
+      
+      if (this.doc[name] !== this.props.source) {
+        this.doc[name] = this.props.source;
+      }
 
       const saveKeymap = keymap.of([
         { key: "Meta-s", run: this.save.bind(this) },

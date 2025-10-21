@@ -41,6 +41,7 @@
   .package img {
     width: 16px;
     height: 16px;
+    margin-top: 6px;
   }
 
   .package:hover {
@@ -95,6 +96,10 @@
     border: 1px solid lightblue;
     padding: 2px;
   }
+
+  .edit-name {
+    font-size: 18px;
+  }
 </style>
 
 <window-block
@@ -137,12 +142,33 @@
             class="package"
             :data-selected="props.selectedFile === file.name + '-' + file.type"
             :class="{ selected: props.selectedFile === file.name + '-' + file.type }"
-            @click="props.selectedFile = file.name + '-' + file.type"
+            @click="if (!files.some(f => f.newName !== undefined)) {
+              props.selectedFile = file.name + '-' + file.type
+            }"
           >
             <img
+              :style="{ alignSelf: 'flex-start' }"
               :src="file.type === 'block' ? '/assets/img/extension.svg' : '/assets/img/plug.svg'"
             />
-            <span x-text="file.name"></span>
+            <template x-if="file.newName === undefined">
+              <span x-text="file.name"></span>
+            </template>
+            <template x-if="file.newName !== undefined">
+              <div :style="{ display: 'flex', flexDirection: 'column' }">
+                <input
+                  class="edit-name"
+                  autofocus
+                  x-model="file.newName"
+                  x-effect="validateName(file)"
+                  @blur.stop.prevent="validateName(file, true)"
+                />
+                <div
+                  :style="{ color: 'darkred', fontSize: '16px', textTransform: 'none' }"
+                  x-show="file.error"
+                  x-html="file.error"
+                ></div>
+              </div>
+            </template>
           </div>
         </template>
       </div>
@@ -167,6 +193,7 @@
     packages: [],
 
     async init() {
+      this.root = this.$el;
       this.props.search = "";
       this.packages = fetch("/blocks", {
         headers: { accept: "application/json" },
@@ -186,12 +213,69 @@
         this.props.selectedFile = file.name + "-" + file.type;
       }
 
-      setTimeout(() => {
-        const el = this.$el.querySelector(
+      this.$nextTick(() => {
+        const el = this.root.querySelector(
           '.section:nth-child(2) .package[data-selected="true"]'
         );
         if (el) el.scrollIntoView({ block: "nearest", behavior: "smooth" });
-      }, 50);
+      });
+    },
+
+    async newFile(name, source) {
+      await fetch("/blocks/" + this.props.selectedPackage + "/" + name, {
+        method: "POST",
+        headers: { accept: "application/json" },
+        body: source,
+      }).then((resp) => resp.text());
+
+      this.props.selectedFile = name.split('.')[0];
+      await this.getPackageFiles();
+    },
+
+    validateName(file, save) {
+      if (file.newName === "") {
+        this.files.shift();
+      }
+
+      const name = file.newName?.trim();
+      const validFormat = /^[a-z0-9]+(-[a-z0-9]+)*$/i;
+
+      if (!name || !validFormat.test(name)) {
+        file.error = "Use dashed lowercase, <br/>e.g. my-block";
+        return;
+      }
+
+      const exists = this.files.some(
+        (f) => f !== file && f.name.split("-").slice(0, -1).join("-") === name
+      );
+
+      if (exists) {
+        file.error = "Name already exists";
+        return;
+      }
+
+      file.error = null;
+
+      if (save) {
+        if (file.error) return;
+
+        this.newFile(
+          name + "-" + file.type + ".html",
+          `<script type="module"></scr${"ipt>"}`
+        );
+      }
+    },
+
+    createBlock() {
+      if (this.files.some((f) => f.newName !== undefined)) return;
+      this.files.unshift({
+        type: "block",
+        name: "",
+        newName: "",
+      });
+      this.$nextTick(() => {
+        this.$host.shadowRoot.querySelector(".edit-name").focus();
+      });
     },
 
     filter(search) {

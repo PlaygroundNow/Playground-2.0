@@ -46,6 +46,10 @@ Deno.serve(async (req) => {
         }
         case "POST":
         case "PUT": {
+          if (!/^[a-z0-9]+(-[a-z0-9]+)*\-(block|mixin)\.html$/.test(entity)) {
+            return new Response("Invalid name format", { status: 400 });
+          }
+
           const body = await req.text();
           await Deno.writeTextFile(filePath, body);
           return new Response("Saved", { status: 200 });
