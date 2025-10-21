@@ -6,10 +6,10 @@
   }
 </style>
 
-<div class="wrapper"></div>
+<div @peer-code-scrolled.window="scroll" class="wrapper"></div>
 
 <script type="module">
-  import { basicSetup } from "https://esm.sh/codemirror";
+  import { basicSetup } from "https://esm.sh/codemirror@6.0.2";
   import {
     EditorView,
     ViewPlugin,
@@ -47,6 +47,16 @@
     save(view) {
       this.$dispatch("save", { source: "source-" + this.props.file });
       return true;
+    },
+    scroll(event) {
+      const { file, scrollTop } = event.detail;
+
+      if (file === this.props.file) {
+        this.silentScroll = true;
+        this.scroller.scrollTo({
+          top: scrollTop,
+        });
+      }
     },
     loadEditor(source) {
       const name = "source-" + this.props.file;
@@ -91,19 +101,20 @@
         ],
       });
 
-      // this.$nextTick(() => {
-      //   const scroller = this.$el.querySelector(".cm-scroller");
+      this.$nextTick(() => {
+        this.scroller = this.$el.querySelector(".cm-scroller");
 
-      //   if (this.props.scrollTop && scroller.scrollTop !== this.props.scrollTop) {
-      //     scroller.scrollTo({
-      //       top: this.props.scrollTop,
-      //     });
-      //   }
-
-      //   scroller.addEventListener("scroll", (e) => {
-      //     this.props.scrollTop = e.target.scrollTop;
-      //   });
-      // });
+        this.scroller.addEventListener("scroll", (e) => {
+          if (this.silentScroll) {
+            this.silentScroll = false;
+            return;
+          }
+          this.$broadcast("code-scrolled", {
+            file: this.props.file,
+            scrollTop: this.scroller.scrollTop,
+          });
+        });
+      });
     },
   };
 </script>

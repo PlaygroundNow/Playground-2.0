@@ -6,7 +6,7 @@
     left: 0;
     width: calc(100vw - 48px);
     margin: 10px 12px 0 12px;
-    background: #19647E;
+    background: #19647e;
     border-radius: 8px;
     height: 40px;
     display: flex;
@@ -18,7 +18,7 @@
   }
 
   @media (max-width: 600px) {
-    .wrapper span {
+    .logo *:not(img) {
       display: none;
     }
   }
@@ -28,7 +28,6 @@
     gap: 8px;
     margin-left: 16px;
     align-items: center;
-    
   }
 
   .peer {
@@ -48,6 +47,16 @@
   img {
     margin-right: 8px;
   }
+
+  .logo {
+    display: flex;
+    align-items: center;
+  }
+
+  .logo data {
+    font-family: monospace;
+    font-size: 12px;
+  }
 </style>
 
 <div
@@ -55,15 +64,20 @@
   @resize.window="width = window.innerWidth"
   class="wrapper"
 >
-  <div><img src="/assets/img/favicon.svg" /><span>Playground</span></div>
+  <div class="logo">
+    <img src="/assets/img/favicon.svg" />
+    <div>Playground</div>
+    <div>&nbsp;-&nbsp;</div>
+    <data x-text="numOps"></data>
+  </div>
   <div
     :style="{
-      display: 'flex',
-      position: 'absolute',
-      left: width <= 800 ? '40px' : '50%',
-      top: '50%',
-      transform: width <= 800 ? 'translateY(-50%)' : 'translate(-50%,-50%)'
-    }"
+        display: 'flex',
+        position: 'absolute',
+        left: width <= 800 ? '40px' : '50%',
+        top: '50%',
+        transform: width <= 800 ? 'translateY(-50%)' : 'translate(-50%,-50%)'
+      }"
   >
     Home
     <div class="peers">
@@ -82,13 +96,22 @@
   export default {
     mixins: [block],
     heartbeats: {},
+    numOps: 0,
     peers: new Set(["Me"]),
     width: window.innerWidth,
     heartbeat(event) {
       this.peers.add(event.detail.senderId.split("-")[1]);
       this.heartbeat[event.detail.senderId] = new Date();
     },
+    formatStats(doc) {
+      const { numOps, numChanges } = Automerge.stats(doc);
+      return `[${numOps} ops & ${numChanges} changes]`;
+    },
+
     init() {
+      this.numOps = this.formatStats(handle.doc());
+      handle.on("change", ({ doc }) => (this.numOps = this.formatStats(doc)));
+
       setInterval(() => {
         const now = Date.now();
         for (const [senderId, last] of Object.entries(this.heartbeat)) {
@@ -100,5 +123,7 @@
         }
       }, 1000 * 3);
     },
+
+    destroy() {},
   };
 </script>
