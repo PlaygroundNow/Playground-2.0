@@ -143,6 +143,7 @@ function defineBlock(tagName, template) {
   "menu-block",
   "block-editor-block",
   "code-block",
+  "caregiver-form-block",
 ].forEach((block) => {
   fetch(`/blocks/@playground/${block}.html`)
     .then((res) => res.text())
