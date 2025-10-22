@@ -25,6 +25,7 @@
         .join(" ");
 
       this.$host.addEventListener("contextmenu", (e) => {
+        console.log(e.target)
         e.stopPropagation();
         e.preventDefault();
 
