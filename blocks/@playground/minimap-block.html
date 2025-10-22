@@ -78,26 +78,21 @@
       const ctx = canvas.getContext("2d");
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // World and viewport sizes (example values, replace with real ones if available)
       const worldWidth = 4096;
       const worldHeight = 4096;
       const viewportWidth = window.innerWidth;
       const viewportHeight = window.innerHeight;
-      // If you have access to scrollX/scrollY, use them
       const scrollX = this.scrollX ? Number(this.scrollX) : 0;
       const scrollY = this.scrollY ? Number(this.scrollY) : 0;
 
-      // Minimap scale
       const scaleX = canvas.width / worldWidth;
       const scaleY = canvas.height / worldHeight;
 
-      // Draw world border
-      ctx.strokeStyle = "#fff";
+      ctx.strokeStyle = "white";
       ctx.lineWidth = 1;
       ctx.strokeRect(0, 0, canvas.width, canvas.height);
 
-      // Draw viewport rectangle
-      ctx.strokeStyle = "#40a0ff";
+      ctx.strokeStyle = "pink";
       ctx.lineWidth = 1;
       ctx.strokeRect(
         scrollX * scaleX,

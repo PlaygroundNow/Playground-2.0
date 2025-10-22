@@ -9,9 +9,6 @@
 <div class="wrapper"></div>
 
 <script type="module">
-  import peers from "@playground/code-peers-mixin";
-  import scroll from "@playground/code-scroll-mixin";
-
   import { basicSetup } from "https://esm.sh/codemirror@6.0.2";
   import {
     EditorView,
@@ -28,14 +25,35 @@
     StateEffect,
   } from "https://esm.sh/@codemirror/state@6.5.2";
   import { html } from "https://esm.sh/@codemirror/lang-html@6.4.11";
-  import { oneDark } from "https://esm.sh/@codemirror/theme-one-dark@6.1.3";
+  import { javascriptLanguage } from "https://esm.sh/@codemirror/lang-javascript@6.2.4";
+  import { vsCodeDark } from "https://esm.sh/@fsegurai/codemirror-theme-vscode-dark";
   import { vscodeKeymap } from "https://esm.sh/@replit/codemirror-vscode-keymap@6.0.2";
 
+  import peers from "@playground/code-peers-mixin";
+  import scroll from "@playground/code-scroll-mixin";
+
   const playgroundTheme = EditorView.theme({
-    "&": { fontSize: "13px" },
+    "&": { fontSize: "14px" },
     ".cm-editor": { height: "100%" },
-    ".cm-scroller": { height: "600px", overflow: "auto" },
+    ".cm-scroller": {
+      height: "600px",
+      overflow: "auto",
+      fontFamily: "'Source Code Pro', monospace",
+    },
   });
+
+  function findCustomAttributes(s) {
+    const re = /^(@|:|x-)/,
+      out = [];
+    const grab = (root) => {
+      root.querySelectorAll("*").forEach((el) => {
+        for (const { name } of el.attributes) if (re.test(name)) out.push(name);
+      });
+      root.querySelectorAll("template").forEach((t) => grab(t.content));
+    };
+    grab(new DOMParser().parseFromString(s, "text/html"));
+    return out;
+  }
 
   export default {
     mixins: [peers, scroll],
@@ -51,7 +69,7 @@
     loadEditor() {
       const name = "source-" + this.props.file;
       this.$el.replaceChildren();
-      
+
       if (this.doc[name] !== this.props.source) {
         this.doc[name] = this.props.source;
       }
@@ -60,6 +78,47 @@
         { key: "Meta-s", run: this.save.bind(this) },
         { key: "Ctrl-s", run: this.save.bind(this) },
       ]);
+
+      const nestedAttributes = [
+        ...new Set([
+          "x-text",
+          "x-data",
+          "x-init",
+          "x-show",
+          "x-bind",
+          "x-on",
+          "x-text",
+          "x-html",
+          "x-model",
+          "x-modelable",
+          "x-for",
+          "x-transition",
+          "x-effect",
+          "x-ignore",
+          "x-ref",
+          "x-cloak",
+          "x-teleport",
+          "x-if",
+          "x-id",
+          ":class",
+          ":style",
+          ":src",
+          "@click",
+          "@input",
+          "@mousedown",
+          "@scroll",
+          "@mouseup",
+          "@blur",
+          ...findCustomAttributes(this.props.source),
+        ]),
+      ].map((name) => ({
+        name,
+        parser: javascriptLanguage.parser,
+      }));
+
+      const alpineHtml = html({
+        nestedAttributes,
+      });
 
       this.view = new EditorView({
         doc: handle.doc()[name],
@@ -77,9 +136,9 @@
           }),
           saveKeymap,
           playgroundTheme,
-          oneDark,
+          vsCodeDark,
           keymap.of(vscodeKeymap),
-          html(),
+          alpineHtml,
         ],
       });
     },

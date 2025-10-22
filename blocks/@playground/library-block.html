@@ -121,11 +121,11 @@
     <div class="section">
       <div class="file-menu">
         <div class="actions">
-          <button @click="createBlock" title="Create Block">
+          <button @click="createScript('block')" title="Create Block">
             <img class="plus" src="/assets/img/math-plus.svg" />
             <img src="/assets/img/extension.svg" />
           </button>
-          <button @click="createMixin" title="Create Mixin">
+          <button @click="createScript('mixin')" title="Create Mixin">
             <img class="plus" src="/assets/img/math-plus.svg" />
             <img src="/assets/img/plug.svg" />
           </button>
@@ -261,15 +261,15 @@
 
         this.newFile(
           name + "-" + file.type + ".html",
-          `<script type="module"></scr${"ipt>"}`
+          `<script type="module"></${"script>"}`
         );
       }
     },
 
-    createBlock() {
+    createScript(type = 'block') {
       if (this.files.some((f) => f.newName !== undefined)) return;
       this.files.unshift({
-        type: "block",
+        type: type,
         name: "",
         newName: "",
       });
