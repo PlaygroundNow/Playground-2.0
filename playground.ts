@@ -79,10 +79,21 @@ Deno.serve(async (req) => {
     }
   } else if (pathname.startsWith("/blocks/") && !pathname.endsWith(".html")) {
     try {
-      const html = await Deno.readTextFile("." + pathname + ".html");
-      return new Response(`export default ${JSON.stringify(html)};`, {
-        headers: { "content-type": "application/javascript" },
-      });
+      let html = await Deno.readTextFile("." + pathname + ".html");
+      if (!html) return new Response("Not Found", { status: 404 });
+
+      const pkg = pathname.slice(8);
+      html = `<!--${JSON.stringify({ pkg })}-->` + "\n" + html;
+
+      return new Response(
+        `
+        export * from "/assets/scripts/mixin.js?package=${pkg}";
+        export default ${JSON.stringify(html)};
+        `,
+        {
+          headers: { "content-type": "application/javascript" },
+        }
+      );
     } catch {
       // fallback to public
     }

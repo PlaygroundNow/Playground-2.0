@@ -1,4 +1,6 @@
 <script type="module">
+  import * as menu from "@playground/menu-mixin";
+
   export default {
     scrollX: 0,
     scrollY: 0,
@@ -27,12 +29,12 @@
         passive: true,
       });
 
-      this.$watch('scrollX', () => {
+      this.$watch("scrollX", () => {
         this.space.style.transform = `translate(-${this.scrollX}px, -${this.scrollY}px)`;
-      })
-      this.$watch('scrollY', () => {
+      });
+      this.$watch("scrollY", () => {
         this.space.style.transform = `translate(-${this.scrollX}px, -${this.scrollY}px)`;
-      })
+      });
     },
   };
 
@@ -52,9 +54,10 @@
     };
   }
 
-  // core
   function handleScroll(e, dx, dy, kind) {
-    if (this.menuOpen) return;
+    if (menu.some("menuOpen")) {
+      return;
+    }
 
     if (kind === "wheel" && !this._gesture.type) {
       this._gesture.type = "wheel";

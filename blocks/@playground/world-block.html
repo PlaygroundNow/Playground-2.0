@@ -61,13 +61,13 @@
     mixins: [block, worldSync, worldScroll],
     peerMouseMove,
     handleMouseMove,
-    
+
     async updatedFile(event) {
       const { file, name, senderId } = event.detail;
 
       const html = await fetch(file).then((resp) => resp.text());
 
-      if (name.endsWith('mixin')) return;
+      if (name.endsWith("mixin")) return;
       const wc = customElements.get(name);
       wc.template = html;
     },

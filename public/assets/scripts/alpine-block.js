@@ -40,6 +40,8 @@ export default class AlpineBlock extends HTMLElement {
     return this._template;
   }
 
+  mixins = [];
+
   constructor() {
     super();
     this.Alpine = window.Alpine ? window.Alpine : false;
@@ -121,6 +123,9 @@ export default class AlpineBlock extends HTMLElement {
             mixinSFC,
             "text/html"
           );
+
+          const { pkg } = JSON.parse(mixinDoc.firstChild.data);
+          this.mixins.push(pkg);
 
           mixinDoc.querySelectorAll("template").forEach((tpl) => {
             templates.push(tpl);

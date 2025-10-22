@@ -48,9 +48,10 @@
   :style="{ transform: `translate(${props.x || 0}px, ${props.y || 0}px)`}"
 >
   <div
-    :style="{ textTransform: 'capitalize', backgroundColor: '#48C9B0', padding: '4px 8px', fontSize: label.length > 12 ? '18px' : '22px' }"
+    :style="{ textTransform: 'capitalize', backgroundColor: 'lightblue', padding: '4px 8px', fontSize: label.length > 12 ? '18px' : '22px' }"
     x-text="label"
   ></div>
+  <li @click="openLibrary"><img src="/assets/img/extension.svg" /> Blocks</li>
   <li @click="openLibrary"><img src="/assets/img/board.svg" /> Library</li>
   <li @click="openScript"><img src="/assets/img/htmx.svg" /> Script</li>
 </ul>
@@ -73,8 +74,8 @@
 
       const libraryHtml = `<library-block selected-package="@playground" ${
         typeof location === "string" ? `selected-file="${location}"` : ""
-      } x="${screenWidth + this.scrollX}" y="${
-        screenHeight + this.scrollY
+      } x="${screenWidth + this.$world.scrollX}" y="${
+        screenHeight + this.$world.scrollY
       }"></library-block>`;
 
       const world = document.querySelector("world-block");

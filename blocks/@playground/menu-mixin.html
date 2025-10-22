@@ -11,9 +11,9 @@
 
 <script type="module">
   export default {
-    menuOpen: false,
     label: "",
     tag: "",
+    menuOpen: false,
     menuX: 0,
     menuY: 0,
     init() {
@@ -25,10 +25,9 @@
         .join(" ");
 
       this.$host.addEventListener("contextmenu", (e) => {
-        console.log(e.target)
         e.stopPropagation();
         e.preventDefault();
-
+        
         this.menuX = e.x;
         this.menuY = e.y;
 

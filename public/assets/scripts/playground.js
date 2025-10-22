@@ -70,6 +70,12 @@ function applyProps(target, source) {
   }
 }
 
+Alpine.magic("world", (el) => {
+  return Alpine.$data(
+    document.querySelector("world-block").shadowRoot.querySelector("div")
+  );
+});
+
 Alpine.magic("props", (el) => {
   const host = el.getRootNode().host;
   return host.props;
