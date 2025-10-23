@@ -21,7 +21,9 @@
 
 <window-block nav-title="Referrals" @close.stop="$host.remove()">
   <template x-for="[id, referral] in Object.entries(doc.referrals)">
-    <div :style="{ display: 'flex', justifyContent: 'space-between', padding: '8px' }">
+    <div
+      :style="{ display: 'flex', justifyContent: 'space-between', padding: '8px' }"
+    >
       <div x-text="referral.name"></div>
       <button @click="openReferral(id)">Select</button>
     </div>
@@ -32,21 +34,34 @@
   import styles from "@carehub/styles-mixin";
   import block from "@playground/block-mixin";
   import draggable from "@playground/draggable-mixin";
-  
+
   export default {
     mixins: [styles, block, draggable],
     init() {
       this.root = this.$el;
+
+      if (!this.doc.referrals) {
+        this.doc.referrals = {
+          1: {
+            name: "Doug Engelbart",
+            resourcesLink: "https://www.wikipedia.org",
+          },
+          2: {
+            name: "Ivan Sutherland",
+            resourcesLink: "https://web.autocad.com",
+          },
+        };
+      }
     },
     openReferral(id) {
-      const libraryHtml = `<caregiver-form-block id="${id}" x="${this.x + this.root.offsetWidth + 20}" y="${
-        this.y
-      }"></caregiver-form-block>`;
+      const libraryHtml = `<caregiver-form-block id="${id}" x="${
+        this.x + this.root.offsetWidth + 20
+      }" y="${this.y}"></caregiver-form-block>`;
 
       const world = document.querySelector("world-block");
       if (world) {
         world.insertAdjacentHTML("beforeend", libraryHtml);
       }
     },
-  }
+  };
 </script>
