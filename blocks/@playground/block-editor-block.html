@@ -1,12 +1,8 @@
-<style>
-</style>
+<style></style>
 
 <div @save="save" x-effect="getFile(props.file)">
   <template x-if="html">
-    <code-block
-      :file="props.file"
-      :source="html"
-    ></code-block>
+    <code-block :file="props.file" :source="html"></code-block>
   </template>
 </div>
 
@@ -17,42 +13,32 @@
     html: "",
     mixins: [block],
     async getFile(file) {
-      const html = await fetch("/blocks/@playground/" + file + ".html").then(
+      const html = await fetch("/blocks/" + this.props.file + ".html").then(
         (res) => res.text()
       );
 
       this.html = html;
     },
     async save(event) {
-      const source = event.detail.source;
-      const [_, ...name] = source.split("-");
+      const { source } = event.detail; // e.g. "source-playground-my-widget-block"
+      const [, pkg, ...rest] = source.split("-"); // pkg="playground", rest=["my","widget","block"]
+      const tag = rest.join("-"); // "my-widget-block"
+      const file = `/blocks/@${pkg}/${tag}.html`;
 
-      const file = "/blocks/@playground/" + name.join("-") + ".html";
       const html = handle.doc()[source];
-
-      if (!html) {
-        throw new Error("Cannot save text, missing from handle");
-      }
+      if (!html) throw new Error("Cannot save text, missing from handle");
 
       await fetch(file, {
         method: "PUT",
-        headers: {
-          accept: "application/json",
-        },
+        headers: { accept: "application/json" },
         body: html,
       });
 
-      this.$broadcast("updated-file", {
-        file,
-        name: name.join("-"),
-      });
+      this.$broadcast("updated-file", { file, name: `${pkg}-${tag}` });
+      if (source.endsWith("mixin")) return;
 
-      if (source.endsWith('mixin')) return;
-
-      const wc = customElements.get(name.join("-"));
-
-      wc.template = html;
-      //this.html = html;
+      const wc = customElements.get(tag);
+      if (wc) wc.template = html;
     },
   };
 </script>

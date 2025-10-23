@@ -11,12 +11,14 @@
 
 <script type="module">
   export default {
+    package: "",
     label: "",
     tag: "",
     menuOpen: false,
     menuX: 0,
     menuY: 0,
     init() {
+      this.package = this.$host.pkg;
       this.tag = this.$host.tagName;
       this.label = this.$host.tagName
         .toLowerCase()

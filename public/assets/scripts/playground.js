@@ -120,9 +120,10 @@ Alpine.data("playground", () => {
 
 Alpine.start();
 
-function defineBlock(tagName, template) {
+function defineBlock(pkg, tagName, template) {
   if (!customElements.get(tagName)) {
     class AlpineBlockSFC extends AlpineBlock {}
+    AlpineBlockSFC.pkg = pkg;
     AlpineBlockSFC.tagName = tagName;
     AlpineBlockSFC.template = template;
     customElements.define(tagName, AlpineBlockSFC);
@@ -143,12 +144,19 @@ function defineBlock(tagName, template) {
   "menu-block",
   "block-editor-block",
   "code-block",
-  "caregiver-form-block",
 ].forEach((block) => {
   fetch(`/blocks/@playground/${block}.html`)
     .then((res) => res.text())
     .then((sfc) => {
-      defineBlock(block, sfc);
+      defineBlock("@playground", block, sfc);
+    });
+});
+
+["caregiver-form-block", "referrals-list-block"].forEach((block) => {
+  fetch(`/blocks/@carehub/${block}.html`)
+    .then((res) => res.text())
+    .then((sfc) => {
+      defineBlock("@carehub", block, sfc);
     });
 });
 

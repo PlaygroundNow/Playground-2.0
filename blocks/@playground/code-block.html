@@ -62,12 +62,16 @@
       this.$watch("props.source", () => this.loadEditor());
     },
     save(view) {
-      this.$dispatch("save", { source: "source-" + this.props.file });
+      this.$dispatch("save", {
+        source:
+          "source-" + this.props.file.replace(/^@/, "").split("/").join("-"),
+      });
       return true;
     },
 
     loadEditor() {
-      const name = "source-" + this.props.file;
+      const name =
+        "source-" + this.props.file.replace(/^@/, "").split("/").join("-");
       this.$el.replaceChildren();
 
       if (this.doc[name] !== this.props.source) {

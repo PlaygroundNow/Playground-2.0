@@ -6,32 +6,52 @@ Deno.serve(async (req) => {
   // REST application/json
   if (req.headers.get("accept")?.includes("application/json")) {
     if (pathname === "/blocks") {
-      return Response.json([{ name: "@playground" }]);
-    }
-
-    if (pathname === "/blocks/@playground") {
-      const files = [];
-      for await (const dirEntry of Deno.readDir("./blocks/@playground")) {
-        if (dirEntry.isFile) {
-          const blockMatch = dirEntry.name.match(/^(.+)-block\.html$/);
-          const mixinMatch = dirEntry.name.match(/^(.+)-mixin\.html$/);
-
-          if (blockMatch) {
-            const [, name] = blockMatch;
-            files.push({ name, type: "block" });
-          } else if (mixinMatch) {
-            const [, name] = mixinMatch;
-            files.push({ name, type: "mixin" });
-          }
+      const blockDirs = [];
+      for await (const dirEntry of Deno.readDir("./blocks")) {
+        if (dirEntry.isDirectory && dirEntry.name === "@playground") {
+          blockDirs.unshift({ name: dirEntry.name });
+        } else if (dirEntry.isDirectory) {
+          blockDirs.push({ name: dirEntry.name });
         }
       }
-      files.sort((a, b) => a.name.localeCompare(b.name));
-      return Response.json(files);
+      return Response.json(blockDirs);
     }
 
-    if (pathname.startsWith("/blocks/@playground/")) {
-      const entity = pathname.replace("/blocks/@playground/", "");
-      const filePath = `./blocks/@playground/${entity}`;
+    /**
+    ✅ /blocks/@playground
+    ✅ /blocks/@core
+    ❌ /blocks/@playground/block-mixin.html
+    ❌ /blocks/somefile.html
+     */
+    if (/^\/blocks\/@\w+$/.test(pathname)) {
+      const pkg = pathname.replace("/blocks/", "");
+      const dirPath = `./blocks/${pkg}`;
+      try {
+        const files = [];
+        for await (const dirEntry of Deno.readDir(dirPath)) {
+          if (dirEntry.isFile) {
+            const blockMatch = dirEntry.name.match(/^(.+)-block\.html$/);
+            const mixinMatch = dirEntry.name.match(/^(.+)-mixin\.html$/);
+
+            if (blockMatch) {
+              const [, name] = blockMatch;
+              files.push({ name, type: "block" });
+            } else if (mixinMatch) {
+              const [, name] = mixinMatch;
+              files.push({ name, type: "mixin" });
+            }
+          }
+        }
+        files.sort((a, b) => a.name.localeCompare(b.name));
+        return Response.json(files);
+      } catch {
+        return new Response("Not Found", { status: 404 });
+      }
+    }
+
+    if (/^\/blocks\/@[^/]+\//.test(pathname)) {
+      const [, pkg, entity] = pathname.match(/^\/blocks\/(@[^/]+)\/(.+)$/)!;
+      const filePath = `./blocks/${pkg}/${entity}`;
 
       switch (req.method) {
         case "GET": {

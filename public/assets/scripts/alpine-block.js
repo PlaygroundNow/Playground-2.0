@@ -8,6 +8,7 @@ function toCamelCase(str) {
 
 export default class AlpineBlock extends HTMLElement {
   static tagName = "";
+  static pkg = "";
 
   static set template(newTemplate) {
     const skip = !this._template;
@@ -44,6 +45,7 @@ export default class AlpineBlock extends HTMLElement {
 
   constructor() {
     super();
+    this.pkg = this.constructor.pkg;
     this.Alpine = window.Alpine ? window.Alpine : false;
 
     this.attachShadow({ mode: "open" });
@@ -117,6 +119,7 @@ export default class AlpineBlock extends HTMLElement {
       const mixinDestroys = [];
       const mainKeys = new Set(Object.keys(mergedExport));
       const templates = [];
+      const linkTags = [];
       if (Array.isArray(module.default?.mixins)) {
         for (const mixinSFC of module.default.mixins) {
           const mixinDoc = new DOMParser().parseFromString(
@@ -127,6 +130,9 @@ export default class AlpineBlock extends HTMLElement {
           const { pkg } = JSON.parse(mixinDoc.firstChild.data);
           this.mixins.push(pkg);
 
+          mixinDoc.querySelectorAll("link").forEach((link) => {
+            document.head.appendChild(link.cloneNode(true));
+          });
           mixinDoc.querySelectorAll("template").forEach((tpl) => {
             templates.push(tpl);
           });

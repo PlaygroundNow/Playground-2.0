@@ -51,14 +51,28 @@
     :style="{ textTransform: 'capitalize', backgroundColor: 'lightblue', padding: '4px 8px', fontSize: label.length > 12 ? '18px' : '22px' }"
     x-text="label"
   ></div>
-  <li @click="openLibrary"><img src="/assets/img/extension.svg" /> Blocks</li>
-  <li @click="openLibrary"><img src="/assets/img/board.svg" /> Library</li>
-  <li @click="openScript"><img src="/assets/img/htmx.svg" /> Script</li>
+  <li @click="openCarehub()"><img src="/assets/img/heart.svg" /> Carehub</li>
+  <li @click="openLibrary()"><img src="/assets/img/extension.svg" /> Blocks</li>
+  <li @click="openLibrary()"><img src="/assets/img/board.svg" /> Library</li>
+  <li @click="openScript()"><img src="/assets/img/htmx.svg" /> Script</li>
 </ul>
 
 <script type="module">
   export default {
-    openLibrary(location) {
+    openCarehub() {
+      const screenWidth = window.innerWidth / 2 - 550;
+      const screenHeight = window.innerHeight / 2 - 300;
+
+      const libraryHtml = `<referrals-list-block x="${
+        screenWidth + this.$world.scrollX
+      }" y="${screenHeight + this.$world.scrollY}"></referrals-list-block>`;
+
+      const world = document.querySelector("world-block");
+      if (world) {
+        world.insertAdjacentHTML("beforeend", libraryHtml);
+      }
+    },
+    openLibrary(pkg, location) {
       const x = Number(this.props.x);
       const y = Number(this.props.y);
 
@@ -72,7 +86,9 @@
       const screenWidth = window.innerWidth / 2 - 550;
       const screenHeight = window.innerHeight / 2 - 300;
 
-      const libraryHtml = `<library-block selected-package="@playground" ${
+      const libraryHtml = `<library-block selected-package="${
+        typeof pkg === "string" ? pkg : "@playground"
+      }" ${
         typeof location === "string" ? `selected-file="${location}"` : ""
       } x="${screenWidth + this.$world.scrollX}" y="${
         screenHeight + this.$world.scrollY
@@ -85,7 +101,7 @@
       this.menuOpen = false;
     },
     openScript() {
-      this.openLibrary(this.tag.toLowerCase());
+      this.openLibrary(this.package, this.tag.toLowerCase());
     },
   };
 </script>

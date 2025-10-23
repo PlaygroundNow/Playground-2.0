@@ -109,12 +109,12 @@
 >
   <div class="wrapper">
     <div class="section">
-      <template x-for="package in packages">
+      <template x-for="pkg in packages">
         <div
           class="package"
-          :class="{ selected: props.selectedPackage === package.name }"
-          x-text="package.name"
-          @click="props.selectedPackage = package.name"
+          :class="{ selected: props.selectedPackage === pkg.name }"
+          x-text="pkg.name"
+          @click="selectPackage(pkg.name)"
         ></div>
       </template>
     </div>
@@ -173,9 +173,11 @@
         </template>
       </div>
     </div>
-    <div class="section" x-show="props.selectedFile">
-      <template x-if="props.selectedFile">
-        <block-editor-block :file="props.selectedFile"></block-editor-block>
+    <div class="section" x-show="props.selectedFile && props.selectedFile !== 'false'">
+      <template x-if="props.selectedFile && props.selectedFile !== 'false'">
+        <block-editor-block
+          :file="`${props.selectedPackage}/${props.selectedFile}`"
+        ></block-editor-block>
       </template>
     </div>
   </div>
@@ -195,6 +197,20 @@
     async init() {
       this.root = this.$el;
       this.props.search = "";
+
+      await this.getPackages();
+      this.getPackageFiles();
+    },
+
+    selectPackage(name) {
+      console.log(name)
+      this.props.selectedFile = false;
+      this.props.selectedPackage = name;
+
+      this.getPackageFiles();
+    },
+
+    async getPackages() {
       this.packages = fetch("/blocks", {
         headers: { accept: "application/json" },
       }).then((resp) => resp.json());
@@ -206,10 +222,11 @@
       this.files = await fetch("/blocks/" + this.props.selectedPackage, {
         headers: { accept: "application/json" },
       }).then((resp) => resp.json());
+      
       this.filtered = this.files;
 
       const file = this.files[0];
-      if (!this.props.selectedFile && file) {
+      if ((!this.props.selectedFile || this.props.selectedFile === 'false') && file) {
         this.props.selectedFile = file.name + "-" + file.type;
       }
 
@@ -228,7 +245,7 @@
         body: source,
       }).then((resp) => resp.text());
 
-      this.props.selectedFile = name.split('.')[0];
+      this.props.selectedFile = name.split(".")[0];
       await this.getPackageFiles();
     },
 
@@ -266,7 +283,7 @@
       }
     },
 
-    createScript(type = 'block') {
+    createScript(type = "block") {
       if (this.files.some((f) => f.newName !== undefined)) return;
       this.files.unshift({
         type: type,
