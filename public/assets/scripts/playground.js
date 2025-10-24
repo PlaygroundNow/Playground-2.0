@@ -48,6 +48,7 @@ if (docUrl) {
 }
 
 handle.on("change", (evt) => {
+  console.log(evt);
   if (!window.lock) {
     //Alpine.$data(document.body).doc = evt.doc;
   }
