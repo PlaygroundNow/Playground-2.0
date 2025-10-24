@@ -8,6 +8,7 @@ import { IndexedDBStorageAdapter } from "https://esm.sh/@automerge/automerge-rep
 import { WebSocketClientAdapter } from "https://esm.sh/@automerge/automerge-repo-network-websocket@2.4.0?bundle-deps";
 
 import AlpineBlock from "./alpine-block.js";
+import Observer from "./observer.js";
 
 await initializeWasm(
   fetch("https://esm.sh/@automerge/automerge@3.1.2/dist/automerge.wasm")
@@ -48,27 +49,17 @@ if (docUrl) {
 
 handle.on("change", (evt) => {
   if (!window.lock) {
-    Alpine.$data(document.body).doc = evt.doc;
+    //Alpine.$data(document.body).doc = evt.doc;
   }
 });
 
-function applyProps(target, source) {
-  for (const key of Object.keys(source)) {
-    const value = source[key];
-    if (Array.isArray(value)) {
-      if (JSON.stringify(target[key]) === JSON.stringify(value)) continue;
-      target[key] = value.map((item) =>
-        typeof item === "object" && item !== null ? { ...item } : item
-      );
-    } else if (typeof value === "object" && value !== null) {
-      if (!target[key] || typeof target[key] !== "object") target[key] = {};
-      applyProps(target[key], value);
-    } else {
-      if (target[key] === value) continue;
-      target[key] = value;
-    }
-  }
-}
+Alpine.magic("trap", () => {
+  return Alpine.interceptor((initialValue, getter, setter, path, key) => {
+    console.log(initialValue, getter, setter, path, key);
+
+    return initial;
+  });
+});
 
 Alpine.magic("world", (el) => {
   return Alpine.$data(
@@ -92,11 +83,49 @@ Alpine.magic("broadcast", () => (type, data) => {
   });
 });
 
+function setByPath(obj, path, value) {
+  let current = obj;
+  const lastKey = path.at(-1);
+
+  for (let key of path.slice(0, -1)) {
+    if (!(key in current) || typeof current[key] !== "object") {
+      current[key] = {};
+    }
+
+    current = current[key];
+  }
+
+  current[lastKey] = value;
+}
+
 Alpine.data("playground", () => {
+  const observed = new Observer(
+    JSON.parse(JSON.stringify(handle.doc())),
+    (evt) => {
+      if (window.lock === true) {
+        window.lock = false;
+        return;
+      }
+
+      window.lock = true;
+      handle.change((doc) => {
+        const { action, object, name, oldValue } = evt || {};
+        const keyPath = (evt.keyPath || evt.keypath || "").split(".").slice(1); // drop OBSERVED-*
+
+        if (!keyPath.length) return;
+        console.log(keyPath);
+
+        setByPath(doc, keyPath, object[name]);
+      });
+      window.lock = false;
+    },
+    { ignoreSameValueReassign: true }
+  );
+
   return {
-    doc: handle.doc(),
+    doc: observed,
     init() {
-      this.$watch("doc", (value, oldValue) => {
+      /* this.$watch("doc", (value, oldValue) => {
         if (!oldValue) return;
         if (window.lock === true) {
           window.lock = false;
@@ -104,11 +133,32 @@ Alpine.data("playground", () => {
         }
         const unproxied = { ...value };
         window.lock = true;
+
+        let t0 = performance.now();
+        console.log(unproxied);
         handle.change((doc) => {
-          applyProps(doc, unproxied);
+          const patches = diff(doc, value, { cyclesFix: true });
+          console.log(
+            "patch apply took",
+            (performance.now() - t0).toFixed(2),
+            "ms"
+          );
+          console.log(patches);
+          if (!patches.length) return;
+          t0 = performance.now();
+          for (const p of patches) {
+            if (p.type === "REMOVE") deleteAtPath(doc, p.path);
+            else setAtPath(doc, p.path, structuredClone(p.value));
+          }
+          console.log(
+            "patch apply took",
+            (performance.now() - t0).toFixed(2),
+            "ms"
+          );
         });
+
         window.lock = false;
-      });
+      }); */
 
       handle.on("ephemeral-message", ({ message, senderId }) => {
         const { type, ...rest } = message;

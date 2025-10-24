@@ -13,6 +13,7 @@
 
   label {
     font-weight: bold;
+    margin-bottom: 4px;
   }
 </style>
 
@@ -30,15 +31,16 @@
 </window-block>
 
 <script type="module">
+  import utils from "@carehub/utils-mixin";
   import styles from "@carehub/styles-mixin";
   import block from "@playground/block-mixin";
   import draggable from "@playground/draggable-mixin";
-  
+
   export default {
-    mixins: [styles, block, draggable],
+    mixins: [utils, styles, block, draggable],
     referral: null,
     init() {
-      this.referral = this.doc.referrals[this.props.id];
-    }
-  }
+      this.referral = this.getReferralById(this.props.id);
+    },
+  };
 </script>
