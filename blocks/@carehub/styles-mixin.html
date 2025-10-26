@@ -5,9 +5,16 @@
     font-family: Quicksand, sans-serif !important;
     font-size: 16px;
   }
+
+  :host {
+    --light-blue: aliceblue;
+    --dark-blue: rgb(56 189 248);
+    --blue: rgb(34 211 238);
+    --grey: #505A5B;
+  }
   
   window-block::part(nav) {
-    background: rgb(4, 163, 200);
+    background: var(--dark-blue);
     color: white;
     font-size: 18px;
     font-weight: bold;

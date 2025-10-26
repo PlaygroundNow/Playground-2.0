@@ -8,8 +8,16 @@
       this.world = this.$host.shadowRoot.querySelector(".world");
       this.space = this.$host.shadowRoot.querySelector(".space");
 
-      this.scrollX = (this.space.offsetWidth - this.world.offsetWidth) / 2;
-      this.scrollY = (this.space.offsetHeight - this.world.offsetHeight) / 2;
+      // Load scrollX and scrollY from localStorage if available
+      const scrollX = localStorage.getItem("world-scrollX");
+      const scrollY = localStorage.getItem("world-scrollY");
+      if (scrollX !== null && scrollY !== null) {
+        this.scrollX = parseInt(scrollX, 10);
+        this.scrollY = parseInt(scrollY, 10);
+      } else {
+        this.scrollX = (this.space.offsetWidth - this.world.offsetWidth) / 2;
+        this.scrollY = (this.space.offsetHeight - this.world.offsetHeight) / 2;
+      }
 
       this.space.style.transform = `translate(-${this.scrollX}px, -${this.scrollY}px)`;
 
@@ -31,9 +39,11 @@
 
       this.$watch("scrollX", () => {
         this.space.style.transform = `translate(-${this.scrollX}px, -${this.scrollY}px)`;
+        localStorage.setItem("world-scrollX", this.scrollX);
       });
       this.$watch("scrollY", () => {
         this.space.style.transform = `translate(-${this.scrollX}px, -${this.scrollY}px)`;
+        localStorage.setItem("world-scrollY", this.scrollY);
       });
     },
   };

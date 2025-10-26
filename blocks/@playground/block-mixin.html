@@ -6,6 +6,16 @@
       "Times New Roman", serif;
     box-sizing: border-box;
   }
+
+  :host {
+    --red: #F15156;
+    --yellow: #FFB400;
+    --blue: #7289DA;
+    --pink: #FF66CC;
+    --purple: #A569BD;
+    --green: #34BE5B;
+    --grey: #505A5B;
+  }
 </style>
 
 <script type="module">
@@ -14,5 +24,28 @@
 
   export default {
     mixins: [menu, coordinates],
+    openLibrary(pkg, location) {
+      const x = Number(this.props.x);
+      const y = Number(this.props.y);
+
+      this.world = document
+        .querySelector("world-block")
+        .shadowRoot.querySelector(".world");
+      this.space = document
+        .querySelector("world-block")
+        .shadowRoot.querySelector(".space");
+
+      const screenWidth = window.innerWidth / 2 - 550;
+      const screenHeight = window.innerHeight / 2 - 300;
+
+      const libraryHtml =`<library-block x="${screenWidth + this.$world.scrollX}" y="${
+        screenHeight + this.$world.scrollY
+      }"></library-block>`;
+
+      const world = document.querySelector("world-block");
+      if (world) {
+        world.insertAdjacentHTML("beforeend", libraryHtml);
+      }
+    },
   };
 </script>

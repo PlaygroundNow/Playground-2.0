@@ -139,7 +139,13 @@ export default class AlpineBlock extends HTMLElement {
           mixinDoc.querySelectorAll("style").forEach((style) => {
             this.shadowRoot.appendChild(style.cloneNode(true));
           });
-          const mixinScript = mixinDoc.querySelector("script");
+          const allMixinScripts = mixinDoc.querySelectorAll("script");
+          Array.from(allMixinScripts)
+            .filter((script) => script.type !== "module")
+            .forEach((s) => {
+              this.shadowRoot.prepend(s.cloneNode(true));
+            });
+          const mixinScript = mixinDoc.querySelector('script[type="module"]');
           if (mixinScript) {
             const mixinBlob = new Blob([mixinScript.textContent], {
               type: "text/javascript",

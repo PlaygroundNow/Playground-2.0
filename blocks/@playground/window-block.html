@@ -1,49 +1,9 @@
-<style>
-  .window {
-    min-width: 400px;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 1px 1px hsl(0deg 0% 0% / 0.075),
-      0 2px 2px hsl(0deg 0% 0% / 0.075),
-      0 4px 4px hsl(0deg 0% 0% / 0.075),
-      0 8px 8px hsl(0deg 0% 0% / 0.075),
-      0 16px 16px hsl(0deg 0% 0% / 0.075);
-  }
-
-  .window-nav {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: #505A5B;
-    border-top-left-radius: 8px;
-    border-top-right-radius: 8px;
-    color: white;
-    font-size: 20px;
-    padding: 2px 8px 0 8px;
-  }
-
-  .content {
-    border-left: 1px solid lightblue;
-    border-right: 1px solid lightblue;
-    border-bottom: 1px solid lightblue;
-    border-bottom-right-radius: 8px;
-    border-bottom-left-radius: 8px;
-  }
-
-  img {
-    filter: invert(1);
-    width: 16px;
-    height: 16px;
-    cursor: pointer;
-  }
-</style>
-
-<div class="window">
+<div class="window" part="window">
   <div drag-handle class="window-nav" part="nav">
-    <img src="/assets/img/close-o.svg" @click="$dispatch('close')" />
+    <button class="close" @click="$dispatch('close')"></button>
     <span x-text="props.navTitle"></span>
   </div>
-  <div class="content">
+  <div class="content" part="content">
     <slot></slot>
   </div>
 </div>
@@ -56,3 +16,43 @@
     init() {},
   };
 </script>
+
+<style>
+  .window {
+    min-width: 400px;
+    background: rgba(255,255,255,0.9);
+    backdrop-filter: blur(1px);
+  }
+
+  .window-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 20px;
+    border: 0.5px solid var(--grey);
+    height: 30px;
+  }
+
+  .content {
+    border-left: 0.5px solid var(--grey);
+    border-right: 0.5px solid var(--grey);
+    border-bottom: 0.5px solid var(--grey);
+  }
+
+  .close {
+    cursor: pointer;
+    background: var(--red);
+    width: 25px;
+    height: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: none;
+    align-self: flex-start;
+    border: 0.5px solid var(--grey);
+    border-radius: 50%;
+    /* border-bottom: 0.5px solid var(--grey); */
+
+    transform: translate(-10px, -10px);
+  }
+</style>
