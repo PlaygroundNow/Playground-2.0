@@ -1,94 +1,45 @@
-<style>
-  .wrapper {
-    z-index: 1000;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: calc(100vw - 48px);
-    margin: 10px 12px 0 12px;
-    background: white;
-    border: 1px solid #505A5B;
-    border-radius: 8px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    color: black;
-    padding: 0 12px;
-    font-size: 24px;
-  }
-
-  @media (max-width: 600px) {
-    .logo *:not(img) {
-      display: none;
-    }
-  }
-
-  .peers {
-    display: flex;
-    gap: 8px;
-    margin-left: 16px;
-    align-items: center;
-  }
-
-  .peer {
-    width: 24px;
-    height: 24px;
-    background: pink;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: black;
-    font-size: 18px;
-    font-weight: bold;
-    text-transform: uppercase;
-  }
-
-  img {
-    margin-right: 8px;
-  }
-
-  .logo {
-    display: flex;
-    align-items: center;
-  }
-
-  .logo data {
-    font-family: monospace;
-    font-size: 12px;
-  }
-</style>
-
 <div
   @peer-heartbeat.window="heartbeat"
   @resize.window="width = window.innerWidth"
   class="wrapper"
 >
-  <div class="logo">
-    <img src="/assets/img/favicon.svg" />
-    <div>Playground</div>
-    <div>&nbsp;-&nbsp;</div>
-    <data x-text="numOps"></data>
+  <div class="square" :class="{ purple: door }" title="Apps" @click="door">
+    <img :style="{ scale: 1.2, marginBottom: '2px' }" src="/assets/img/extension.svg" />
+    <!-- <label>Apps</label> -->
   </div>
-  <div
-    :style="{
-        display: 'flex',
-        position: 'absolute',
-        left: width <= 800 ? '40px' : '50%',
-        top: '50%',
-        transform: width <= 800 ? 'translateY(-50%)' : 'translate(-50%,-50%)'
-      }"
-  >
-    Home
-    <div class="peers">
+  <div class="square"></div>
+  <div class="square"></div>
+  <div class="square" :class="{ blue: door }" title="Games" @click="door">
+    <img src="/assets/img/dice-5.svg" />
+    <!-- <label>Games</label> -->
+  </div>
+  <div class="square" :class="{ green: door }" title="Script" @click="door && openLibrary">
+    <img src="/assets/img/code-slash.svg" />
+    <!-- <label>Script</label> -->
+  </div>
+  <div class="square" :class="{ yellow: door }" title="Info" @click="door">
+    <img src="/assets/img/info.svg" />
+    <!-- <label>Script</label> -->
+  </div>
+  <!-- <div class="people">
+    <div class="peers" :title="`${Array.from(peers).length} document viewer.`">
       <div class="peer" x-text="Array.from(peers).length"></div>
-      <!--<template x-for="peer in Array.from(peers)">
-        <div class="peer" x-text="peer.slice(0,2)"></div>
-      </template>-->
     </div>
-  </div>
-  <spotlight-button-block></spotlight-button-block>
+  </div> -->
+
+  <template x-teleport="body">
+    <data
+      data-block="navbar-block"
+      x-text="numOps"
+      :style="{
+        position: 'fixed',
+        bottom: '12px',
+        left: '12px',
+        fontFamily: 'monospace',
+        fontSize: '12px'
+      }"
+    ></data>
+  </template>
 </div>
 
 <script type="module">
@@ -100,16 +51,8 @@
     numOps: 0,
     peers: new Set(["Me"]),
     width: window.innerWidth,
-    heartbeat(event) {
-      this.peers.add(event.detail.senderId.split("-")[1]);
-      this.heartbeat[event.detail.senderId] = new Date();
-    },
-    formatStats(doc) {
-      const { numOps, numChanges } = Automerge.stats(doc);
-      return `[${numOps} ops & ${numChanges} changes]`;
-    },
-
     init() {
+      console.log(this.door)
       this.numOps = this.formatStats(handle.doc());
       handle.on("change", ({ doc }) => (this.numOps = this.formatStats(doc)));
 
@@ -124,7 +67,127 @@
         }
       }, 1000 * 3);
     },
-
-    destroy() {},
+    heartbeat(event) {
+      this.peers.add(event.detail.senderId.split("-")[1]);
+      this.heartbeat[event.detail.senderId] = new Date();
+    },
+    formatStats(doc) {
+      const { numOps, numChanges } = Automerge.stats(doc);
+      return `${numOps.toLocaleString()} ops & ${numChanges.toLocaleString()} changes`;
+    },
   };
 </script>
+
+<style>
+  .wrapper {
+    display: flex;
+    align-items: center;
+    z-index: 1000;
+    position: fixed;
+    top: 12px;
+    left: calc(50% + 12px);
+    transform: translateX(-50%);
+    transform-origin: top;
+    color: black;
+    font-size: 24px;
+    transition: transform 75ms;
+
+    padding: 12px;
+    margin: -12px;
+  }
+
+  .wrapper:hover {
+    transform: translateX(-50%) translateY(-24px) scale(3);
+  }
+
+  .wrapper:hover .square img {
+    opacity: 1;
+  }
+
+  .wrapper:hover .square label {
+    opacity: 1;
+  }
+  
+  .square {
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+    border: 0.5px solid var(--grey);
+    border-right: none;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .square:last-of-type {
+    border-right: 0.5px solid var(--grey);;
+  }
+
+  label {
+    opacity: 0;
+    color: white;
+    font-size: 6px;
+  }
+
+  .square img {
+    width: 8px;
+    height: 8px;
+    filter: invert(1);
+    opacity: 0;
+    transition: opacity: 1s;
+  }
+
+  .purple {
+    background: var(--purple);
+  }
+
+  .red {
+    background: var(--red);
+  }
+  
+  .blue {
+    background: var(--blue);
+  }
+
+  .green {
+    background: var(--green);
+  }
+
+  .yellow {
+    background: var(--yellow);
+  }
+
+  .people {
+    display: flex;
+  }
+
+  .peers {
+    display: flex;
+    align-items: center;
+  }
+
+  .peer {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 16px;
+    height: 16px;
+    background: pink;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: black;
+    font-size: 18px;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+
+  .logo {
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+  }
+</style>

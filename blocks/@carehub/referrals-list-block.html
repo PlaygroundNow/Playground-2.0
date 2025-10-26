@@ -1,12 +1,122 @@
+<window-block
+  x-effect="referrals = parse(doc.referrals)"
+  nav-title="Referrals"
+  @close.stop="$host.remove()"
+>
+  <div class="wrapper">
+    <div class="list">
+      <div class="search">
+        <input
+          placeholder="Search referrals"
+          x-model="props.search"
+          x-effect="filter(props.search)"
+        />
+        <button
+          @click="props.search=''"
+          x-show="props.search"
+        >
+          Clear
+        </button>
+      </div>
+      <template x-for="referral in filtered">
+        <div
+          class="referral"
+          :class="{ selected: props.selectedReferral === referral.id }"
+          @click="props.selectedReferral = referral.id"
+        >
+          <div x-text="referral.name"></div>
+        </div>
+      </template>
+      <div class="pagination">
+        <template
+          x-for="i in Math.ceil(referrals.length / limit)"
+        >
+          <button
+            @click="props.page = i-1"
+            x-text="i"
+            :class="{ selected: i-1 === Number(props.page) }">
+          </button>
+        </template>
+      </div>
+    </div>
+    <div
+      x-show="props.selectedReferral"
+      x-transition
+    >
+        <caregiver-form-block
+          :id="props.selectedReferral"
+        ></caregiver-form-block>
+    </div>
+  </div>
+</window-block>
+
+<script type="module">
+  import utils from "@carehub/utils-mixin";
+  import styles from "@carehub/styles-mixin";
+  import block from "@playground/block-mixin";
+  import draggable from "@playground/draggable-mixin";
+
+  export default {
+    mixins: [utils, styles, block, draggable],
+    section: "caregiver",
+    search: "",
+    limit: 12,
+    referrals: [],
+    filtered: [],
+    init() {
+      if (!this.props.page) {
+        this.props.page = 0;
+      }
+
+      if (!this.props.search) {
+        this.props.search = "";
+      }
+
+      this.$watch("section", () => {
+        if (this.section !== this.props.section) {
+          this.props.section = this.section;
+        }
+      })
+      this.$watch("props.section", () => {
+        if (this.props.section !== this.section) {
+          this.section = this.props.section;
+        }
+      })
+      
+      this.root = this.$el;
+      this.referrals = this.parse(this.doc.referrals);
+      this.filtered = this.referrals.slice(0, this.limit);
+    },
+    filter(search) {      
+      if (search) {
+        this.props.page = 0;
+      }
+      
+      this.filtered = this.referrals
+        .filter((r) => r.name.toLowerCase().includes(search.toLowerCase()))
+        .slice(Number(this.props.page)*this.limit, Number(this.props.page)*this.limit+this.limit);
+    },
+    parse(list) {
+      return Object.entries(list).map(([id]) => this.getReferralById(id));
+    },
+  };
+</script>
+
 <style>
   :host {
     position: absolute;
     top: 0;
     left: 0;
   }
+  
+  .wrapper {
+    display: flex;
+    align-items: stretch;
+  }
 
-  div {
-    font-size: 16px;
+  .list {
+    flex: 0 0 200px;
+    border-right: 1px solid var(--light-blue);
   }
 
   button {
@@ -20,62 +130,45 @@
 
   input {
     width: 100%;
-    padding: 8px;
+    padding: 8px 16px;
     border: none;
   }
+
+  .search {
+    position: relative;
+  }
+
+  .search button {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+  }
+
+  .referral {
+    display: flex;
+    cursor: pointer;
+    justify-content: space-between;
+    padding: 8px 16px;
+  }
+
+  .referral:hover, .referral.selected {
+    background: var(--light-blue);
+  }
+
+  .pagination {
+    display: flex;
+    justify-content: center;
+    padding: 8px 0;
+    font-size: 20px;
+  }
+
+  .pagination button {
+    color: var(--grey);
+    font-size: 20px;
+  }
+
+  .pagination button.selected {
+    color: var(--blue);
+  }
 </style>
-
-<window-block nav-title="Referrals" @close.stop="$host.remove()">
-  <input placeholder="Search referrals" x-model="search" x-effect="filter(search)" />
-
-  <template x-for="referral in filtered">
-    <div
-      :style="{ display: 'flex', justifyContent: 'space-between', padding: '8px' }"
-    >
-      <div x-text="referral.name"></div>
-      <button @click="openReferral(referral.id)">Select</button>
-    </div>
-  </template>
-</window-block>
-
-<script type="module">
-  import utils from "@carehub/utils-mixin";
-  import styles from "@carehub/styles-mixin";
-  import block from "@playground/block-mixin";
-  import draggable from "@playground/draggable-mixin";
-
-  export default {
-    mixins: [utils, styles, block, draggable],
-    search: '',
-    limit: 10,
-    page: 0,
-    referrals: [],
-    filtered: [],
-    init() {
-      this.root = this.$el;
-
-      this.referrals = this.parse(this.doc.referrals);
-      this.filtered = this.referrals.slice(0,this.limit);
-
-      console.log(this.filtered)
-    },
-    filter(search) {
-      this.filtered = this.referrals.filter((r) => {
-        return r.name.toLowerCase().includes(search.toLowerCase());
-      }).slice(this.page*this.limit, this.page*this.limit+this.limit)
-    },
-    parse(list) {
-      return Object.entries(list).map(([id]) => this.getReferralById(id));
-    },
-    openReferral(id) {
-      const libraryHtml = `<caregiver-form-block id="${id}" x="${
-        this.x + this.root.offsetWidth + 20
-      }" y="${this.y}"></caregiver-form-block>`;
-
-      const world = document.querySelector("world-block");
-      if (world) {
-        world.insertAdjacentHTML("beforeend", libraryHtml);
-      }
-    },
-  };
-</script>

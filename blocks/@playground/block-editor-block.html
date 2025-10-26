@@ -34,8 +34,10 @@
         body: html,
       });
 
-      this.$broadcast("updated-file", { file, name: `${pkg}-${tag}` });
+      this.$broadcast("updated-file", { file, name: `${pkg}-${tag}`, tag });
       if (source.endsWith("mixin")) return;
+
+      console.log(tag)
 
       const wc = customElements.get(tag);
       if (wc) wc.template = html;

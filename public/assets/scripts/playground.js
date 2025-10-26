@@ -9,6 +9,7 @@ import { WebSocketClientAdapter } from "https://esm.sh/@automerge/automerge-repo
 
 import AlpineBlock from "./alpine-block.js";
 import Observer from "./observer.js";
+import automergeSyncPlugin from "./automerge-sync-plugin.js";
 
 await initializeWasm(
   fetch("https://esm.sh/@automerge/automerge@3.1.2/dist/automerge.wasm")
@@ -17,6 +18,7 @@ await initializeWasm(
 window.lock = false;
 window.Automerge = Automerge;
 window.Alpine = Alpine;
+window.automergeSyncPlugin = automergeSyncPlugin;
 
 const isProd = location.hostname.endsWith("playground.now");
 
@@ -47,19 +49,33 @@ if (docUrl) {
   window.location.hash = handle.url;
 }
 
+function createObserved(doc) {
+  return new Observer(
+    structuredClone(doc),
+    (evt) => {
+      if (window.lock === true) {
+        window.lock = false;
+        return;
+      }
+
+      window.lock = true;
+      handle.change((doc) => {
+        const { action, object, name, oldValue } = evt || {};
+        const keyPath = (evt.keyPath || evt.keypath || "").split(".").slice(1); // drop OBSERVED-*
+        if (!keyPath.length) return;
+
+        setByPath(doc, keyPath, object[name]);
+      });
+      window.lock = false;
+    },
+    { ignoreSameValueReassign: true }
+  );
+}
+
 handle.on("change", (evt) => {
-  console.log(evt);
   if (!window.lock) {
-    //Alpine.$data(document.body).doc = evt.doc;
+    Alpine.$data(document.body).doc = createObserved(evt.doc);
   }
-});
-
-Alpine.magic("trap", () => {
-  return Alpine.interceptor((initialValue, getter, setter, path, key) => {
-    console.log(initialValue, getter, setter, path, key);
-
-    return initial;
-  });
 });
 
 Alpine.magic("world", (el) => {
@@ -100,67 +116,9 @@ function setByPath(obj, path, value) {
 }
 
 Alpine.data("playground", () => {
-  const observed = new Observer(
-    JSON.parse(JSON.stringify(handle.doc())),
-    (evt) => {
-      if (window.lock === true) {
-        window.lock = false;
-        return;
-      }
-
-      window.lock = true;
-      handle.change((doc) => {
-        const { action, object, name, oldValue } = evt || {};
-        const keyPath = (evt.keyPath || evt.keypath || "").split(".").slice(1); // drop OBSERVED-*
-
-        if (!keyPath.length) return;
-        console.log(keyPath);
-
-        setByPath(doc, keyPath, object[name]);
-      });
-      window.lock = false;
-    },
-    { ignoreSameValueReassign: true }
-  );
-
   return {
-    doc: observed,
+    doc: createObserved(handle.doc()),
     init() {
-      /* this.$watch("doc", (value, oldValue) => {
-        if (!oldValue) return;
-        if (window.lock === true) {
-          window.lock = false;
-          return;
-        }
-        const unproxied = { ...value };
-        window.lock = true;
-
-        let t0 = performance.now();
-        console.log(unproxied);
-        handle.change((doc) => {
-          const patches = diff(doc, value, { cyclesFix: true });
-          console.log(
-            "patch apply took",
-            (performance.now() - t0).toFixed(2),
-            "ms"
-          );
-          console.log(patches);
-          if (!patches.length) return;
-          t0 = performance.now();
-          for (const p of patches) {
-            if (p.type === "REMOVE") deleteAtPath(doc, p.path);
-            else setAtPath(doc, p.path, structuredClone(p.value));
-          }
-          console.log(
-            "patch apply took",
-            (performance.now() - t0).toFixed(2),
-            "ms"
-          );
-        });
-
-        window.lock = false;
-      }); */
-
       handle.on("ephemeral-message", ({ message, senderId }) => {
         const { type, ...rest } = message;
         this.$dispatch(type, { ...rest, senderId });
@@ -195,6 +153,7 @@ function defineBlock(pkg, tagName, template) {
   "menu-block",
   "block-editor-block",
   "code-block",
+  "welcome-block",
 ].forEach((block) => {
   fetch(`/blocks/@playground/${block}.html`)
     .then((res) => res.text())
@@ -210,172 +169,3 @@ function defineBlock(pkg, tagName, template) {
       defineBlock("@carehub", block, sfc);
     });
 });
-
-const automergeSyncPlugin = ({ handle, path, codemirror, automerge }) => {
-  const reconcileAnnotationType = codemirror.state.Annotation.define();
-  const isReconcileTx = (tr) => !!tr.annotation(reconcileAnnotationType);
-
-  const applyAmPatchesToCm = (view, target, patches) => {
-    let selection = view.state.selection;
-    for (const patch of patches) {
-      const changeSpec = handlePatch(patch, target, view.state);
-      if (changeSpec != null) {
-        const changeSet = codemirror.state.ChangeSet.of(
-          changeSpec,
-          view.state.doc.length,
-          "\n"
-        );
-        selection = selection.map(changeSet, 1);
-        view.dispatch({
-          changes: changeSet,
-          annotations: reconcileAnnotationType.of({}),
-        });
-      }
-    }
-    view.dispatch({
-      selection,
-      annotations: reconcileAnnotationType.of({}),
-    });
-  };
-  function handlePatch(patch, target, state) {
-    if (patch.action === "insert") {
-      return handleInsert(target, patch);
-    } else if (patch.action === "splice") {
-      return handleSplice(target, patch);
-    } else if (patch.action === "del") {
-      return handleDel(target, patch);
-    } else if (patch.action === "put") {
-      return handlePut(target, patch, state);
-    } else {
-      return null;
-    }
-  }
-  function handleInsert(target, patch) {
-    const index = charPath(target, patch.path);
-    if (index == null) {
-      return [];
-    }
-    const text = patch.values.map((v) => (v ? v.toString() : "")).join("");
-    return [{ from: index, to: index, insert: text }];
-  }
-  function handleSplice(target, patch) {
-    const index = charPath(target, patch.path);
-    if (index == null) {
-      return [];
-    }
-    return [{ from: index, insert: patch.value }];
-  }
-  function handleDel(target, patch) {
-    const index = charPath(target, patch.path);
-    if (index == null) {
-      return [];
-    }
-    const length = patch.length || 1;
-    return [{ from: index, to: index + length }];
-  }
-  function handlePut(target, patch, state) {
-    const index = charPath(target, [...patch.path, 0]);
-    if (index == null) {
-      return [];
-    }
-    const length = state.doc.length;
-    if (typeof patch.value !== "string") {
-      return []; // TODO(dmaretskyi): How to handle non string values?
-    }
-    return [{ from: 0, to: length, insert: patch.value }];
-  }
-
-  // If the path of the patch is of the form [path, <index>] then we know this is
-  // a path to a character within the sequence given by path
-  function charPath(textPath, candidatePath) {
-    if (candidatePath.length !== textPath.length + 1) return null;
-    for (let i = 0; i < textPath.length; i++) {
-      if (textPath[i] !== candidatePath[i]) return null;
-    }
-    const index = candidatePath[candidatePath.length - 1];
-    if (typeof index === "number") return index;
-    return null;
-  }
-
-  const applyCmTransactionsToAmHandle = (handle, path, transactions) => {
-    const transactionsWithChanges = transactions.filter(
-      (tr) => !isReconcileTx(tr) && !tr.changes.empty
-    );
-    if (transactionsWithChanges.length === 0) {
-      return;
-    }
-    handle.change((doc) => {
-      transactionsWithChanges.forEach((tr) => {
-        tr.changes.iterChanges((fromA, toA, fromB, _toB, inserted) => {
-          // We are cloning the path as `am.splice` calls `.unshift` on it, modifying it in place,
-          // causing the path to be broken on subsequent changes
-          automerge.splice(
-            doc,
-            path.slice(),
-            fromB,
-            toA - fromA,
-            inserted.toString()
-          );
-        });
-      });
-    });
-    return automerge.getHeads(handle.doc());
-  };
-
-  if (!handle.isReady()) {
-    throw new Error(
-      "ensure the handle is ready before initializing the automergeSyncPlugin"
-    );
-  }
-  return codemirror.view.ViewPlugin.fromClass(
-    class {
-      view;
-      reconciledHeads = automerge.getHeads(handle.doc());
-      isProcessingCmTransaction = false;
-      constructor(view) {
-        this.view = view;
-        this.onChange = this.onChange.bind(this);
-        handle.on("change", this.onChange);
-      }
-      update(update) {
-        // start processing codemirror transaction
-        // changes that are created through the transaction are ignored in the change listener on the handle
-        this.isProcessingCmTransaction = true;
-        const newHeads = applyCmTransactionsToAmHandle(
-          handle,
-          path,
-          update.transactions
-        );
-        if (newHeads) {
-          this.reconciledHeads = newHeads;
-        }
-        // finish processing transaction
-        this.isProcessingCmTransaction = false;
-      }
-      onChange = () => {
-        // ignore changes that where triggered while processing a codemirror transaction
-        if (this.isProcessingCmTransaction) {
-          return;
-        }
-        const currentHeads = automerge.getHeads(handle.doc());
-        if (automerge.equals(currentHeads, this.reconciledHeads)) {
-          return;
-        }
-        // get the diff between the reconciled heads and the new heads
-        // and apply that to the codemirror doc
-        const patches = automerge.diff(
-          handle.doc(),
-          this.reconciledHeads,
-          currentHeads
-        );
-        applyAmPatchesToCm(this.view, path, patches);
-        this.reconciledHeads = currentHeads;
-      };
-      destroy() {
-        handle.off("change", this.onChange);
-      }
-    }
-  );
-};
-
-window.automergeSyncPlugin = automergeSyncPlugin;
