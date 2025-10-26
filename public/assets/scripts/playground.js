@@ -38,13 +38,11 @@ if (docUrl) {
   handle = await repo.find(docUrl);
 } else {
   handle = repo.create({
-    world: new Automerge.ImmutableString(
-      JSON.stringify({
-        tagName: "world-block",
-        props: [],
-        children: [],
-      })
-    ),
+    world: JSON.stringify({
+      tagName: "world-block",
+      props: [],
+      children: [],
+    }),
   });
   window.location.hash = handle.url;
 }
