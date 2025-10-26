@@ -1,7 +1,7 @@
 <div
   @mouseup.window="props.first = false; props.second = false;"
   @touchend.window="props.first = false; props.second = false;"
-  x-effect="if (!props.done === 'true') { props.open = props.first === 'true' && props.second === 'true' }"
+  x-effect="props.open = props.first === 'true' && props.second === 'true'"
 >
   <div class="glass"></div>
   <div class="stage">
