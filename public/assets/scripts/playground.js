@@ -38,7 +38,7 @@ if (docUrl) {
   handle = await repo.find(docUrl);
 } else {
   handle = repo.create({
-    packages: ["@playground"],
+    packages: ["@playground", "@games"],
     world: JSON.stringify({
       tagName: "world-block",
       props: [],
