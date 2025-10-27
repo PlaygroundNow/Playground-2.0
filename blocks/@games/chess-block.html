@@ -1,0 +1,62 @@
+<window-block @close.stop="$host.remove()" nav-title="Chess">
+  <div x-text="hoveredSquareIndex"></div>
+  <div x-text="activePieceIndex"></div>
+  <template x-for="row in 8">
+    <div class="row">
+      <template x-for="col in 8">
+        <div @mouseover.capture="hoveredSquareIndex = (row-1)*8+col-1" class="square">
+          <chess-piece-block></chess-piece-block>
+        </div>
+      </template>
+    </div>
+  </template>
+</window-block>
+
+<script type="module">
+  import block from "@playground/block-mixin";
+  import draggable from "@playground/draggable-mixin";
+  
+  export default {
+    mixins: [block, draggable],
+    board: [],
+    activePieceIndex: -1,
+    hoveredSquareIndex: -1,
+    init() {
+      if (!this.props.board) {
+        this.props.board = [
+          -4,-2,-3,-5,-6,-3,-2,-4,
+          -1,-1,-1,-1,-1,-1,-1,-1,
+          0,0,0,0,0,0,0,0,
+          0,0,0,0,0,0,0,0,
+          0,0,0,0,0,0,0,0,
+          0,0,0,0,0,0,0,0,
+          1,1,1,1,1,1,1,1,
+          4,2,3,5,6,3,2,4
+        ]
+      }
+
+      this.board = JSON.parse(`[${this.props.board}]`);
+      this.$watch('props.board', () => {
+        this.board = JSON.parse(`[${this.props.board}]`);
+      })
+    }
+  };
+</script>
+
+<style>
+  .row {
+    display: flex;
+  }
+
+  .square {
+    width: 50px;
+    height: 50px;
+
+    border: 0.5px solid rgba(0,0,0,0.2);
+  }
+
+  .row:nth-child(odd) .square:nth-child(odd),
+  .row:nth-child(even) .square:nth-child(even) {
+    background: var(--green);
+  }
+</style>

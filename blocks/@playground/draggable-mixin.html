@@ -19,6 +19,8 @@
         if (!els[0]?.hasAttribute("drag-handle")) return;
       } else if (!e.target.hasAttribute("drag-handle")) return;
 
+      e.stopPropagation();
+
       this.dragging = true;
       this.startX = this.x;
       this.startY = this.y;
@@ -26,6 +28,7 @@
       this.startClientY = e.clientY;
 
       this.$el.style.willChange = "transform";
+      
       e.preventDefault();
     },
     mousemove(e) {

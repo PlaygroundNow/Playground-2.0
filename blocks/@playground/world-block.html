@@ -4,6 +4,7 @@
   @mousemove.document="handleMouseMove"
   @touchmove.document="handleMouseMove"
   @peer-updated-file.window="updatedFile"
+  @keydown.window="if ($event.key.toLowerCase() === 'k' && $event.metaKey) openLibrary()"
 >
   <div class="space">
     <template x-teleport="body">
