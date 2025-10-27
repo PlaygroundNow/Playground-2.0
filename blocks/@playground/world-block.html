@@ -50,8 +50,8 @@
         document.querySelectorAll("welcome-block").length
       ) {
         this.door = false;
-        const screenWidth = window.innerWidth / 2 - 150;
-        const screenHeight = window.innerHeight / 2 - 300;
+        const screenWidth = this.space.clientWidth / 2 - 150;
+        const screenHeight = this.space.clientHeight / 2 - 300;
         document.querySelectorAll("welcome-block").forEach((b) => {
           b.remove();
         });
@@ -59,9 +59,7 @@
           .querySelector("world-block")
           .insertAdjacentHTML(
             "afterbegin",
-            `<welcome-block x="${this.scrollX + screenWidth}" y="${
-              this.scrollY + screenHeight
-            }" data-block="world-block"></welcome-block>`
+            `<welcome-block x="${screenWidth}" y="${screenHeight}" data-block="world-block"></welcome-block>`
           );
       } else {
         this.door = true;
