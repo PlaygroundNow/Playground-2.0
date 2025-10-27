@@ -38,6 +38,7 @@ if (docUrl) {
   handle = await repo.find(docUrl);
 } else {
   handle = repo.create({
+    packages: ["@playground"],
     world: JSON.stringify({
       tagName: "world-block",
       props: [],
@@ -139,31 +140,16 @@ function defineBlock(pkg, tagName, template) {
   }
 }
 
-[
-  "world-block",
-  "navbar-block",
-  "cursor-block",
-  "spotlight-button-block",
-  "spotlight-block",
-  "minimap-block",
-  "window-block",
-  "library-block",
-  "menu-block",
-  "block-editor-block",
-  "code-block",
-  "welcome-block",
-].forEach((block) => {
-  fetch(`/blocks/@playground/${block}.html`)
-    .then((res) => res.text())
-    .then((sfc) => {
-      defineBlock("@playground", block, sfc);
-    });
-});
+for (let pkg of handle.doc().packages || ["@playground"]) {
+  const blocks = await fetch(`/blocks/${pkg}`, {
+    headers: { accept: "application/json" },
+  }).then((resp) => resp.json());
 
-["caregiver-form-block", "referrals-list-block"].forEach((block) => {
-  fetch(`/blocks/@carehub/${block}.html`)
-    .then((res) => res.text())
-    .then((sfc) => {
-      defineBlock("@carehub", block, sfc);
-    });
-});
+  for (let block of blocks) {
+    fetch(`/blocks/@playground/${block.name}-${block.type}.html`)
+      .then((res) => res.text())
+      .then((sfc) => {
+        defineBlock(pkg, `${block.name}-${block.type}`, sfc);
+      });
+  }
+}

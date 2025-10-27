@@ -8,14 +8,14 @@
       :style="{ scale: 1.2, marginBottom: '2px' }"
       src="/assets/img/extension.svg"
     />
-    <!-- <label>Apps</label> -->
+    <label>Apps</label>
   </div>
-  <div class="square"></div>
-  <div class="square"></div>
   <div class="square" :class="{ blue: door }" title="Games" @click="door">
     <img src="/assets/img/dice-5.svg" />
-    <!-- <label>Games</label> -->
+    <label>Games</label>
   </div>
+  <div class="square"></div>
+  <div class="square"></div>
   <div
     class="square"
     :class="{ green: door }"
@@ -23,11 +23,11 @@
     @click="door && openLibrary"
   >
     <img src="/assets/img/code-slash.svg" />
-    <!-- <label>Script</label> -->
+    <label>Script</label>
   </div>
   <div class="square" :class="{ yellow: door }" title="Info" @click="door">
     <img src="/assets/img/info.svg" />
-    <!-- <label>Script</label> -->
+    <label>Info</label>
   </div>
   <!-- <div class="people">
     <div class="peers" :title="`${Array.from(peers).length} document viewer.`">
@@ -111,11 +111,8 @@
     opacity: 1;
   }
 
-  .wrapper:hover .square label {
-    opacity: 1;
-  }
-
   .square {
+    position: relative;
     cursor: pointer;
     width: 20px;
     height: 20px;
@@ -132,10 +129,19 @@
     border-right: 0.5px solid var(--grey);;
   }
 
+  .square:hover label {
+    opacity: 1;
+  }
+
   label {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    text-align: center;
     opacity: 0;
-    color: white;
-    font-size: 6px;
+    font-size: 8px;
+    transition: opacity 300ms;
   }
 
   .square img {

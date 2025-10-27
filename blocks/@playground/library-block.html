@@ -57,7 +57,7 @@
                   x-model="file.newName"
                   x-effect="validateName(file)"
                   @blur.stop.prevent="validateName(file, true)"
-                  @input.enter="validateName(file, true)"
+                  @keydown.enter="validateName(file, true)"
                 />
                 <div
                   :style="{ color: 'darkred', fontSize: '16px', textTransform: 'none' }"
@@ -70,7 +70,10 @@
         </template>
       </div>
     </div>
-    <div class="section" x-show="props.selectedFile && props.selectedFile !== 'false'">
+    <div
+      class="section"
+      x-show="props.selectedFile && props.selectedFile !== 'false'"
+    >
       <template x-if="props.selectedFile && props.selectedFile !== 'false'">
         <block-editor-block
           :file="`${props.selectedPackage}/${props.selectedFile}`"
@@ -95,7 +98,9 @@
       this.root = this.$el;
       this.props.search = "";
 
-      await this.getPackages();
+      this.packages = (this.doc.packages || ["@playground"]).map((p) => ({
+        name: p,
+      }));
       this.getPackageFiles();
     },
 
@@ -106,27 +111,23 @@
       this.getPackageFiles();
     },
 
-    async getPackages() {
-      this.packages = fetch("/blocks", {
-        headers: { accept: "application/json" },
-      }).then((resp) => resp.json());
-    },
-
     async getPackageFiles() {
       if (!this.props.selectedPackage) {
-        this.props.selectedPackage = '@playground';
+        this.props.selectedPackage = "@playground";
         return;
-        
-      };
+      }
 
       this.files = await fetch("/blocks/" + this.props.selectedPackage, {
         headers: { accept: "application/json" },
       }).then((resp) => resp.json());
-      
+
       this.filtered = this.files;
 
       const file = this.files[0];
-      if ((!this.props.selectedFile || this.props.selectedFile === 'false') && file) {
+      if (
+        (!this.props.selectedFile || this.props.selectedFile === "false") &&
+        file
+      ) {
         this.props.selectedFile = file.name + "-" + file.type;
       }
 
@@ -230,7 +231,7 @@
   }
 
   .selected {
-    background: #DFE2E2;
+    background: #dfe2e2;
   }
 
   .package {
@@ -263,7 +264,7 @@
 
   input {
     border-radius: 0;
-    border: 0.5px solid var(--grey)
+    border: 0.5px solid var(--grey);
   }
 
   .file-menu input {
