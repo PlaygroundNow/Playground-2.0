@@ -108,14 +108,15 @@
       this.props.search = "";
 
       setTimeout(() => {
-        this.$el.querySelector('input#filter').focus();
-      }, 200)
-      
+        this.$el.querySelector("input#filter").focus();
+      }, 200);
 
-      this.packages = (this.doc.packages || ["@playground"]).map((p) => ({
-        name: p,
-      }));
-      
+      this.packages = (this.doc.packages || ["@playground", "@games"]).map(
+        (p) => ({
+          name: p,
+        })
+      );
+
       this.getPackageFiles();
     },
 
