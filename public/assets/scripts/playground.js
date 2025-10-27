@@ -140,13 +140,13 @@ function defineBlock(pkg, tagName, template) {
   }
 }
 
-for (let pkg of handle.doc().packages || ["@playground"]) {
+for (let pkg of handle.doc().packages || ["@playground", "@games"]) {
   const blocks = await fetch(`/blocks/${pkg}`, {
     headers: { accept: "application/json" },
   }).then((resp) => resp.json());
 
   for (let block of blocks) {
-    fetch(`/blocks/@playground/${block.name}-${block.type}.html`)
+    fetch(`/blocks/${pkg}/${block.name}-${block.type}.html`)
       .then((res) => res.text())
       .then((sfc) => {
         defineBlock(pkg, `${block.name}-${block.type}`, sfc);

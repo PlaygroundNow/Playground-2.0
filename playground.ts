@@ -32,6 +32,7 @@ Deno.serve(async (req) => {
           if (dirEntry.isFile) {
             const blockMatch = dirEntry.name.match(/^(.+)-block\.html$/);
             const mixinMatch = dirEntry.name.match(/^(.+)-mixin\.html$/);
+            const appMatch = dirEntry.name.match(/^(.+)-app\.html$/);
 
             if (blockMatch) {
               const [, name] = blockMatch;
@@ -39,6 +40,9 @@ Deno.serve(async (req) => {
             } else if (mixinMatch) {
               const [, name] = mixinMatch;
               files.push({ name, type: "mixin" });
+            } else if (appMatch) {
+              const [, name] = appMatch;
+              files.push({ name, type: "app" });
             }
           }
         }
@@ -66,7 +70,9 @@ Deno.serve(async (req) => {
         }
         case "POST":
         case "PUT": {
-          if (!/^[a-z0-9]+(-[a-z0-9]+)*\-(block|mixin)\.html$/.test(entity)) {
+          if (
+            !/^[a-z0-9]+(-[a-z0-9]+)*\-(block|mixin|app)\.html$/.test(entity)
+          ) {
             return new Response("Invalid name format", { status: 400 });
           }
 

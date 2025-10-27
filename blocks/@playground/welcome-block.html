@@ -18,14 +18,14 @@
       <div class="buttons">
         <button
           @mousedown="props.first = true"
-          @touchstart="props.first = true"
+          @touchstart="if ($event.touches.length < 2) props.first = true"
           :class="{ selected: props.first === 'true' }"
         >
           Fri
         </button>
         <button
           @mousedown="props.second = true"
-          @touchstart="props.second = true"
+          @touchstart="if ($event.touches.length < 2) props.second = true"
           :class="{ selected: props.second === 'true' }"
         >
           end

@@ -24,7 +24,7 @@
 
   export default {
     mixins: [menu, coordinates],
-    openLibrary(pkg, location) {
+    openBlock(tag) {
       const x = Number(this.props.x);
       const y = Number(this.props.y);
 
@@ -38,14 +38,17 @@
       const screenWidth = window.innerWidth / 2 - 550;
       const screenHeight = window.innerHeight / 2 - 300;
 
-      const libraryHtml =`<library-block x="${screenWidth + this.$world.scrollX}" y="${
+      const libraryHtml =`<${tag} x="${screenWidth + this.$world.scrollX}" y="${
         screenHeight + this.$world.scrollY
-      }"></library-block>`;
+      }"></${tag}>`;
 
       const world = document.querySelector("world-block");
       if (world) {
         world.insertAdjacentHTML("beforeend", libraryHtml);
       }
+    },
+    openLibrary(pkg, location) {
+      this.openBlock('library-block')
     },
   };
 </script>

@@ -1,0 +1,54 @@
+<div @mousedown="activePieceIndex = (row-1)*8+col-1">
+  <div class="piece" drag-handle>
+    <template x-if="value !== 0">
+      <img :src="`/assets/img/chess/${color}_${piece}.png`" />
+    </template>
+  </div>
+</div>
+
+<script type="module">
+  import block from "@playground/block-mixin";
+  import draggable from "@playground/draggable-mixin";
+  
+  export default {
+    mixins: [block, draggable],
+    value: 0,
+    piece: '',
+    color: 'white',
+    key: {
+      0: 'empty',
+      1: 'pawn',
+      2: 'knight',
+      3: 'bishop',
+      4: 'rook',
+      5: 'queen',
+      6: 'king'
+    },
+    init() {
+      this.value = this.board[(this.row-1)*8 + this.col-1];
+      this.piece = this.key[Math.abs(this.value)];
+      this.color = this.value > 0 ? 'white' : 'black'
+    }
+  }
+</script>
+
+<style>
+  .piece {
+    cursor: pointer;
+    transition: scale 50ms;
+  }
+
+  .piece:hover {
+    scale: 0.9;
+  }
+
+  .piece:active {
+    scale: 1.1;
+  }
+  
+  img {
+    pointer-events: none;
+    width: 48px;
+    height: 48px;
+  }
+</style>

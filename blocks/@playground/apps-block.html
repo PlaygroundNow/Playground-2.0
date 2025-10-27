@@ -1,0 +1,62 @@
+<window-block @close.stop="$host.remove()" nav-title="Apps">
+  <div class="wrapper">
+    <div class="square">
+      <img src="/assets/img/calculator.svg" />
+      <label>Calculator</label>
+    </div>
+    <div class="square">
+      <img src="/assets/img/browser.svg" />
+      <label>Browser</label>
+    </div>
+    <div class="square">
+      <img src="/assets/img/dog.png" />
+      <label>Faido</label>
+    </div>
+  </div>
+</window-block>
+
+<script type="module">
+  import block from "@playground/block-mixin";
+  import draggable from "@playground/draggable-mixin";
+
+  export default {
+    mixins: [block, draggable],
+  };
+</script>
+
+<style>
+  window-block::part(content) {
+    padding: 24px;
+    font-size: 20px;
+  }
+
+  .wrapper {
+    display: flex;
+    gap: 48px;
+  }
+
+  .square {
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 45px;
+    height: 45px;
+    border: 0.5px solid var(--grey);
+    margin-bottom: 24px;
+  }
+
+  .square img {
+    width: 24px;
+    height: 24px;
+  }
+
+  label {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: 65px;
+  }
+</style>
