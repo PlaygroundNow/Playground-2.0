@@ -59,7 +59,7 @@ function createObserved(doc) {
         const keyPath = (evt.keyPath || evt.keypath || "").split(".").slice(1); // drop OBSERVED-*
         if (!keyPath.length) return;
 
-        console.log(keyPath);
+        console.log(keyPath.join("."));
         setByPath(doc, keyPath, object[name]);
       });
       window.lock = false;

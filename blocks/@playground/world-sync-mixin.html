@@ -23,14 +23,11 @@
   }
 
   function startObserver() {
-    const host = this.$host;
-
     const ensureId = (el) =>
+      el.tagName !== "WORLD-BLOCK" &&
       (el.id ||= "pg" + crypto.randomUUID().replace(/-/g, ""));
     const isTracked = (el) =>
-      el instanceof Element &&
-      el.constructor?.name === "AlpineBlockSFC" &&
-      el.parentElement === host;
+      el instanceof Element && el.constructor?.name === "AlpineBlockSFC";
     const isBlockCtor = (el) =>
       el instanceof Element && el.constructor?.name === "AlpineBlockSFC";
 
@@ -48,7 +45,8 @@
     const syncProps = (entry, el) => {
       const seen = new Set();
       for (const a of el.attributes) {
-        if (a.name === "id") continue;
+        if (a.name === "id" || a.name.startsWith(":") || a.name.startsWith("@"))
+          continue;
         entry.props[a.name] = a.value;
         seen.add(a.name);
       }
@@ -73,7 +71,9 @@
     };
 
     const getParentId = (el) =>
-      el.parentElement && isTracked(el.parentElement)
+      el.tagName === "WORLD-BLOCK"
+        ? null
+        : el.parentElement && isTracked(el.parentElement)
         ? ensureId(el.parentElement)
         : null;
 
@@ -88,6 +88,7 @@
               const i = ensureEntry(n, doc);
               const entry = doc.world[i];
               entry.tagName = n.tagName.toLowerCase();
+
               syncProps(entry, n);
               if (parentId) entry.parentId = parentId;
               else delete entry.parentId;
@@ -131,7 +132,7 @@
       this.lastChange = JSON.stringify(handle.doc());
     });
 
-    this._mutationObserver.observe(host, {
+    this._mutationObserver.observe(this.$host, {
       childList: true,
       subtree: true,
       attributes: true,
@@ -139,7 +140,8 @@
   }
 
   function syncDocToWorld(doc, host = this.$host) {
-    console.log("syncing from doc");
+    const root = document.querySelector("world-block") || host;
+
     const isBlock = (el) =>
       el instanceof Element && el.constructor?.name === "AlpineBlockSFC";
 
@@ -147,7 +149,7 @@
     const byId = Object.fromEntries(doc.world.map((n) => [n.id, n]));
 
     // Remove extras anywhere under host
-    for (const el of host.querySelectorAll("*")) {
+    for (const el of root.querySelectorAll("*")) {
       if (!isBlock(el)) continue;
       if (!desired.has(el.id)) el.remove();
     }
@@ -157,10 +159,9 @@
 
       // ensure parent container
       const parent =
-        node.parentId && byId[node.parentId]
+        (node.parentId && byId[node.parentId]
           ? ensureEl(byId[node.parentId])
-          : host;
-      if (!parent) return null;
+          : root) || root;
 
       // create/replace
       let el = document.getElementById(node.id);
@@ -178,16 +179,17 @@
       // ensure correct parent
       if (el.parentElement !== parent) parent.appendChild(el);
 
-      // sync attributes (props is an object; ignore id)
+      // sync attributes (props is an object; ignore id, :*, @*)
       const props = node.props || {};
       const desiredNames = new Set(Object.keys(props));
       for (const { name } of [...el.attributes]) {
-        if (name === "id") continue;
+        if (name === "id" || name.startsWith(":") || name.startsWith("@"))
+          continue;
         if (!desiredNames.has(name)) el.removeAttribute(name);
       }
       for (const name of desiredNames) {
-        const value = props[name];
-        const str = value == null ? "" : String(value);
+        if (name.startsWith(":") || name.startsWith("@")) continue;
+        const str = props[name] == null ? "" : String(props[name]);
         if (el.getAttribute(name) !== str) el.setAttribute(name, str);
       }
 

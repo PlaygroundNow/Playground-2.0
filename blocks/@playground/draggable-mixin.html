@@ -4,21 +4,34 @@
     x: 0,
     y: 0,
     init() {
-      // start at prop values, render locally
+      this.id = this.$el.id;
+
       this.x = Number(this.props.x) || 0;
       this.y = Number(this.props.y) || 0;
       this.draggableRender();
-      
+
       this.$watch("props.x", () => {
-        this.x = Number(this.props.x);
-        this.y = Number(this.props.y);
+        this.x = Number(this.props.x) || 0;
+        this.y = Number(this.props.y) || 0;
         this.draggableRender();
-      })
+      });
       this.$watch("props.y", () => {
-        this.x = Number(this.props.x);
-        this.y = Number(this.props.y);
+        this.x = Number(this.props.x) || 0;
+        this.y = Number(this.props.y) || 0;
         this.draggableRender();
-      })
+      });
+
+      this._onPeerDragging = (e) => {
+        const { x, y } = e.detail || {};
+        this.x = x;
+        this.y = y;
+        this.draggableRender();
+      };
+
+      document.addEventListener(
+        `peer-dragging-${this.id}`,
+        this._onPeerDragging
+      );
 
       this.$el.addEventListener(
         "mousedown",
@@ -30,8 +43,13 @@
       );
       document.addEventListener("mouseup", this.draggableMouseUp.bind(this));
     },
+    destroy() {
+      document.removeEventListener(
+        `peer-dragging-${this.id}`,
+        this._onPeerDragging
+      );
+    },
     draggableMouseDown(e) {
-      // is block
       if (e.target.shadowRoot) {
         const els = e.target.shadowRoot?.elementsFromPoint(
           e.clientX,
@@ -42,31 +60,30 @@
           !e.target.hasAttribute("drag-handle")
         )
           return;
-        // in block
       } else if (e.target.getRootNode() instanceof ShadowRoot) {
         const els = e.target
           .getRootNode()
           ?.elementsFromPoint(e.clientX, e.clientY);
         if (!els?.some((el) => el?.hasAttribute("drag-handle"))) return;
       }
-      e.stopPropagation();
 
+      e.stopPropagation();
       this.dragging = true;
       this.startX = this.x;
       this.startY = this.y;
       this.startClientX = e.clientX;
       this.startClientY = e.clientY;
-
       this.$el.style.willChange = "transform";
-
       e.preventDefault();
     },
     draggableMouseMove(e) {
       if (!this.dragging) return;
-
       this.x = this.startX + (e.clientX - this.startClientX);
       this.y = this.startY + (e.clientY - this.startClientY);
       this.draggableRender();
+
+      // send to peers only listening for this id
+      this.$broadcast(`dragging-${this.id}`, { x: this.x, y: this.y });
     },
     draggableMouseUp() {
       if (!this.dragging) return;

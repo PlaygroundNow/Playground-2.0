@@ -1,25 +1,19 @@
 <div class="wrapper">
-  <div class="square" @click="openApp('@games', 'chess-app')">
-    <img src="/assets/img/chess.png" />
-    <label>Chess</label>
+  <div class="square" @click="openApp(props.pkg, props.tag)">
+    <img :src="`/assets/img/${props.icon}.png`" />
+    <label x-text="props.label"></label>
   </div>
 </div>
 
 <script type="module">
   import block from "@playground/block-mixin";
-  import draggable from "@playground/draggable-mixin";
 
   export default {
-    mixins: [block, draggable],
+    mixins: [block],
   };
 </script>
 
 <style>
-  window-block::part(content) {
-    padding: 24px;
-    font-size: 20px;
-  }
-
   .wrapper {
     display: flex;
     gap: 48px;

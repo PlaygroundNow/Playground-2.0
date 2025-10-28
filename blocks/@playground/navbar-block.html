@@ -18,7 +18,7 @@
     class="square"
     :class="{ blue: door }"
     title="Games"
-    @click="door && openBlock('games-block')"
+    @click="door && openApp('@playground', 'games-app')"
   >
     <img src="/assets/img/dice-5.svg" />
     <label>Games</label>

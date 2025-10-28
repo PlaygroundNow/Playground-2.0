@@ -10,9 +10,10 @@
 
 <script type="module">
   import coordinates from "@playground/coordinates-mixin";
+  import draggable from "@playground/draggable-mixin";
 
   export default {
-    mixins: [coordinates],
+    mixins: [coordinates, draggable],
     init() {},
   };
 </script>
@@ -20,7 +21,7 @@
 <style>
   .window {
     min-width: 400px;
-    background: rgba(255,255,255,0.9);
+    background: rgba(255, 255, 255, 0.9);
     backdrop-filter: blur(1px);
   }
 
@@ -51,8 +52,6 @@
     align-self: flex-start;
     border: 0.5px solid var(--grey);
     border-radius: 50%;
-    /* border-bottom: 0.5px solid var(--grey); */
-
     transform: translate(-10px, -10px);
   }
 </style>

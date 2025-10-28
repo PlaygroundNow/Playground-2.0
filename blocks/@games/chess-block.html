@@ -1,35 +1,19 @@
-<window-block
-  @mousemove="mousemove"
-  @close.stop="$host.remove()"
-  nav-title="Chess"
->
-  <div class="wrapper">
-    <template x-for="row in 8">
-      <div class="row">
-        <template x-for="col in 8">
-          <div :data-index="(row-1)*8+col-1" class="square"></div>
-        </template>
-      </div>
-    </template>
-    <template x-if="!hasPieces">
-      <template x-for="index in 64">
-        <template x-if="board[index-1] !== 0">
-          <template x-bind="teleport">
-            <chess-piece-block data-block="chess-block"></chess-piece-block>
-          </template>
-        </template>
+<div class="wrapper" @mousemove="mousemove">
+  <template x-for="row in 8">
+    <div class="row">
+      <template x-for="col in 8">
+        <div :data-index="(row-1)*8+col-1" class="square"></div>
       </template>
-    </template>
-    <slot></slot>
-  </div>
-</window-block>
+    </div>
+  </template>
+  <slot></slot>
+</div>
 
 <script type="module">
   import block from "@playground/block-mixin";
-  import draggable from "@playground/draggable-mixin";
 
   export default {
-    mixins: [block, draggable],
+    mixins: [block],
     board: [],
     hasPieces: false,
     squares: [],
@@ -42,17 +26,6 @@
       0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 4, 2, 3, 5, 6, 3, 2, 4,
     ],
     init() {
-      if (this.$host.querySelector("chess-piece-block")) {
-        this.hasPieces = true;
-      }
-
-      if (!this.hasPieces) {
-        console.log(this.$host.id)
-        this.teleport = {
-          ["x-teleport"]: '#' + this.$host.id,
-        };
-      }
-
       this.$nextTick(() => {
         this.squares = Array.from(this.$el.querySelectorAll(".square"));
       });
