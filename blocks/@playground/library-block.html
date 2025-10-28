@@ -108,7 +108,7 @@
       this.props.search = "";
 
       setTimeout(() => {
-        this.$el.querySelector("input#filter").focus();
+        this.$el.querySelector("input#filter")?.focus();
       }, 200);
 
       this.packages = (this.doc.packages || ["@playground", "@games"]).map(
@@ -207,13 +207,14 @@
 
     createScript(type = "block") {
       if (this.files.some((f) => f.newName !== undefined)) return;
+      this.props.search = "";
       this.files.unshift({
         type: type,
         name: "",
         newName: "",
       });
       this.$nextTick(() => {
-        this.$host.shadowRoot.querySelector(".edit-name").focus();
+        this.$host.shadowRoot.querySelector(".edit-name")?.focus();
       });
     },
 

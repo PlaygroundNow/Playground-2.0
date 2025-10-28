@@ -77,6 +77,14 @@ handle.on("change", (evt) => {
   }
 });
 
+Alpine.magic("id", (el) => {
+  let host = el.getRootNode().host;
+  while (host && !host.id) {
+    host = host.getRootNode().host;
+  }
+  return host ? host.id : null;
+});
+
 Alpine.magic("world", (el) => {
   return Alpine.$data(
     document.querySelector("world-block").shadowRoot.querySelector("div")
