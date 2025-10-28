@@ -1,9 +1,7 @@
-<div @mousedown="activePieceIndex = (row-1)*8+col-1">
-  <div class="piece" drag-handle>
-    <template x-if="value !== 0">
-      <img :src="`/assets/img/chess/${color}_${piece}.png`" />
-    </template>
-  </div>
+<div class="piece" drag-handle @mousedown="activePieceIndex = (row-1)*8+col-1" @mouseup="mouseUp">
+  <template x-if="value !== 0">
+    <img :src="`/assets/img/chess/${color}_${piece}.png`" />
+  </template>
 </div>
 
 <script type="module">
@@ -28,27 +26,34 @@
       this.value = this.board[(this.row-1)*8 + this.col-1];
       this.piece = this.key[Math.abs(this.value)];
       this.color = this.value > 0 ? 'white' : 'black'
+    },
+    mouseUp() {
+      console.log(this.hoveredSquareIndex, this.activePieceIndex)
+      this.board[this.hoveredSquareIndex] = this.board[this.activePieceIndex];
+      this.board[this.activePieceIndex] = 0;
     }
   }
 </script>
 
 <style>
   .piece {
+    height: 53px;
+    width: 53px;
     cursor: pointer;
     transition: scale 50ms;
   }
 
-  .piece:hover {
+  .piece:hover img {
     scale: 0.9;
   }
 
-  .piece:active {
+  .piece:active img {
     scale: 1.1;
   }
   
   img {
     pointer-events: none;
-    width: 48px;
-    height: 48px;
+    width: 53px;
+    height: 53px;
   }
 </style>

@@ -14,11 +14,24 @@
       document.addEventListener("mouseup", this.mouseup.bind(this));
     },
     mousedown(e) {
+      // is block
       if (e.target.shadowRoot) {
-        const els = e.target.shadowRoot.elementsFromPoint(e.clientX, e.clientY);
-        if (!els[0]?.hasAttribute("drag-handle")) return;
-      } else if (!e.target.hasAttribute("drag-handle")) return;
-
+        const els = e.target.shadowRoot?.elementsFromPoint(
+          e.clientX,
+          e.clientY
+        );
+        if (
+          !els?.some((el) => el?.hasAttribute("drag-handle")) &&
+          !e.target.hasAttribute("drag-handle")
+        )
+          return;
+      // in block
+      } else if (e.target.getRootNode() instanceof ShadowRoot) {
+        const els = e.target
+          .getRootNode()
+          ?.elementsFromPoint(e.clientX, e.clientY);
+        if (!els?.some((el) => el?.hasAttribute("drag-handle"))) return;
+      }
       e.stopPropagation();
 
       this.dragging = true;
@@ -28,7 +41,7 @@
       this.startClientY = e.clientY;
 
       this.$el.style.willChange = "transform";
-      
+
       e.preventDefault();
     },
     mousemove(e) {

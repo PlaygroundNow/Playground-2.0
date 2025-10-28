@@ -1,10 +1,10 @@
-<window-block @close.stop="$host.remove()" nav-title="Chess">
-  <div x-text="hoveredSquareIndex"></div>
-  <div x-text="activePieceIndex"></div>
+<window-block @mousemove="mouseMove" @close.stop="$host.remove()" nav-title="Chess">
+  <div x-text="`hovered: ${hoveredSquareIndex}`"></div>
+  <div x-text="`activePieceIndex: ${activePieceIndex}`"></div>
   <template x-for="row in 8">
     <div class="row">
       <template x-for="col in 8">
-        <div @mouseover.capture="hoveredSquareIndex = (row-1)*8+col-1" class="square">
+        <div :data-index="(row-1)*8+col-1" class="square">
           <chess-piece-block></chess-piece-block>
         </div>
       </template>
@@ -23,7 +23,7 @@
     hoveredSquareIndex: -1,
     init() {
       if (!this.props.board) {
-        this.props.board = [
+        this.props.board = JSON.stringify([
           -4,-2,-3,-5,-6,-3,-2,-4,
           -1,-1,-1,-1,-1,-1,-1,-1,
           0,0,0,0,0,0,0,0,
@@ -32,13 +32,28 @@
           0,0,0,0,0,0,0,0,
           1,1,1,1,1,1,1,1,
           4,2,3,5,6,3,2,4
-        ]
+        ]);
       }
 
-      this.board = JSON.parse(`[${this.props.board}]`);
-      this.$watch('props.board', () => {
-        this.board = JSON.parse(`[${this.props.board}]`);
-      })
+      this.board = JSON.parse(this.props.board);
+      this.$watch("props.board", () => {
+        if (JSON.stringify(this.board) !== this.props.board) {
+          this.board = JSON.parse(this.props.board);
+        }
+      });
+      this.$watch("board", () => {
+        if (this.props.board !== JSON.stringify(this.board)) {
+          this.props.board = JSON.stringify(this.board);
+        }
+      });
+    },
+    mouseMove(e) {
+      const square = this.$host.shadowRoot.elementsFromPoint(e.clientX, e.clientY)
+        .find(el => el.classList.contains("square"));
+
+      if (square) {
+        this.hoveredSquareIndex = Number(square.dataset.index);
+      }
     }
   };
 </script>
@@ -49,8 +64,12 @@
   }
 
   .square {
-    width: 50px;
-    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    width: 55px;
+    height: 55px;
 
     border: 0.5px solid rgba(0,0,0,0.2);
   }

@@ -44,7 +44,7 @@
   }
 
   function syncDocToWorld(node, el) {
-    const { tagName, props, children } = node;
+    const { id, tagName, props, children } = node;
 
     if (tagName !== el.tagName.toLowerCase()) {
       throw new Error("Tag name of node does not match element.");
@@ -69,11 +69,12 @@
       el.innerHTML = children
         .map(
           (c) =>
-            `<${c.tagName} ${c.props
+            `<${c.tagName} id="${c.id}" ${c.props
               .map(([k, v]) => `${k}="${v}"`)
               .join(" ")}></${c.tagName}>`
         )
         .join("\n");
+      return;
     }
 
     for (let i = 0; i < children.length; i++) {
@@ -84,17 +85,19 @@
     }
   }
 
-  function getWorldAsDoc(el) {
+  function getWorldAsDoc(el, i=0) {
     if (!el) return
     
     const node = {
+      id: i,
       tagName: el.tagName?.toLowerCase(),
       props: Array.from(el.attributes).map((a) => [a.name, a.value]),
       children: [],
     };
 
     for (let child of el.children) {
-      node.children.push(getWorldAsDoc(child));
+      i++;
+      node.children.push(getWorldAsDoc(child, i));
     }
 
     return node;
