@@ -7,13 +7,30 @@
       // start at prop values, render locally
       this.x = Number(this.props.x) || 0;
       this.y = Number(this.props.y) || 0;
-      this.render();
+      this.draggableRender();
+      
+      this.$watch("props.x", () => {
+        this.x = Number(this.props.x);
+        this.y = Number(this.props.y);
+        this.draggableRender();
+      })
+      this.$watch("props.y", () => {
+        this.x = Number(this.props.x);
+        this.y = Number(this.props.y);
+        this.draggableRender();
+      })
 
-      this.$el.addEventListener("mousedown", this.mousedown.bind(this));
-      document.addEventListener("mousemove", this.mousemove.bind(this));
-      document.addEventListener("mouseup", this.mouseup.bind(this));
+      this.$el.addEventListener(
+        "mousedown",
+        this.draggableMouseDown.bind(this)
+      );
+      document.addEventListener(
+        "mousemove",
+        this.draggableMouseMove.bind(this)
+      );
+      document.addEventListener("mouseup", this.draggableMouseUp.bind(this));
     },
-    mousedown(e) {
+    draggableMouseDown(e) {
       // is block
       if (e.target.shadowRoot) {
         const els = e.target.shadowRoot?.elementsFromPoint(
@@ -25,7 +42,7 @@
           !e.target.hasAttribute("drag-handle")
         )
           return;
-      // in block
+        // in block
       } else if (e.target.getRootNode() instanceof ShadowRoot) {
         const els = e.target
           .getRootNode()
@@ -44,13 +61,14 @@
 
       e.preventDefault();
     },
-    mousemove(e) {
+    draggableMouseMove(e) {
       if (!this.dragging) return;
+
       this.x = this.startX + (e.clientX - this.startClientX);
       this.y = this.startY + (e.clientY - this.startClientY);
-      this.render();
+      this.draggableRender();
     },
-    mouseup() {
+    draggableMouseUp() {
       if (!this.dragging) return;
       this.dragging = false;
       this.$el.style.willChange = "";
@@ -58,7 +76,7 @@
       if (this.props.x !== this.x) this.props.x = this.x;
       if (this.props.y !== this.y) this.props.y = this.y;
     },
-    render() {
+    draggableRender() {
       this.$el.style.transform = `translate(${this.x}px, ${this.y}px)`;
     },
   };

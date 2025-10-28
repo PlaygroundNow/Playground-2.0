@@ -1,7 +1,5 @@
-<div class="piece" drag-handle @mousedown="activePieceIndex = (row-1)*8+col-1" @mouseup="mouseUp">
-  <template x-if="value !== 0">
+<div class="piece" drag-handle @mouseup="mouseup">
     <img :src="`/assets/img/chess/${color}_${piece}.png`" />
-  </template>
 </div>
 
 <script type="module">
@@ -23,24 +21,47 @@
       6: 'king'
     },
     init() {
-      this.value = this.board[(this.row-1)*8 + this.col-1];
+      this.value = Number(this.board[this.index-1]);
       this.piece = this.key[Math.abs(this.value)];
-      this.color = this.value > 0 ? 'white' : 'black'
+      this.color = this.value < 0 ? "black" : "white";
+
+      if (this.props.x && this.props.y) return;
+      
+      const row = Math.floor((this.index-1) / 8); // 0–7
+      const col = (this.index-1) % 8;
+
+      this.props.x = col*55;
+      this.props.y = row*55;
     },
-    mouseUp() {
-      console.log(this.hoveredSquareIndex, this.activePieceIndex)
-      this.board[this.hoveredSquareIndex] = this.board[this.activePieceIndex];
-      this.board[this.activePieceIndex] = 0;
+    mouseup() {
+      const idx = this.hoveredSquareIndex;
+      if (idx > -1) {
+        const row = Math.floor(idx / 8); // 0–7
+        const col = idx % 8;
+  
+        this.props.x = col*55;
+        this.props.y = row*55;
+      }
     }
   }
 </script>
 
 <style>
+  :host {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+  
   .piece {
     height: 53px;
     width: 53px;
     cursor: pointer;
     transition: scale 50ms;
+  }
+
+  .pieces:active {
+    z-index: 1;
   }
 
   .piece:hover img {
@@ -49,9 +70,11 @@
 
   .piece:active img {
     scale: 1.1;
+    z-index: 10000;
   }
   
   img {
+    position: relative;
     pointer-events: none;
     width: 53px;
     height: 53px;

@@ -1,81 +1,99 @@
-<window-block @mousemove="mouseMove" @close.stop="$host.remove()" nav-title="Chess">
-  <div x-text="`hovered: ${hoveredSquareIndex}`"></div>
-  <div x-text="`activePieceIndex: ${activePieceIndex}`"></div>
-  <template x-for="row in 8">
-    <div class="row">
-      <template x-for="col in 8">
-        <div :data-index="(row-1)*8+col-1" class="square">
-          <chess-piece-block></chess-piece-block>
-        </div>
+<window-block
+  @mousemove="mousemove"
+  @close.stop="$host.remove()"
+  nav-title="Chess"
+>
+  <div class="wrapper">
+    <template x-for="row in 8">
+      <div class="row">
+        <template x-for="col in 8">
+          <div :data-index="(row-1)*8+col-1" class="square"></div>
+        </template>
+      </div>
+    </template>
+    <template x-if="!hasPieces">
+      <template x-for="index in 64">
+        <template x-if="board[index-1] !== 0">
+          <template x-bind="teleport">
+            <chess-piece-block data-block="chess-block"></chess-piece-block>
+          </template>
+        </template>
       </template>
-    </div>
-  </template>
+    </template>
+    <slot></slot>
+  </div>
 </window-block>
 
 <script type="module">
   import block from "@playground/block-mixin";
   import draggable from "@playground/draggable-mixin";
-  
+
   export default {
     mixins: [block, draggable],
     board: [],
+    hasPieces: false,
+    squares: [],
     activePieceIndex: -1,
     hoveredSquareIndex: -1,
+    teleport: {},
+    board: [
+      -4, -2, -3, -5, -6, -3, -2, -4, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 4, 2, 3, 5, 6, 3, 2, 4,
+    ],
     init() {
-      if (!this.props.board) {
-        this.props.board = JSON.stringify([
-          -4,-2,-3,-5,-6,-3,-2,-4,
-          -1,-1,-1,-1,-1,-1,-1,-1,
-          0,0,0,0,0,0,0,0,
-          0,0,0,0,0,0,0,0,
-          0,0,0,0,0,0,0,0,
-          0,0,0,0,0,0,0,0,
-          1,1,1,1,1,1,1,1,
-          4,2,3,5,6,3,2,4
-        ]);
+      if (this.$host.querySelector("chess-piece-block")) {
+        this.hasPieces = true;
       }
 
-      this.board = JSON.parse(this.props.board);
-      this.$watch("props.board", () => {
-        if (JSON.stringify(this.board) !== this.props.board) {
-          this.board = JSON.parse(this.props.board);
-        }
-      });
-      this.$watch("board", () => {
-        if (this.props.board !== JSON.stringify(this.board)) {
-          this.props.board = JSON.stringify(this.board);
-        }
+      if (!this.hasPieces) {
+        console.log(this.$host.id)
+        this.teleport = {
+          ["x-teleport"]: '#' + this.$host.id,
+        };
+      }
+
+      this.$nextTick(() => {
+        this.squares = Array.from(this.$el.querySelectorAll(".square"));
       });
     },
-    mouseMove(e) {
-      const square = this.$host.shadowRoot.elementsFromPoint(e.clientX, e.clientY)
-        .find(el => el.classList.contains("square"));
+    mousemove(e) {
+      const square = this.$host.shadowRoot
+        .elementsFromPoint(e.clientX, e.clientY)
+        .find((el) => el.classList.contains("square"));
 
       if (square) {
         this.hoveredSquareIndex = Number(square.dataset.index);
+      } else {
+        this.hoveredSquareIndex = -1;
       }
-    }
+    },
   };
 </script>
 
 <style>
+  .wrapper {
+    position: relative;
+  }
+
   .row {
     display: flex;
   }
 
   .square {
+    position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
-    
+
     width: 55px;
     height: 55px;
 
-    border: 0.5px solid rgba(0,0,0,0.2);
+    border: 0.5px solid rgba(0, 0, 0, 0.2);
   }
 
   .row:nth-child(odd) .square:nth-child(odd),
   .row:nth-child(even) .square:nth-child(even) {
-    background: var(--green);
+    background: var(--blue);
   }
 </style>

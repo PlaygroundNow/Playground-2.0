@@ -1,20 +1,16 @@
 <script type="module">
   export default {
+    lastChange: JSON.stringify(handle.doc()),
     init() {
-      syncDocToWorld(JSON.parse(this.doc.world), this.$host);
+      syncDocToWorld(handle.doc(), this.$host);
       startObserver.call(this);
 
       this.$watch("doc.world", (newVal, oldVal) => {
-        const tree = getWorldAsDoc(this.$host);
-        if (tree === undefined) return;
-        
-        if (JSON.stringify(tree) !== newVal) {
-          stopObserver.call(this);
+        if (this.lastChange === JSON.stringify(handle.doc())) return;
 
-          syncDocToWorld(JSON.parse(newVal), this.$host);
-
-          startObserver.call(this);
-        }
+        stopObserver.call(this);
+        syncDocToWorld(handle.doc(), this.$host);
+        startObserver.call(this);
       });
     },
   };
@@ -27,79 +23,178 @@
   }
 
   function startObserver() {
-    this._mutationObserver = new MutationObserver((mutationsList) => {
-      const tree = getWorldAsDoc(this.$host);
-      if (tree === undefined) return;
+    const host = this.$host;
 
-      if (JSON.stringify(tree) !== JSON.stringify(this.doc.world)) {
-        this.doc.world = JSON.stringify(tree);
+    const ensureId = (el) =>
+      (el.id ||= "pg" + crypto.randomUUID().replace(/-/g, ""));
+    const isTracked = (el) =>
+      el instanceof Element &&
+      el.constructor?.name === "AlpineBlockSFC" &&
+      el.parentElement === host;
+    const isBlockCtor = (el) =>
+      el instanceof Element && el.constructor?.name === "AlpineBlockSFC";
+
+    const findIdx = (id, doc) => doc.world.findIndex((n) => n.id === id);
+    const ensureEntry = (el, doc) => {
+      const id = ensureId(el);
+      let i = findIdx(id, doc);
+      if (i === -1) {
+        doc.world.push({ id, tagName: el.tagName.toLowerCase(), props: {} });
+        i = doc.world.length - 1;
       }
+      return i;
+    };
+
+    const syncProps = (entry, el) => {
+      const seen = new Set();
+      for (const a of el.attributes) {
+        if (a.name === "id") continue;
+        entry.props[a.name] = a.value;
+        seen.add(a.name);
+      }
+      for (const k of Object.keys(entry.props))
+        if (!seen.has(k)) delete entry.props[k];
+    };
+
+    const removeCascade = (rootId, doc) => {
+      const toDelete = new Set([rootId]);
+      let changed = true;
+      while (changed) {
+        changed = false;
+        for (const n of doc.world) {
+          if (n.parentId && toDelete.has(n.parentId) && !toDelete.has(n.id)) {
+            toDelete.add(n.id);
+            changed = true;
+          }
+        }
+      }
+      for (let k = doc.world.length - 1; k >= 0; k--)
+        if (toDelete.has(doc.world[k].id)) doc.world.splice(k, 1);
+    };
+
+    const getParentId = (el) =>
+      el.parentElement && isTracked(el.parentElement)
+        ? ensureId(el.parentElement)
+        : null;
+
+    this._mutationObserver = new MutationObserver((mutations) => {
+      handle.change((doc) => {
+        for (const m of mutations) {
+          if (m.type === "childList") {
+            const parentId = isTracked(m.target) ? ensureId(m.target) : null;
+
+            // ADDED
+            for (const n of [...m.addedNodes].filter(isTracked)) {
+              const i = ensureEntry(n, doc);
+              const entry = doc.world[i];
+              entry.tagName = n.tagName.toLowerCase();
+              syncProps(entry, n);
+              if (parentId) entry.parentId = parentId;
+              else delete entry.parentId;
+            }
+
+            // REMOVED — don't rely on isTracked (parent is null now)
+            for (const n of m.removedNodes) {
+              if (!(n instanceof Element)) continue;
+              if (!isBlockCtor(n)) continue;
+
+              const id = n.id; // do NOT generate a new id here
+              const idx = id ? findIdx(id, doc) : -1;
+
+              // If we can't match by id, try any block descendants that still have ids
+              if (idx !== -1) {
+                removeCascade(id, doc);
+              } else {
+                // handle subtree removals when the root lacked an id
+                const ids = [...n.querySelectorAll("*")]
+                  .map((e) => e.id)
+                  .filter(Boolean);
+                for (const childId of ids) {
+                  const ci = findIdx(childId, doc);
+                  if (ci !== -1) removeCascade(childId, doc);
+                }
+              }
+            }
+          } else if (m.type === "attributes" && isTracked(m.target)) {
+            const el = m.target;
+            const i = ensureEntry(el, doc);
+            const entry = doc.world[i];
+            entry.tagName = el.tagName.toLowerCase();
+            syncProps(entry, el);
+
+            const pid = getParentId(el);
+            if (pid) entry.parentId = pid;
+            else delete entry.parentId;
+          }
+        }
+      });
+      this.lastChange = JSON.stringify(handle.doc());
     });
-    this._mutationObserver.observe(this.$host, {
+
+    this._mutationObserver.observe(host, {
       childList: true,
       subtree: true,
       attributes: true,
-      attributeFilter: undefined,
     });
   }
 
-  function syncDocToWorld(node, el) {
-    const { id, tagName, props, children } = node;
+  function syncDocToWorld(doc, host = this.$host) {
+    console.log("syncing from doc");
+    const isBlock = (el) =>
+      el instanceof Element && el.constructor?.name === "AlpineBlockSFC";
 
-    if (tagName !== el.tagName.toLowerCase()) {
-      throw new Error("Tag name of node does not match element.");
+    const desired = new Map(doc.world.map((n) => [n.id, n]));
+    const byId = Object.fromEntries(doc.world.map((n) => [n.id, n]));
+
+    // Remove extras anywhere under host
+    for (const el of host.querySelectorAll("*")) {
+      if (!isBlock(el)) continue;
+      if (!desired.has(el.id)) el.remove();
     }
 
-    for (let [key, val] of props) {
-      el.setAttribute(key, val);
-    }
+    const ensureEl = (node) => {
+      if (!node) return null;
 
-    for (let { name, value } of el.attributes) {
-      if (!props.find(([k, v]) => k === name)) {
-        el.removeAttribute(name);
+      // ensure parent container
+      const parent =
+        node.parentId && byId[node.parentId]
+          ? ensureEl(byId[node.parentId])
+          : host;
+      if (!parent) return null;
+
+      // create/replace
+      let el = document.getElementById(node.id);
+      if (!el) {
+        el = document.createElement(node.tagName);
+        el.id = node.id;
+        parent.appendChild(el);
+      } else if (el.tagName.toLowerCase() !== node.tagName) {
+        const repl = document.createElement(node.tagName);
+        repl.id = node.id;
+        el.replaceWith(repl);
+        el = repl;
       }
-    }
 
-    const elChildrenOrder = Array.from(el.children).map((el) =>
-      el.tagName.toLowerCase()
-    );
-    const nodeChildrenOrder = children.map((c) => c.tagName);
+      // ensure correct parent
+      if (el.parentElement !== parent) parent.appendChild(el);
 
-    if (JSON.stringify(elChildrenOrder) !== JSON.stringify(nodeChildrenOrder)) {
-      el.innerHTML = children
-        .map(
-          (c) =>
-            `<${c.tagName} id="${c.id}" ${c.props
-              .map(([k, v]) => `${k}="${v}"`)
-              .join(" ")}></${c.tagName}>`
-        )
-        .join("\n");
-      return;
-    }
+      // sync attributes (props is an object; ignore id)
+      const props = node.props || {};
+      const desiredNames = new Set(Object.keys(props));
+      for (const { name } of [...el.attributes]) {
+        if (name === "id") continue;
+        if (!desiredNames.has(name)) el.removeAttribute(name);
+      }
+      for (const name of desiredNames) {
+        const value = props[name];
+        const str = value == null ? "" : String(value);
+        if (el.getAttribute(name) !== str) el.setAttribute(name, str);
+      }
 
-    for (let i = 0; i < children.length; i++) {
-      const docChild = node.children[i];
-      const elChild = Array.from(el.children)[i];
-
-      syncDocToWorld(docChild, elChild);
-    }
-  }
-
-  function getWorldAsDoc(el, i=0) {
-    if (!el) return
-    
-    const node = {
-      id: i,
-      tagName: el.tagName?.toLowerCase(),
-      props: Array.from(el.attributes).map((a) => [a.name, a.value]),
-      children: [],
+      return el;
     };
 
-    for (let child of el.children) {
-      i++;
-      node.children.push(getWorldAsDoc(child, i));
-    }
-
-    return node;
+    // Create / update all (parents auto-created first via recursion)
+    for (const node of doc.world) ensureEl(node);
   }
 </script>
