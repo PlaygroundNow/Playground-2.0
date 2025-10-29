@@ -1,0 +1,18 @@
+<div>
+  <slot></slot>
+</div>
+
+<script type="module">
+  import block from "@playground/block-mixin";
+
+  export default {
+    mixins: [block],
+  };
+</script>
+
+<style>
+  div {
+    display: flex;
+    padding: 12px;
+  }
+</style>

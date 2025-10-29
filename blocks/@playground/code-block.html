@@ -58,24 +58,35 @@
   export default {
     mixins: [peers, scroll],
     init() {
+      this.name =
+        "source-" + this.props.file.replace(/^@/, "").split("/").join("-");
       this.loadEditor();
+
       this.$watch("props.source", () => this.loadEditor());
+
+      this.$watch(`doc`, (val) => {
+        if (val[this.name] !== this.props.source) {
+          this.dirty = true;
+        } else {
+          this.dirty = false;
+        }
+      });
     },
     save(view) {
       this.$dispatch("save", {
-        source:
-          "source-" + this.props.file.replace(/^@/, "").split("/").join("-"),
+        source: this.name,
       });
+      this.dirty = false;
       return true;
     },
 
     loadEditor() {
-      const name =
+      this.name =
         "source-" + this.props.file.replace(/^@/, "").split("/").join("-");
       this.$el.replaceChildren();
 
-      if (this.doc[name] !== this.props.source) {
-        this.doc[name] = this.props.source;
+      if (this.doc[this.name] !== this.props.source) {
+        this.doc[this.name] = this.props.source;
       }
 
       const saveKeymap = keymap.of([
@@ -125,13 +136,13 @@
       });
 
       this.view = new EditorView({
-        doc: handle.doc()[name],
+        doc: handle.doc()[this.name],
         parent: this.$el,
         extensions: [
           basicSetup,
           window.automergeSyncPlugin({
             handle,
-            path: [name],
+            path: [this.name],
             automerge: window.Automerge,
             codemirror: {
               state: { Annotation, ChangeSet },

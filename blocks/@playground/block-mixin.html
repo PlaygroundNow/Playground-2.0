@@ -24,7 +24,7 @@
 
   export default {
     mixins: [menu, coordinates],
-    async openApp(pkg, tag) {
+    async openApp(pkg, tag, props = {}) {
       const resp = await fetch(`/blocks/${pkg}/${tag}.html`);
       const html = await resp.text();
 
@@ -38,13 +38,20 @@
           .replace(/-/g, " ")
           .replace(/\b\w/g, (c) => c.toUpperCase()) || "App";
 
+      const withProps = html.replace(
+          ">",
+          " " + Object.entries(props)
+            .map( ([k,v]) => `${k}="${v}"` )
+          .join(" ") + " >"
+        )
+
       const appHtml = `
         <window-block x="${screenWidth + this.$world.scrollX}" y="${
         screenHeight + this.$world.scrollY
       }"
           x-on:close.stop="$el.remove()"
           nav-title="${title}">
-          ${html}
+          ${withProps}
         </window-block>
       `.trim();
 

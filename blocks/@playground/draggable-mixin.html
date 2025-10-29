@@ -4,8 +4,6 @@
     x: 0,
     y: 0,
     init() {
-      this.id = this.$el.id;
-
       this.x = Number(this.props.x) || 0;
       this.y = Number(this.props.y) || 0;
       this.draggableRender();
@@ -23,14 +21,12 @@
 
       this._onPeerDragging = (e) => {
         const { x, y } = e.detail || {};
-        this.x = x;
-        this.y = y;
-        this.draggableRender();
+        this.draggableRender(x, y);
       };
 
       document.addEventListener(
-        `peer-dragging-${this.id}`,
-        this._onPeerDragging
+        `peer-dragging-${this.$host.id}`,
+        this._onPeerDragging.bind(this)
       );
 
       this.$el.addEventListener(
@@ -45,7 +41,7 @@
     },
     destroy() {
       document.removeEventListener(
-        `peer-dragging-${this.id}`,
+        `peer-dragging-${this.$host.id}`,
         this._onPeerDragging
       );
     },
@@ -78,12 +74,13 @@
     },
     draggableMouseMove(e) {
       if (!this.dragging) return;
+
       this.x = this.startX + (e.clientX - this.startClientX);
       this.y = this.startY + (e.clientY - this.startClientY);
       this.draggableRender();
 
       // send to peers only listening for this id
-      this.$broadcast(`dragging-${this.id}`, { x: this.x, y: this.y });
+      this.$broadcast(`dragging-${this.$host.id}`, { x: this.x, y: this.y });
     },
     draggableMouseUp() {
       if (!this.dragging) return;
@@ -93,8 +90,10 @@
       if (this.props.x !== this.x) this.props.x = this.x;
       if (this.props.y !== this.y) this.props.y = this.y;
     },
-    draggableRender() {
-      this.$el.style.transform = `translate(${this.x}px, ${this.y}px)`;
+    draggableRender(x, y) {
+      this.$el.style.transform = `translate(${x || this.x}px, ${
+        y || this.y
+      }px)`;
     },
   };
 </script>
