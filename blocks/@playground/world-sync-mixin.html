@@ -30,7 +30,6 @@
       el instanceof Element && el.constructor?.name === "AlpineBlockSFC";
     const isBlockCtor = (el) =>
       el instanceof Element && el.constructor?.name === "AlpineBlockSFC";
-
     const findIdx = (id, doc) => doc.world.findIndex((n) => n.id === id);
     const ensureEntry = (el, doc) => {
       const id = ensureId(el);
@@ -41,19 +40,17 @@
       }
       return i;
     };
-
     const syncProps = (entry, el) => {
       const seen = new Set();
       for (const a of el.attributes) {
         if (a.name === "id" || a.name.startsWith(":") || a.name.startsWith("@"))
           continue;
-        entry.props[a.name] = a.value;
+        if (entry.props[a.name] !== a.value) entry.props[a.name] = a.value;
         seen.add(a.name);
       }
       for (const k of Object.keys(entry.props))
         if (!seen.has(k)) delete entry.props[k];
     };
-
     const removeCascade = (rootId, doc) => {
       const toDelete = new Set([rootId]);
       let changed = true;
@@ -69,7 +66,6 @@
       for (let k = doc.world.length - 1; k >= 0; k--)
         if (toDelete.has(doc.world[k].id)) doc.world.splice(k, 1);
     };
-
     const getParentId = (el) =>
       el.tagName === "WORLD-BLOCK"
         ? null
@@ -77,36 +73,37 @@
         ? ensureId(el.parentElement)
         : null;
 
-    this._mutationObserver = new MutationObserver((mutations) => {
-      handle.change((doc) => {
-        for (const m of mutations) {
-          if (m.type === "childList") {
-            const parentId = isTracked(m.target) ? ensureId(m.target) : null;
+    const applyOps = (doc, ops) => {
+      for (const op of ops) op(doc);
+    };
 
-            // ADDED
-            for (const n of [...m.addedNodes].filter(isTracked)) {
+    const buildOps = (mutations) => {
+      const ops = [];
+      for (const m of mutations) {
+        if (m.type === "childList") {
+          const parentId = isTracked(m.target) ? m.target.id || null : null;
+
+          // ADDED
+          for (const n of [...m.addedNodes].filter(isTracked)) {
+            ops.push((doc) => {
               const i = ensureEntry(n, doc);
               const entry = doc.world[i];
               entry.tagName = n.tagName.toLowerCase();
-
               syncProps(entry, n);
               if (parentId) entry.parentId = parentId;
               else delete entry.parentId;
-            }
+            });
+          }
 
-            // REMOVED — don't rely on isTracked (parent is null now)
-            for (const n of m.removedNodes) {
-              if (!(n instanceof Element)) continue;
-              if (!isBlockCtor(n)) continue;
-
-              const id = n.id; // do NOT generate a new id here
+          // REMOVED
+          for (const n of m.removedNodes) {
+            if (!(n instanceof Element) || !isBlockCtor(n)) continue;
+            const id = n.id;
+            ops.push((doc) => {
               const idx = id ? findIdx(id, doc) : -1;
-
-              // If we can't match by id, try any block descendants that still have ids
               if (idx !== -1) {
                 removeCascade(id, doc);
               } else {
-                // handle subtree removals when the root lacked an id
                 const ids = [...n.querySelectorAll("*")]
                   .map((e) => e.id)
                   .filter(Boolean);
@@ -115,31 +112,50 @@
                   if (ci !== -1) removeCascade(childId, doc);
                 }
               }
-            }
-          } else if (m.type === "attributes" && isTracked(m.target)) {
-            const el = m.target;
+            });
+          }
+        } else if (m.type === "attributes" && isTracked(m.target)) {
+          const el = m.target;
+          ops.push((doc) => {
             const i = ensureEntry(el, doc);
             const entry = doc.world[i];
             entry.tagName = el.tagName.toLowerCase();
             syncProps(entry, el);
-
             const pid = getParentId(el);
             if (pid) entry.parentId = pid;
             else delete entry.parentId;
-          }
+          });
         }
-      });
-      this.lastChange = JSON.stringify(handle.doc());
+      }
+      return ops;
+    };
+
+    this.lastChange = JSON.stringify(handle.doc());
+
+    this._mutationObserver = new MutationObserver((mutations) => {
+      const ops = buildOps(mutations);
+      if (ops.length === 0) return;
+
+      // Preflight: simulate on a clone
+      const draft = structuredClone(handle.doc());
+      applyOps(draft, ops);
+      const next = JSON.stringify(draft);
+      if (next === this.lastChange) return;
+
+      // Commit: apply the same ops inside handle.change
+      handle.change((doc) => applyOps(doc, ops));
+      this.lastChange = next;
     });
 
     this._mutationObserver.observe(this.$host, {
       childList: true,
       subtree: true,
       attributes: true,
+      attributeOldValue: true,
     });
   }
 
-  function syncDocToWorld(doc, host = this.$host) {
+  function syncDocToWorld(doc, host = document.querySelector("world-block")) {
     const root = document.querySelector("world-block") || host;
 
     const isBlock = (el) =>
