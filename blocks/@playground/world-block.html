@@ -24,7 +24,7 @@
 
   export default {
     mixins: [block, worldSync, worldScroll],
-    door: false,
+    door: true,
     peerMouseMove,
     handleMouseMove,
 
@@ -46,25 +46,25 @@
         this.$broadcast("heartbeat", { timestamp: Date.now() });
       }, 1000);
 
-      if (
-        localStorage.getItem("door") !== "true" ||
-        document.querySelectorAll("welcome-block").length
-      ) {
-        this.door = false;
-        const screenWidth = this.space.clientWidth / 2 - 150;
-        const screenHeight = this.space.clientHeight / 2 - 300;
-        document.querySelectorAll("welcome-block").forEach((b) => {
-          b.remove();
-        });
-        document
-          .querySelector("world-block")
-          .insertAdjacentHTML(
-            "afterbegin",
-            `<welcome-block x="${screenWidth}" y="${screenHeight}" data-block="world-block"></welcome-block>`
-          );
-      } else {
-        this.door = true;
-      }
+      // if (
+      //   localStorage.getItem("door") !== "true" ||
+      //   document.querySelectorAll("welcome-block").length
+      // ) {
+      //   this.door = false;
+      //   const screenWidth = this.space.clientWidth / 2 - 150;
+      //   const screenHeight = this.space.clientHeight / 2 - 300;
+      //   document.querySelectorAll("welcome-block").forEach((b) => {
+      //     b.remove();
+      //   });
+      //   document
+      //     .querySelector("world-block")
+      //     .insertAdjacentHTML(
+      //       "afterbegin",
+      //       `<welcome-block x="${screenWidth}" y="${screenHeight}" data-block="world-block"></welcome-block>`
+      //     );
+      // } else {
+      //   this.door = true;
+      // }
     },
   };
 
