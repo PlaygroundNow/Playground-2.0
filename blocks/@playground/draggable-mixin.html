@@ -4,17 +4,48 @@
     x: 0,
     y: 0,
     init() {
-      // start at prop values, render locally
       this.x = Number(this.props.x) || 0;
       this.y = Number(this.props.y) || 0;
-      this.render();
+      this.draggableRender();
 
-      this.$el.addEventListener("mousedown", this.mousedown.bind(this));
-      document.addEventListener("mousemove", this.mousemove.bind(this));
-      document.addEventListener("mouseup", this.mouseup.bind(this));
+      this.$watch("props.x", () => {
+        this.x = Number(this.props.x) || 0;
+        this.y = Number(this.props.y) || 0;
+        this.draggableRender();
+      });
+      this.$watch("props.y", () => {
+        this.x = Number(this.props.x) || 0;
+        this.y = Number(this.props.y) || 0;
+        this.draggableRender();
+      });
+
+      this._onPeerDragging = (e) => {
+        const { x, y } = e.detail || {};
+        this.draggableRender(x, y);
+      };
+
+      document.addEventListener(
+        `peer-dragging-${this.$host.id}`,
+        this._onPeerDragging.bind(this)
+      );
+
+      this.$el.addEventListener(
+        "mousedown",
+        this.draggableMouseDown.bind(this)
+      );
+      document.addEventListener(
+        "mousemove",
+        this.draggableMouseMove.bind(this)
+      );
+      document.addEventListener("mouseup", this.draggableMouseUp.bind(this));
     },
-    mousedown(e) {
-      // is block
+    destroy() {
+      document.removeEventListener(
+        `peer-dragging-${this.$host.id}`,
+        this._onPeerDragging
+      );
+    },
+    draggableMouseDown(e) {
       if (e.target.shadowRoot) {
         const els = e.target.shadowRoot?.elementsFromPoint(
           e.clientX,
@@ -25,32 +56,33 @@
           !e.target.hasAttribute("drag-handle")
         )
           return;
-      // in block
       } else if (e.target.getRootNode() instanceof ShadowRoot) {
         const els = e.target
           .getRootNode()
           ?.elementsFromPoint(e.clientX, e.clientY);
         if (!els?.some((el) => el?.hasAttribute("drag-handle"))) return;
       }
-      e.stopPropagation();
 
+      e.stopPropagation();
       this.dragging = true;
       this.startX = this.x;
       this.startY = this.y;
       this.startClientX = e.clientX;
       this.startClientY = e.clientY;
-
       this.$el.style.willChange = "transform";
-
       e.preventDefault();
     },
-    mousemove(e) {
+    draggableMouseMove(e) {
       if (!this.dragging) return;
+
       this.x = this.startX + (e.clientX - this.startClientX);
       this.y = this.startY + (e.clientY - this.startClientY);
-      this.render();
+      this.draggableRender();
+
+      // send to peers only listening for this id
+      this.$broadcast(`dragging-${this.$host.id}`, { x: this.x, y: this.y });
     },
-    mouseup() {
+    draggableMouseUp() {
       if (!this.dragging) return;
       this.dragging = false;
       this.$el.style.willChange = "";
@@ -58,8 +90,10 @@
       if (this.props.x !== this.x) this.props.x = this.x;
       if (this.props.y !== this.y) this.props.y = this.y;
     },
-    render() {
-      this.$el.style.transform = `translate(${this.x}px, ${this.y}px)`;
+    draggableRender(x, y) {
+      this.$el.style.transform = `translate(${x || this.x}px, ${
+        y || this.y
+      }px)`;
     },
   };
 </script>

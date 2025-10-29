@@ -11,36 +11,12 @@
 
 <script type="module">  
   export default {
-    openLibrary(pkg, location) {
-      const x = Number(this.props.x);
-      const y = Number(this.props.y);
-
-      this.world = document
-        .querySelector("world-block")
-        .shadowRoot.querySelector(".world");
-      this.space = document
-        .querySelector("world-block")
-        .shadowRoot.querySelector(".space");
-
-      const screenWidth = window.innerWidth / 2 - 550;
-      const screenHeight = window.innerHeight / 2 - 300;
-
-      const libraryHtml = `<library-block selected-package="${
-        typeof pkg === "string" ? pkg : "@playground"
-      }" ${
-        typeof location === "string" ? `selected-file="${location}"` : ""
-      } x="${screenWidth + this.$world.scrollX}" y="${
-        screenHeight + this.$world.scrollY
-      }"></library-block>`;
-
-      const world = document.querySelector("world-block");
-      if (world) {
-        world.insertAdjacentHTML("beforeend", libraryHtml);
-      }
+    openScript(pkg, location) {
+      this.openApp("@playground", "library-app", {
+        ["selected-package"]: this.package,
+        ["selected-file"]: this.tag.toLowerCase(),
+      });
       this.menuOpen = false;
-    },
-    openScript() {
-      this.openLibrary(this.package, this.tag.toLowerCase());
     },
   };
 </script>

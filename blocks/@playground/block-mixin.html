@@ -8,13 +8,13 @@
   }
 
   :host {
-    --red: #F15156;
-    --yellow: #FFB400;
-    --blue: #7289DA;
-    --pink: #FF66CC;
-    --purple: #A569BD;
-    --green: #34BE5B;
-    --grey: #505A5B;
+    --red: #f15156;
+    --yellow: #ffb400;
+    --blue: #7289da;
+    --pink: #ff66cc;
+    --purple: #a569bd;
+    --green: #34be5b;
+    --grey: #505a5b;
   }
 </style>
 
@@ -24,31 +24,57 @@
 
   export default {
     mixins: [menu, coordinates],
-    openBlock(tag) {
-      const x = Number(this.props.x);
-      const y = Number(this.props.y);
-
-      this.world = document
-        .querySelector("world-block")
-        .shadowRoot.querySelector(".world");
-      this.space = document
-        .querySelector("world-block")
-        .shadowRoot.querySelector(".space");
+    async openApp(pkg, tag, props = {}) {
+      const resp = await fetch(`/blocks/${pkg}/${tag}.html`);
+      const html = await resp.text();
 
       const screenWidth = window.innerWidth / 2 - 550;
       const screenHeight = window.innerHeight / 2 - 300;
 
-      const libraryHtml =`<${tag} x="${screenWidth + this.$world.scrollX}" y="${
+      const title =
+        tag
+          .replace(/-block$/, "")
+          .replace(/-app/, "")
+          .replace(/-/g, " ")
+          .replace(/\b\w/g, (c) => c.toUpperCase()) || "App";
+
+      const withProps = html.replace(
+          ">",
+          " " + Object.entries(props)
+            .map( ([k,v]) => `${k}="${v}"` )
+          .join(" ") + " >"
+        )
+
+      const appHtml = `
+        <window-block x="${screenWidth + this.$world.scrollX}" y="${
+        screenHeight + this.$world.scrollY
+      }"
+          x-on:close.stop="$el.remove()"
+          nav-title="${title}">
+          ${withProps}
+        </window-block>
+      `.trim();
+
+      const world = document.querySelector("world-block");
+      if (world) {
+        world.insertAdjacentHTML("beforeend", appHtml);
+      }
+    },
+    openBlock(tag) {
+      const screenWidth = window.innerWidth / 2 - 550;
+      const screenHeight = window.innerHeight / 2 - 300;
+
+      const blockHtml = `<${tag} x="${screenWidth + this.$world.scrollX}" y="${
         screenHeight + this.$world.scrollY
       }"></${tag}>`;
 
       const world = document.querySelector("world-block");
       if (world) {
-        world.insertAdjacentHTML("beforeend", libraryHtml);
+        world.insertAdjacentHTML("beforeend", blockHtml);
       }
     },
     openLibrary(pkg, location) {
-      this.openBlock('library-block')
+      this.openApp("@playground", "library-app");
     },
   };
 </script>

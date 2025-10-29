@@ -39,11 +39,7 @@ if (docUrl) {
 } else {
   handle = repo.create({
     packages: ["@playground", "@games"],
-    world: JSON.stringify({
-      tagName: "world-block",
-      props: [],
-      children: [],
-    }),
+    world: [],
   });
   window.location.hash = handle.url;
 }
@@ -63,6 +59,7 @@ function createObserved(doc) {
         const keyPath = (evt.keyPath || evt.keypath || "").split(".").slice(1); // drop OBSERVED-*
         if (!keyPath.length) return;
 
+        console.log(keyPath.join("."));
         setByPath(doc, keyPath, object[name]);
       });
       window.lock = false;

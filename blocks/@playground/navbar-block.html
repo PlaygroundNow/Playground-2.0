@@ -18,7 +18,7 @@
     class="square"
     :class="{ blue: door }"
     title="Games"
-    @click="door && openBlock('games-block')"
+    @click="door && openApp('@playground', 'games-app')"
   >
     <img src="/assets/img/dice-5.svg" />
     <label>Games</label>
@@ -37,11 +37,11 @@
   <div
     class="square"
     :class="{ yellow: door }"
-    title="Faido"
+    title="Fido"
     @click="door"
   >
     <img src="/assets/img/dog.png" :style="{ width: '9px', height: '9px' }" />
-    <label>Faido</label>
+    <label>Fido</label>
   </div>
   <!-- <div class="people">
     <div class="peers" :title="`${Array.from(peers).length} document viewer.`">
