@@ -26,7 +26,7 @@ const repo = new Repo({
   storage: new IndexedDBStorageAdapter(),
   network: [
     new WebSocketClientAdapter(
-      isProd ? "wss://sync.automerge.org" : "ws://localhost:3030"
+      isProd ? "wss://c85f6f9cf57c.ngrok-free.app/" : "ws://localhost:3030"
     ),
   ],
 });
