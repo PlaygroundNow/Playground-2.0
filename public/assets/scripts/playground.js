@@ -26,7 +26,7 @@ const repo = new Repo({
   storage: new IndexedDBStorageAdapter(),
   network: [
     new WebSocketClientAdapter(
-      isProd ? "ws://208.83.232.119" : "ws://localhost:3030"
+      isProd ? "wss://playrite.fun" : "ws://localhost:3030"
     ),
   ],
 });
