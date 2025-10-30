@@ -1,8 +1,10 @@
-<flex-block>
-  <app-block
-    pkg="@games"
-    tag="chess-app"
-    icon="chess"
-    label="Chess"
-  ></app-block>
-</flex-block>
+<window-block @close.stop="$el.remove()" nav-title="Games">
+  <flex-block>
+    <app-block
+      pkg="@games"
+      tag="chess-app"
+      icon="chess"
+      label="Chess"
+    ></app-block>
+  </flex-block>
+</window-block>

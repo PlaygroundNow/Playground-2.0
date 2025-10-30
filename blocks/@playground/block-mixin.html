@@ -39,30 +39,28 @@
           .replace(/-/g, " ")
           .replace(/\b\w/g, (c) => c.toUpperCase()) || "App";
 
-      const withProps = props
-        ? html.replace(
+      Math.round(
+          screenWidth + this.$world.scrollX
+        )
+
+      props = {
+        x: Math.round(screenWidth + this.$world.scrollX),
+        y: Math.round(screenHeight + this.$world.scrollY),
+        ...props
+      };
+
+      const withProps = html.replace(
             ">",
             " " +
               Object.entries(props)
                 .map(([k, v]) => `${k}="${v}"`)
                 .join(" ") +
               " >"
-          )
-        : html;
-
-      const appHtml = `
-        <window-block x="${Math.round(
-          screenWidth + this.$world.scrollX
-        )}" y="${Math.round(screenHeight + this.$world.scrollY)}"
-          x-on:close.stop="$el.remove()"
-          nav-title="${title}">
-          ${withProps}
-        </window-block>
-      `.trim();
+          );
 
       const world = document.querySelector("world-block");
       if (world) {
-        world.insertAdjacentHTML("beforeend", appHtml);
+        world.insertAdjacentHTML("beforeend", withProps);
       }
     },
     openBlock(tag) {
