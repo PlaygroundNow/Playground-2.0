@@ -4,23 +4,26 @@
     x: 0,
     y: 0,
     init() {
-      this.x = Number(this.props.x) || 0;
-      this.y = Number(this.props.y) || 0;
+      this.x = Math.round(Number(this.props.x)) || 0;
+      this.y = Math.round(Number(this.props.y)) || 0;
+
       this.draggableRender();
 
       this.$watch("props.x", () => {
-        this.x = Number(this.props.x) || 0;
-        this.y = Number(this.props.y) || 0;
+        this.x = Math.round(Number(this.props.x)) || 0;
+        this.y = Math.round(Number(this.props.y)) || 0;
         this.draggableRender();
       });
       this.$watch("props.y", () => {
-        this.x = Number(this.props.x) || 0;
-        this.y = Number(this.props.y) || 0;
+        this.x = Math.round(Number(this.props.x)) || 0;
+        this.y = Math.round(Number(this.props.y)) || 0;
+
         this.draggableRender();
       });
 
       this._onPeerDragging = (e) => {
         const { x, y } = e.detail || {};
+
         this.draggableRender(x, y);
       };
 
@@ -65,18 +68,18 @@
 
       e.stopPropagation();
       this.dragging = true;
-      this.startX = this.x;
-      this.startY = this.y;
-      this.startClientX = e.clientX;
-      this.startClientY = e.clientY;
+      this.startX = Math.round(this.x);
+      this.startY = Math.round(this.y);
+      this.startClientX = Math.round(e.clientX);
+      this.startClientY = Math.round(e.clientY);
       this.$el.style.willChange = "transform";
       e.preventDefault();
     },
     draggableMouseMove(e) {
       if (!this.dragging) return;
 
-      this.x = this.startX + (e.clientX - this.startClientX);
-      this.y = this.startY + (e.clientY - this.startClientY);
+      this.x = Math.round(this.startX + (e.clientX - this.startClientX));
+      this.y = Math.round(this.startY + (e.clientY - this.startClientY));
       this.draggableRender();
 
       // send to peers only listening for this id
@@ -87,8 +90,8 @@
       this.dragging = false;
       this.$el.style.willChange = "";
 
-      if (this.props.x !== this.x) this.props.x = this.x;
-      if (this.props.y !== this.y) this.props.y = this.y;
+      if (this.props.x !== this.x) this.props.x = Math.round(this.x);
+      if (this.props.y !== this.y) this.props.y = Math.round(this.y);
     },
     draggableRender(x, y) {
       this.$el.style.transform = `translate(${x || this.x}px, ${

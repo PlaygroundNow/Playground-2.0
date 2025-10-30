@@ -1,15 +1,13 @@
-<window-block nav-title="Caregiver Form" @close.stop="$host.remove()">
+<div>
   <div>
-    <div>
-      <label>Name</label>
-      <input x-model="referral.name" />
-    </div>
-    <div>
-      <label>Resources Link</label>
-      <input x-model="referral.resourcesLink" />
-    </div>
+    <label>Name</label>
+    <input x-model="referral.name" />
   </div>
-</window-block>
+  <div>
+    <label>Resources Link</label>
+    <input x-model="referral.resourcesLink" />
+  </div>
+</div>
 
 <script type="module">
   import utils from "@carehub/utils-mixin";
