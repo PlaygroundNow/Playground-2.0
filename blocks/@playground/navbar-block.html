@@ -46,7 +46,7 @@
     class="square"
     :class="{ yellow: door }"
     title="Fido"
-    @click="door"
+    @click="door && openApp('@playground', 'fido-app')"
   >
     <img src="/assets/img/fido.svg" :style="{ width: '9px', height: '9px' }" />
     <label>Fido</label>
