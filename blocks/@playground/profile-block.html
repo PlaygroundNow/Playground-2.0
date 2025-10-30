@@ -1,5 +1,8 @@
-<div :style="props.style">
-  <slot></slot>
+<div>
+  <div>
+    <label>My name</label>
+    <input x-model="doc.name" />
+  </div>
 </div>
 
 <script type="module">
@@ -10,9 +13,4 @@
   };
 </script>
 
-<style>
-  div {
-    display: flex;
-    padding: 12px;
-  }
-</style>
+<style></style>

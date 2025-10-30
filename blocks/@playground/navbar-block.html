@@ -7,7 +7,7 @@
     class="square"
     :class="{ purple: door }"
     title="Apps"
-    @click="door && openBlock('apps-block')"
+    @click="door && openApp('@playground', 'apps-app')"
   >
     <img
       src="/assets/img/bolt.svg"
@@ -20,11 +20,9 @@
     title="Games"
     @click="door && openApp('@playground', 'games-app')"
   >
-    <img src="/assets/img/dice-5.svg" />
+    <img src="/assets/img/games.svg" />
     <label>Games</label>
   </div>
-  <div class="square"></div>
-  <div class="square"></div>
   <div
     class="square"
     :class="{ green: door }"
@@ -34,20 +32,25 @@
     <img src="/assets/img/code-slash.svg" />
     <label>Script</label>
   </div>
+  <div class="square"></div>
+  <div
+    class="square"
+    :class="{ 'light-blue': door }"
+    title="Profile"
+    @click="door && openApp('@playground', 'profile-app')"
+  >
+    <img src="/assets/img/profile.svg" :style="{ width: '9px', height: '9px' }" />
+    <label>Profile</label>
+  </div>
   <div
     class="square"
     :class="{ yellow: door }"
     title="Fido"
     @click="door"
   >
-    <img src="/assets/img/dog.png" :style="{ width: '9px', height: '9px' }" />
+    <img src="/assets/img/fido.svg" :style="{ width: '9px', height: '9px' }" />
     <label>Fido</label>
   </div>
-  <!-- <div class="people">
-    <div class="peers" :title="`${Array.from(peers).length} document viewer.`">
-      <div class="peer" x-text="Array.from(peers).length"></div>
-    </div>
-  </div> -->
 
   <template x-teleport="body">
     <data
@@ -184,6 +187,10 @@
 
   .yellow {
     background: var(--yellow);
+  }
+
+  .light-blue {
+    background: var(--light-blue);
   }
 
   .people {

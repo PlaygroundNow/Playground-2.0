@@ -111,15 +111,9 @@ Deno.serve(async (req) => {
       const pkg = pathname.slice(8);
       html = `<!--${JSON.stringify({ pkg })}-->` + "\n" + html;
 
-      return new Response(
-        `
-        export * from "/assets/scripts/mixin.js?package=${pkg}";
-        export default ${JSON.stringify(html)};
-        `,
-        {
-          headers: { "content-type": "application/javascript" },
-        }
-      );
+      return new Response(`export default ${JSON.stringify(html)};`, {
+        headers: { "content-type": "application/javascript" },
+      });
     } catch {
       // fallback to public
     }

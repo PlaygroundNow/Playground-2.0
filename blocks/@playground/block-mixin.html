@@ -10,6 +10,7 @@
   :host {
     --red: #f15156;
     --yellow: #ffb400;
+    --light-blue: #48c9b0;
     --blue: #7289da;
     --pink: #ff66cc;
     --purple: #a569bd;
@@ -24,7 +25,7 @@
 
   export default {
     mixins: [menu, coordinates],
-    async openApp(pkg, tag, props = {}) {
+    async openApp(pkg, tag, props) {
       const resp = await fetch(`/blocks/${pkg}/${tag}.html`);
       const html = await resp.text();
 
@@ -38,17 +39,21 @@
           .replace(/-/g, " ")
           .replace(/\b\w/g, (c) => c.toUpperCase()) || "App";
 
-      const withProps = html.replace(
-          ">",
-          " " + Object.entries(props)
-            .map( ([k,v]) => `${k}="${v}"` )
-          .join(" ") + " >"
-        )
+      const withProps = props
+        ? html.replace(
+            ">",
+            " " +
+              Object.entries(props)
+                .map(([k, v]) => `${k}="${v}"`)
+                .join(" ") +
+              " >"
+          )
+        : html;
 
       const appHtml = `
-        <window-block x="${screenWidth + this.$world.scrollX}" y="${
-        screenHeight + this.$world.scrollY
-      }"
+        <window-block x="${Math.round(
+          screenWidth + this.$world.scrollX
+        )}" y="${Math.round(screenHeight + this.$world.scrollY)}"
           x-on:close.stop="$el.remove()"
           nav-title="${title}">
           ${withProps}
@@ -64,9 +69,9 @@
       const screenWidth = window.innerWidth / 2 - 550;
       const screenHeight = window.innerHeight / 2 - 300;
 
-      const blockHtml = `<${tag} x="${screenWidth + this.$world.scrollX}" y="${
-        screenHeight + this.$world.scrollY
-      }"></${tag}>`;
+      const blockHtml = `<${tag} x="${Math.round(
+        screenWidth + this.$world.scrollX
+      )}" y="${Math.round(screenHeight + this.$world.scrollY)}"></${tag}>`;
 
       const world = document.querySelector("world-block");
       if (world) {
