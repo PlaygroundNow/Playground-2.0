@@ -1,8 +1,10 @@
-<div class="wrapper">
+<div class="wrapper" :title="props.label || props.tag">
   <div class="square" @click="openApp(props.pkg, props.tag)">
     <img :src="`/assets/img/${props.icon}.svg`" />
-    <label x-text="props.label"></label>
   </div>
+  <template x-if="props.label">
+    <label x-text="props.label"></label>
+  </template>
 </div>
 
 <script type="module">
@@ -16,7 +18,8 @@
 <style>
   .wrapper {
     display: flex;
-    gap: 48px;
+    flex-direction: column;
+    align-items: center;
   }
 
   .square {
@@ -28,7 +31,6 @@
     width: 45px;
     height: 45px;
     border: 0.5px solid var(--grey);
-    margin-bottom: 24px;
   }
 
   .square img {
@@ -38,10 +40,6 @@
 
   label {
     text-transform: capitalize;
-    position: absolute;
-    top: calc(100% + 4px);
-    left: 50%;
-    transform: translateX(-50%);
     max-width: 65px;
   }
 </style>

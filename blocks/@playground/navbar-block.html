@@ -9,9 +9,7 @@
     title="Apps"
     @click="door && openApp('@playground', 'apps-app')"
   >
-    <img
-      src="/assets/img/bolt.svg"
-    />
+    <img src="/assets/img/bolt.svg" />
     <label>Apps</label>
   </div>
   <div
@@ -39,7 +37,10 @@
     title="Profile"
     @click="door && openApp('@playground', 'profile-app')"
   >
-    <img src="/assets/img/profile.svg" :style="{ width: '9px', height: '9px' }" />
+    <img
+      src="/assets/img/profile.svg"
+      :style="{ width: '9px', height: '9px' }"
+    />
     <label>Profile</label>
   </div>
   <div
@@ -53,16 +54,48 @@
   </div>
 
   <template x-teleport="body">
+    <div
+      data-block="navbar-block"
+      @outside="themeOpen = false"
+      :style="{ position: 'fixed', top: '12px', right: '12px' }"
+    >
+      <button
+        @click="themeOpen = !themeOpen"
+        :style="{ cursor: 'pointer', background: '#222', border: 0, padding: '6px', border: '1px solid rgba(255, 255, 255, 0.5)' }"
+      >
+        <img
+          :style="{ filter: 'invert(1)', width: '22px' }"
+          src="/assets/img/theme.svg"
+        />
+      </button>
+      <div
+        x-show="themeOpen"
+        x-transition
+        :style="{ position: 'absolute', marginTop: '1px', right: 0 }"
+      >
+        <template x-for="bg in ['snow', 'bubble', 'night']">
+          <button
+            :style="{
+              marginBottom: '1px',
+              cursor: 'pointer',
+              width: '120px',
+              background: '#222',
+              color: 'white',
+              border: '1px solid rgba(255, 255, 255, 0.5)',
+            }"
+            x-text="bg"
+            @click="$world.theme = bg"
+          ></button>
+        </template>
+      </div>
+    </div>
+  </template>
+
+  <template x-teleport="body">
     <data
       data-block="navbar-block"
       x-text="numOps"
-      :style="{
-        position: 'fixed',
-        bottom: '12px',
-        left: '12px',
-        fontFamily: 'monospace',
-        fontSize: '12px'
-      }"
+      :style="{ color: 'white', position: 'fixed', bottom: '12px', left: '12px', fontFamily: 'monospace', fontSize: '12px' }"
     ></data>
   </template>
 </div>
@@ -72,6 +105,7 @@
 
   export default {
     mixins: [block],
+    themeOpen: false,
     heartbeats: {},
     numOps: 0,
     peers: new Set(["Me"]),
@@ -112,12 +146,16 @@
     left: calc(50% + 12px);
     transform: translateX(-50%);
     transform-origin: top;
-    color: black;
+    color: white;
     font-size: 24px;
     transition: transform 75ms;
 
     padding: 12px;
     margin: -12px;
+  }
+
+  @media(max-width: 1024px) {
+    .wrapper { display: none }
   }
 
   .wrapper:hover {

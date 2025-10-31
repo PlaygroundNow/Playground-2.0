@@ -15,7 +15,7 @@
     --pink: #ff66cc;
     --purple: #a569bd;
     --green: #34be5b;
-    --grey: #505a5b;
+    --grey: rgba(255, 255, 255, 0.5);
   }
 </style>
 
@@ -39,24 +39,22 @@
           .replace(/-/g, " ")
           .replace(/\b\w/g, (c) => c.toUpperCase()) || "App";
 
-      Math.round(
-          screenWidth + this.$world.scrollX
-        )
+      Math.round(screenWidth + this.$world.scrollX);
 
       props = {
         x: Math.round(screenWidth + this.$world.scrollX),
         y: Math.round(screenHeight + this.$world.scrollY),
-        ...props
+        ...props,
       };
 
       const withProps = html.replace(
-            ">",
-            " " +
-              Object.entries(props)
-                .map(([k, v]) => `${k}="${v}"`)
-                .join(" ") +
-              " >"
-          );
+        ">",
+        " " +
+          Object.entries(props)
+            .map(([k, v]) => `${k}="${v}"`)
+            .join(" ") +
+          " >"
+      );
 
       const world = document.querySelector("world-block");
       if (world) {
