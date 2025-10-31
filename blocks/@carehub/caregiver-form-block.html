@@ -1,3 +1,29 @@
+<div>
+  <div>
+    <label>Name</label>
+    <input x-model="referral.name" />
+  </div>
+  <div>
+    <label>Resources Link</label>
+    <input x-model="referral.resourcesLink" />
+  </div>
+</div>
+
+<script type="module">
+  import utils from "@carehub/utils-mixin";
+  import styles from "@carehub/styles-mixin";
+  import block from "@playground/block-mixin";
+  import draggable from "@playground/draggable-mixin";
+
+  export default {
+    mixins: [utils, styles, block, draggable],
+    referral: null,
+    init() {
+      this.referral = this.getReferralById(this.props.id);
+    },
+  };
+</script>
+
 <style>
   :host {
     position: absolute;
@@ -13,32 +39,6 @@
 
   label {
     font-weight: bold;
+    margin-bottom: 4px;
   }
 </style>
-
-<window-block nav-title="Caregiver Form" @close.stop="$host.remove()">
-  <div>
-    <div>
-      <label>Name</label>
-      <input x-model="referral.name" />
-    </div>
-    <div>
-      <label>Resources Link</label>
-      <input x-model="referral.resourcesLink" />
-    </div>
-  </div>
-</window-block>
-
-<script type="module">
-  import styles from "@carehub/styles-mixin";
-  import block from "@playground/block-mixin";
-  import draggable from "@playground/draggable-mixin";
-  
-  export default {
-    mixins: [styles, block, draggable],
-    referral: null,
-    init() {
-      this.referral = this.doc.referrals[this.props.id];
-    }
-  }
-</script>

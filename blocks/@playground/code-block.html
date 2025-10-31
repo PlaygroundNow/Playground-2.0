@@ -26,7 +26,7 @@
   } from "https://esm.sh/@codemirror/state@6.5.2";
   import { html } from "https://esm.sh/@codemirror/lang-html@6.4.11";
   import { javascriptLanguage } from "https://esm.sh/@codemirror/lang-javascript@6.2.4";
-  import { githubLight as theme } from "https://esm.sh/@fsegurai/codemirror-theme-github-light";
+  import { vsCodeDark as theme } from "https://esm.sh/@fsegurai/codemirror-theme-vscode-dark";
   import { vscodeKeymap } from "https://esm.sh/@replit/codemirror-vscode-keymap@6.0.2";
 
   import peers from "@playground/code-peers-mixin";
@@ -58,24 +58,37 @@
   export default {
     mixins: [peers, scroll],
     init() {
+      this.name =
+        "source-" + this.props.file.replace(/^@/, "").split("/").join("-");
       this.loadEditor();
+
       this.$watch("props.source", () => this.loadEditor());
+
+      // this.$watch(`doc`, (val) => {
+      //   setTimeout(() => {
+      //     if (val[this.name] !== this.props.source) {
+      //       this.dirty = true;
+      //     } else {
+      //       this.dirty = false;
+      //     }
+      //   });
+      // });
     },
     save(view) {
       this.$dispatch("save", {
-        source:
-          "source-" + this.props.file.replace(/^@/, "").split("/").join("-"),
+        source: this.name,
       });
+      this.dirty = false;
       return true;
     },
 
     loadEditor() {
-      const name =
+      this.name =
         "source-" + this.props.file.replace(/^@/, "").split("/").join("-");
       this.$el.replaceChildren();
 
-      if (this.doc[name] !== this.props.source) {
-        this.doc[name] = this.props.source;
+      if (this.doc[this.name] !== this.props.source) {
+        this.doc[this.name] = this.props.source;
       }
 
       const saveKeymap = keymap.of([
@@ -125,13 +138,13 @@
       });
 
       this.view = new EditorView({
-        doc: handle.doc()[name],
+        doc: handle.doc()[this.name],
         parent: this.$el,
         extensions: [
           basicSetup,
           window.automergeSyncPlugin({
             handle,
-            path: [name],
+            path: [this.name],
             automerge: window.Automerge,
             codemirror: {
               state: { Annotation, ChangeSet },

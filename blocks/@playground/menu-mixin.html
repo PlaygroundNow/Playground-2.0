@@ -26,7 +26,9 @@
         .slice(0, -1)
         .join(" ");
 
-      this.$host.addEventListener("contextmenu", (e) => {
+      this.$host.addEventListener("click", (e) => {
+        if (!e.metaKey) return;
+        
         e.stopPropagation();
         e.preventDefault();
         

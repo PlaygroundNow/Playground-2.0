@@ -1,34 +1,9 @@
-<style>
-  .minimap {
-    position: fixed;
-    top: 56px;
-    left: 12px;
-    z-index: 1001;
-    display: flex;
-    color: white;
-    font-size: 14px;
-    overflow: hidden;
-  }
-  .minimap-canvas {
-    width: 120px;
-    height: 120px;
-    background: #36454f11;
-    border-radius: 8px;
-    margin-bottom: 2px;
-  }
-  .minimap-label {
-    font-size: 13px;
-    opacity: 0.7;
-    margin-bottom: 2px;
-  }
-</style>
-
 <div
   @wheel.document.throttle.20ms="drawMinimap"
   @touchmove.document.throttle.20ms="drawMinimap"
   class="minimap"
 >
-  <canvas class="minimap-canvas" width="120" height="120"></canvas>
+  <canvas class="minimap-canvas" width="100" height="100"></canvas>
 </div>
 
 <script type="module">
@@ -92,9 +67,8 @@
       ctx.lineWidth = 1;
       ctx.strokeRect(0, 0, canvas.width, canvas.height);
 
-      ctx.strokeStyle = "pink";
-      ctx.lineWidth = 1;
-      ctx.strokeRect(
+      ctx.fillStyle = "#FFB400";
+      ctx.fillRect(
         scrollX * scaleX,
         scrollY * scaleY,
         viewportWidth * scaleX,
@@ -103,3 +77,24 @@
     },
   };
 </script>
+
+<style>
+  .minimap {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 1001;
+    display: flex;
+    color: white;
+    font-size: 14px;
+    overflow: hidden;
+    /* border: 0.5px solid var(--grey); */
+    backdrop-filter: blur(1px);
+  }
+  .minimap-canvas {
+    width: 100px;
+    height: 100px;
+    background: #36454f11;
+    margin-bottom: 2px;
+  }
+</style>

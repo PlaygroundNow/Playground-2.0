@@ -1,5 +1,3 @@
-<style></style>
-
 <div @save="save" x-effect="getFile(props.file)">
   <template x-if="html">
     <code-block :file="props.file" :source="html"></code-block>
@@ -34,8 +32,8 @@
         body: html,
       });
 
-      this.$broadcast("updated-file", { file, name: `${pkg}-${tag}` });
-      if (source.endsWith("mixin")) return;
+      this.$broadcast("updated-file", { file, name: `${pkg}-${tag}`, tag });
+      if (!source.endsWith("block")) return;
 
       const wc = customElements.get(tag);
       if (wc) wc.template = html;

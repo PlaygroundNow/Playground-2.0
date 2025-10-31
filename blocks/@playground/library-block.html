@@ -1,196 +1,103 @@
-<style>
-  :host {
-    position: absolute;
-    top: 0;
-    left: 0;
-  }
-
-  .wrapper {
-    max-height: 600px;
-    font-size: 20px;
-
-    display: flex;
-    align-items: stretch;
-  }
-
-  .section {
-    min-width: 120px;
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-  }
-
-  .section:not(:last-child) {
-    border-right: 1px solid lightblue;
-  }
-
-  .selected {
-    background: #DFE2E2;
-  }
-
-  .package {
-    padding: 6px 12px;
-    cursor: pointer;
-
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    text-transform: capitalize;
-  }
-
-  .package img {
-    width: 16px;
-    height: 16px;
-    margin-top: 6px;
-  }
-
-  .package:hover {
-    background: #eee;
-    color: black;
-  }
-
-  .file-menu {
-    display: flex;
-    flex-direction: column;
-    padding: 6px 12px;
-    border-bottom: 1px solid lightblue;
-  }
-
-  .file-menu input {
-    font-size: 18px;
-    padding: 0 8px;
-  }
-
-  .actions {
-    display: flex;
-    gap: 8px;
-    padding-bottom: 8px;
-  }
-
-  .actions button {
-    position: relative;
-    background: white;
-    border: 1px solid lightblue;
-    border-radius: 4px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 10px;
-    cursor: pointer;
-  }
-
-  .actions img {
-    height: 16px;
-    width: 16px;
-  }
-
-  .actions img.plus {
-    position: absolute;
-    top: -5px;
-    left: -5px;
-
-    height: 16px;
-    width: 16px;
-    background: white;
-    border-radius: 50%;
-    border: 1px solid lightblue;
-    padding: 2px;
-  }
-
-  .edit-name {
-    font-size: 18px;
-  }
-</style>
-
-<window-block
-  :nav-title="'Library' + (props.selectedFile ? ' - ' + props.selectedFile : '')"
-  @close.stop="$host.remove()"
-  x-effect="getPackageFiles"
->
-  <div class="wrapper">
-    <div class="section">
-      <template x-for="pkg in packages">
+<div class="wrapper" x-effect="getPackageFiles">
+  <div class="section">
+    <template x-for="pkg in packages">
+      <div
+        class="package"
+        :class="{ selected: props.selectedPackage === pkg.name }"
+        x-text="pkg.name"
+        @click="selectPackage(pkg.name)"
+      ></div>
+    </template>
+  </div>
+  <div class="section">
+    <div class="file-menu">
+      <div class="actions">
+        <button @click="createScript('block')" title="Create Block">
+          <!-- <div class="plus"></div> -->
+          <img src="/assets/img/extension.svg" />
+        </button>
+        <button @click="createScript('mixin')" title="Create Mixin">
+          <!-- <div class="plus"></div> -->
+          <img src="/assets/img/plug.svg" />
+        </button>
+        <button @click="createScript('app')" title="Create App">
+          <!-- <div class="plus"></div> -->
+          <img src="/assets/img/bolt.svg" />
+        </button>
+      </div>
+      <input
+        id="filter"
+        placeholder="Filter..."
+        x-model="props.search"
+        x-effect="filter(props.search)"
+      />
+    </div>
+    <div :style="{ overflowY: 'scroll' }">
+      <template x-for="file in filtered">
         <div
           class="package"
-          :class="{ selected: props.selectedPackage === pkg.name }"
-          x-text="pkg.name"
-          @click="selectPackage(pkg.name)"
-        ></div>
-      </template>
-    </div>
-    <div class="section">
-      <div class="file-menu">
-        <div class="actions">
-          <button @click="createScript('block')" title="Create Block">
-            <img class="plus" src="/assets/img/math-plus.svg" />
-            <img src="/assets/img/extension.svg" />
-          </button>
-          <button @click="createScript('mixin')" title="Create Mixin">
-            <img class="plus" src="/assets/img/math-plus.svg" />
-            <img src="/assets/img/plug.svg" />
-          </button>
-        </div>
-        <input
-          placeholder="Filter..."
-          x-model="props.search"
-          x-effect="filter(props.search)"
-        />
-      </div>
-      <div :style="{ overflowY: 'scroll' }">
-        <template x-for="file in filtered">
+          :data-selected="props.selectedFile === file.name + '-' + file.type"
+          :class="{ selected: props.selectedFile === file.name + '-' + file.type }"
+          @click="if (!files.some(f => f.newName !== undefined)) {
+            props.selectedFile = file.name + '-' + file.type
+          }"
+        >
+          <img
+            :style="{ alignSelf: 'flex-start' }"
+            :src="file.type === 'block'
+                ? '/assets/img/extension.svg'
+                : file.type === 'mixin'
+                  ? '/assets/img/plug.svg'
+                  : '/assets/img/bolt.svg'"
+          />
+          <template x-if="file.newName === undefined">
+            <span x-show="file.newName === undefined" x-text="file.name"></span>
+          </template>
+          <template x-if="file.newName !== undefined">
+            <div :style="{ display: 'flex', flexDirection: 'column' }">
+              <input
+                class="edit-name"
+                autofocus
+                x-model="file.newName"
+                x-effect="validateName(file)"
+                @blur.stop.prevent="validateName(file, true)"
+                @keydown.enter="validateName(file, true)"
+              />
+              <div
+                :style="{ color: 'darkred', fontSize: '16px', textTransform: 'none' }"
+                x-show="file.error"
+                x-html="file.error"
+              ></div>
+            </div>
+          </template>
           <div
-            class="package"
-            :data-selected="props.selectedFile === file.name + '-' + file.type"
-            :class="{ selected: props.selectedFile === file.name + '-' + file.type }"
-            @click="if (!files.some(f => f.newName !== undefined)) {
-              props.selectedFile = file.name + '-' + file.type
-            }"
-          >
-            <img
-              :style="{ alignSelf: 'flex-start' }"
-              :src="file.type === 'block' ? '/assets/img/extension.svg' : '/assets/img/plug.svg'"
-            />
-            <template x-if="file.newName === undefined">
-              <span x-text="file.name"></span>
-            </template>
-            <template x-if="file.newName !== undefined">
-              <div :style="{ display: 'flex', flexDirection: 'column' }">
-                <input
-                  class="edit-name"
-                  autofocus
-                  x-model="file.newName"
-                  x-effect="validateName(file)"
-                  @blur.stop.prevent="validateName(file, true)"
-                />
-                <div
-                  :style="{ color: 'darkred', fontSize: '16px', textTransform: 'none' }"
-                  x-show="file.error"
-                  x-html="file.error"
-                ></div>
-              </div>
-            </template>
-          </div>
-        </template>
-      </div>
-    </div>
-    <div class="section" x-show="props.selectedFile && props.selectedFile !== 'false'">
-      <template x-if="props.selectedFile && props.selectedFile !== 'false'">
-        <block-editor-block
-          :file="`${props.selectedPackage}/${props.selectedFile}`"
-        ></block-editor-block>
+            class="dirty"
+            x-show="dirty && props.selectedFile === file.name + '-' + file.type"
+          ></div>
+        </div>
       </template>
     </div>
   </div>
-</window-block>
+  <div
+    class="section"
+    x-show="props.selectedFile && props.selectedFile !== 'false'"
+  >
+    <template x-if="props.selectedFile && props.selectedFile !== 'false'">
+      <block-editor-block
+        :file="`${props.selectedPackage}/${props.selectedFile}`"
+      ></block-editor-block>
+    </template>
+  </div>
+</div>
 
 <script type="module">
   import block from "@playground/block-mixin";
   import files from "@playground/files-mixin";
-  import draggable from "@playground/draggable-mixin";
 
   export default {
-    mixins: [block, draggable],
+    mixins: [block],
 
+    dirty: false,
     files: [],
     packages: [],
 
@@ -198,35 +105,44 @@
       this.root = this.$el;
       this.props.search = "";
 
-      await this.getPackages();
+      setTimeout(() => {
+        this.$el.querySelector("input#filter")?.focus();
+      }, 200);
+
+      this.packages = (this.doc.packages || ["@playground", "@games"]).map(
+        (p) => ({
+          name: p,
+        })
+      );
+
       this.getPackageFiles();
     },
 
     selectPackage(name) {
-      console.log(name)
+      this.props.search = "";
       this.props.selectedFile = false;
       this.props.selectedPackage = name;
 
       this.getPackageFiles();
     },
 
-    async getPackages() {
-      this.packages = fetch("/blocks", {
-        headers: { accept: "application/json" },
-      }).then((resp) => resp.json());
-    },
-
     async getPackageFiles() {
-      if (!this.props.selectedPackage) return;
+      if (!this.props.selectedPackage) {
+        this.props.selectedPackage = "@playground";
+        return;
+      }
 
       this.files = await fetch("/blocks/" + this.props.selectedPackage, {
         headers: { accept: "application/json" },
       }).then((resp) => resp.json());
-      
+
       this.filtered = this.files;
 
       const file = this.files[0];
-      if ((!this.props.selectedFile || this.props.selectedFile === 'false') && file) {
+      if (
+        (!this.props.selectedFile || this.props.selectedFile === "false") &&
+        file
+      ) {
         this.props.selectedFile = file.name + "-" + file.type;
       }
 
@@ -278,20 +194,32 @@
 
         this.newFile(
           name + "-" + file.type + ".html",
-          `<script type="module"></${"script>"}`
+          file.type === 'block' || file.type === 'mixin' ? `<div>My new block</div>
+
+<script type="module">
+  export default {
+    mixins: []
+  }
+</${"script>"}
+
+<style>
+</style>` : `<window-block x-on:close.stop="$el.remove()" nav-title="My App">
+  My new app!
+</window-block>`
         );
       }
     },
 
     createScript(type = "block") {
       if (this.files.some((f) => f.newName !== undefined)) return;
+      this.props.search = "";
       this.files.unshift({
         type: type,
         name: "",
         newName: "",
       });
       this.$nextTick(() => {
-        this.$host.shadowRoot.querySelector(".edit-name").focus();
+        this.$host.shadowRoot.querySelector(".edit-name")?.focus();
       });
     },
 
@@ -302,3 +230,112 @@
     },
   };
 </script>
+
+<style>
+  .wrapper {
+    max-height: 600px;
+    font-size: 20px;
+
+    display: flex;
+    align-items: stretch;
+  }
+
+  .section {
+    min-width: 120px;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .section:not(:last-child) {
+    border-right: 0.5px solid var(--grey);
+  }
+
+  .selected {
+    background: #dfe2e2;
+  }
+
+  .package {
+    padding: 6px 12px;
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-transform: capitalize;
+  }
+
+  .package img {
+    width: 16px;
+    height: 16px;
+    margin-top: 6px;
+  }
+
+  .package:hover {
+    background: #eee;
+    color: black;
+  }
+
+  .file-menu {
+    display: flex;
+    flex-direction: column;
+    padding: 6px 12px;
+    border-bottom: 0.5px solid var(--grey);
+  }
+
+  input {
+    border-radius: 0;
+    border: 0.5px solid var(--grey);
+  }
+
+  .file-menu input {
+    font-size: 18px;
+    padding: 0 8px;
+  }
+
+  .actions {
+    display: flex;
+    gap: 8px;
+    padding-bottom: 8px;
+  }
+
+  .actions button {
+    position: relative;
+    background: white;
+    border: 0.5px solid var(--grey);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    cursor: pointer;
+  }
+
+  .actions img {
+    height: 16px;
+    width: 16px;
+  }
+
+  .actions .plus {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+
+    height: 10px;
+    width: 10px;
+    background: var(--green);
+    border-radius: 50%;
+    border: 0.5px solid var(--grey);
+    padding: 2px;
+  }
+
+  .edit-name {
+    font-size: 18px;
+  }
+
+  .dirty {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: black;
+  }
+</style>

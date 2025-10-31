@@ -1,0 +1,24 @@
+<script type="module">
+  export default {
+    getReferralById(id) {
+      const referral = this.doc.referrals[id];
+
+      const intakeName = referral?.intake?.answers[75]?.answer;
+      let chData = {}
+
+      try {
+        chData = JSON.parse(referral?.intake?.answers[149]?.answer).chdata;
+      } catch {}
+
+      if (!referral.id) {
+        referral.id = referral?.intake?.id
+      }
+
+      if (!referral.name) {
+        referral.name = chData?.name || intakeName || 'N/A'
+      }
+      
+      return referral;
+    }
+  }
+</script>

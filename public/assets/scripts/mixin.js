@@ -9,7 +9,7 @@ export const getNodes = () => {
     if (
       node.tagName &&
       node.tagName.endsWith("-BLOCK") &&
-      node?.mixins.includes(path)
+      node?.mixins?.includes(path)
     ) {
       result.push(node);
     }

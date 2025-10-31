@@ -1,47 +1,12 @@
-<style>
-  .world {
-    position: relative;
-    width: 100vw;
-    height: 100vh;
-    overflow: hidden;
-  }
-  .world::before {
-    z-index: -1;
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    text-align: center;
-    background: white;
-  }
-  .space {
-    touch-action: none;
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 4096px;
-    height: 4096px;
-    background-size: 32px 32px;
-    background-image: linear-gradient(
-        to right,
-        rgba(40, 126, 255, 0.1) 1px,
-        transparent 1px
-      ),
-      linear-gradient(to bottom, rgba(40, 126, 255, 0.1) 1px, transparent 1px);
-    transform: translate3d(0, 0, 0);
-  }
-</style>
-
 <div
   class="world"
   @peer-mousemove.document="peerMouseMove"
   @mousemove.document="handleMouseMove"
   @touchmove.document="handleMouseMove"
   @peer-updated-file.window="updatedFile"
+  @keydown.window="if ($event.key.toLowerCase() === 'k' && $event.metaKey) openLibrary()"
 >
-  <div class="space">
+  <div id="space" class="space">
     <template x-teleport="body">
       <navbar-block data-block="world-block"></navbar-block>
     </template>
@@ -56,19 +21,22 @@
   import block from "@playground/block-mixin";
   import worldSync from "@playground/world-sync-mixin";
   import worldScroll from "@playground/world-scroll-mixin";
+  import worldTheme from "@playground/world-theme-mixin";
 
   export default {
-    mixins: [block, worldSync, worldScroll],
+    mixins: [block, worldSync, worldScroll, worldTheme],
+    door: true,
     peerMouseMove,
     handleMouseMove,
 
     async updatedFile(event) {
-      const { file, name, senderId } = event.detail;
+      const { file, name, tag, senderId } = event.detail;
 
       const html = await fetch(file).then((resp) => resp.text());
 
-      if (name.endsWith("mixin")) return;
-      const wc = customElements.get(name);
+      if (tag.endsWith("mixin")) return;
+
+      const wc = customElements.get(tag);
       wc.template = html;
     },
     init() {
@@ -78,6 +46,26 @@
       this._heartbeatInterval = setInterval(() => {
         this.$broadcast("heartbeat", { timestamp: Date.now() });
       }, 1000);
+
+      // if (
+      //   localStorage.getItem("door") !== "true" ||
+      //   document.querySelectorAll("welcome-block").length
+      // ) {
+      //   this.door = false;
+      //   const screenWidth = this.space.clientWidth / 2 - 150;
+      //   const screenHeight = this.space.clientHeight / 2 - 300;
+      //   document.querySelectorAll("welcome-block").forEach((b) => {
+      //     b.remove();
+      //   });
+      //   document
+      //     .querySelector("world-block")
+      //     .insertAdjacentHTML(
+      //       "afterbegin",
+      //       `<welcome-block x="${screenWidth}" y="${screenHeight}" data-block="world-block"></welcome-block>`
+      //     );
+      // } else {
+      //   this.door = true;
+      // }
     },
   };
 
@@ -109,3 +97,39 @@
     }
   }
 </script>
+
+<style>
+  .world {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+  }
+  .world::before {
+    z-index: -1;
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    text-align: center;
+  }
+  .space {
+    touch-action: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4096px;
+    height: 4096px;
+    /* background-size: 1024px 1024px; */
+    /* background-image: linear-gradient(
+        to right,
+        rgba(0, 0, 0, 1) 1px,
+        transparent 1px
+      ),
+      linear-gradient(to bottom, rgba(0, 0, 0, 1) 1px, transparent 1px); */
+    transform: translate3d(0, 0, 0);
+    /* background-image: url(/assets/img/planet.png); */
+  }
+</style>
