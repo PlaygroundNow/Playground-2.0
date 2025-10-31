@@ -194,11 +194,18 @@
 
         this.newFile(
           name + "-" + file.type + ".html",
-          `<script type="module">
-    export default {
-      mixins: []
-    }
-</${"script>"}`
+          file.type === 'block' || file.type === 'mixin' ? `<div>My new block</div>
+
+<script type="module">
+  export default {
+    mixins: []
+  }
+</${"script>"}
+
+<style>
+</style>` : `<window-block x-on:close.stop="$el.remove()" nav-title="My App">
+  My new app!
+</window-block>`
         );
       }
     },

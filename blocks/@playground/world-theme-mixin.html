@@ -1,0 +1,48 @@
+<template> </template>
+
+<script type="module">
+  export default {
+    mixins: [],
+    theme: "bubble",
+    init() {
+      const lsTheme = localStorage.getItem('theme');
+      if (lsTheme) {
+        this.theme = lsTheme;
+      }
+      this.$nextTick(this.loadParticles.bind(this));
+      this.$watch("theme", this.loadParticles.bind(this));
+    },
+    loadParticles() {
+      localStorage.setItem('theme', this.theme);
+      particlesJS.load.call(
+        this.$el,
+        "space",
+        `assets/scripts/particle-presets/${this.theme || 'bubble' }.json`
+      );
+    },
+  };
+</script>
+
+<template x-if="theme === 'bubble'">
+  <style>
+    canvas {
+      background-color: #2c2e43;
+    }
+  </style>
+</template>
+
+<template x-if="theme === 'snow'">
+  <style>
+    canvas {
+      background-color: var(--red);
+    }
+  </style>
+</template>
+
+<template x-if="theme === 'night'">
+  <style>
+    canvas {
+      background-color: #232741;
+    }
+  </style>
+</template>
