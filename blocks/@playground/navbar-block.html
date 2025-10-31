@@ -71,7 +71,7 @@
       <div
         x-show="themeOpen"
         x-transition
-        :style="{ position: 'absolute', marginTop: '1px', right: 0 }"
+        :style="{ textAlign: 'right', color: 'white', position: 'absolute', marginTop: '1px', right: 0 }"
       >
         <template x-for="bg in ['snow', 'bubble', 'night']">
           <button
@@ -87,6 +87,7 @@
             @click="$world.theme = bg"
           ></button>
         </template>
+        <div :style="{ lineHeight: 1, marginTop: '4px' }">particles.js<br/>vincentgarreau.com</div>
       </div>
     </div>
   </template>
