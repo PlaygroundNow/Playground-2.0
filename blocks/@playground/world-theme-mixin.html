@@ -3,9 +3,9 @@
 <script type="module">
   export default {
     mixins: [],
-    theme: "bubble",
+    theme: "night",
     init() {
-      const lsTheme = localStorage.getItem('theme');
+      const lsTheme = localStorage.getItem("theme");
       if (lsTheme) {
         this.theme = lsTheme;
       }
@@ -13,11 +13,11 @@
       this.$watch("theme", this.loadParticles.bind(this));
     },
     loadParticles() {
-      localStorage.setItem('theme', this.theme);
+      localStorage.setItem("theme", this.theme);
       particlesJS.load.call(
         this.$el,
         "space",
-        `assets/scripts/particle-presets/${this.theme || 'bubble' }.json`
+        `assets/scripts/particle-presets/${this.theme || "bubble"}.json`
       );
     },
   };
