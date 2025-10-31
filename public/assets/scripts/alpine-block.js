@@ -1,6 +1,4 @@
-function toDashCase(str) {
-  return str.replace(/[A-Z]/g, (m) => "-" + m.toLowerCase());
-}
+window.alpineCache = {};
 
 function toCamelCase(str) {
   return str.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
@@ -73,18 +71,32 @@ export default class AlpineBlock extends HTMLElement {
     this.loadModule(this.constructor.template);
   }
 
-  async loadModule(template) {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(template, "text/html");
+  parseHTML(html) {
+    return document.createRange().createContextualFragment(html);
+  }
 
-    const scripts = doc.querySelectorAll("script");
-    const styles = doc.querySelectorAll("style");
-
-    if (scripts.length !== 1) {
-      throw new Error("SFC must contain exactly one <script>.");
+  firstCommentJSON(fragment) {
+    for (const n of fragment.childNodes) {
+      if (n.nodeType === Node.COMMENT_NODE) {
+        try {
+          return JSON.parse(n.data);
+        } catch {}
+      }
     }
+    return {};
+  }
 
-    this.rootNodes = Array.from(doc.body.childNodes).filter(
+  async loadModule(template) {
+    const frag = this.parseHTML(template);
+
+    const scripts = frag.querySelectorAll("script");
+    const styles = frag.querySelectorAll("style");
+
+    if (scripts.length !== 1)
+      throw new Error("SFC must contain exactly one <script>.");
+
+    // root nodes (exclude script/style/template + empty text)
+    this.rootNodes = Array.from(frag.childNodes).filter(
       (node) =>
         !(
           node.nodeType === Node.ELEMENT_NODE &&
@@ -94,162 +106,157 @@ export default class AlpineBlock extends HTMLElement {
         ) &&
         !(node.nodeType === Node.TEXT_NODE && node.textContent.trim() === "")
     );
-
-    if (this.rootNodes.length !== 1) {
+    if (this.rootNodes.length !== 1)
       throw new Error(
         "SFC must contain exactly one root node (excluding <script> and <style>)."
       );
+
+    // adopt styles
+    styles.forEach((style) =>
+      this.shadowRoot.appendChild(style.cloneNode(true))
+    );
+
+    let mergedExport;
+    if (window.alpineCache[this.constructor.tagName]) {
+      mergedExport = window.alpineCache[this.constructor.tagName];
+    } else {
+      const module = await import(
+        `/blocks/${this.constructor.pkg}/${this.constructor.tagName}.js`
+      );
+      mergedExport = { ...(module.default || {}) };
     }
 
-    styles.forEach((style) => {
-      this.shadowRoot.appendChild(style.cloneNode(true));
-    });
+    const mixinInits = [];
+    const mixinDestroys = [];
+    const mainKeys = new Set(Object.keys(mergedExport));
+    const templates = [];
+    const linkTags = []; // kept for parity if you need it
+    this.mixins ||= [];
 
-    const script = scripts[0];
-    try {
-      const blob = new Blob([script.textContent], {
-        type: "text/javascript",
-      });
-      const url = URL.createObjectURL(blob);
-      const module = await import(url);
-      URL.revokeObjectURL(url);
+    if (Array.isArray(mergedExport?.mixins)) {
+      for (const mixinSFC of mergedExport.mixins) {
+        const mixFrag = this.parseHTML(mixinSFC);
+        const { pkg } = this.firstCommentJSON(mixFrag);
+        if (pkg) this.mixins.push(pkg);
 
-      const mergedExport = module.default || {};
-      const mixinInits = [];
-      const mixinDestroys = [];
-      const mainKeys = new Set(Object.keys(mergedExport));
-      const templates = [];
-      const linkTags = [];
-      if (Array.isArray(module.default?.mixins)) {
-        for (const mixinSFC of module.default.mixins) {
-          const mixinDoc = new DOMParser().parseFromString(
-            mixinSFC,
-            "text/html"
+        // <link>
+        mixFrag.querySelectorAll("link").forEach((link) => {
+          document.head.appendChild(link.cloneNode(true));
+        });
+
+        // <template> / <style>
+        mixFrag
+          .querySelectorAll("template")
+          .forEach((tpl) => templates.push(tpl));
+        mixFrag.querySelectorAll("style").forEach((style) => {
+          this.shadowRoot.appendChild(style.cloneNode(true));
+        });
+
+        // non-module scripts -> shadowRoot (keep behavior)
+        const allMixinScripts = mixFrag.querySelectorAll("script");
+        Array.from(allMixinScripts)
+          .filter((s) => s.type !== "module")
+          .forEach((s) => this.shadowRoot.prepend(s.cloneNode(true)));
+
+        // module export merge
+        if (!window.alpineCache[this.constructor.tagName]) {
+          const mixinScript = Array.from(allMixinScripts).find(
+            (s) => s.type === "module"
           );
+          if (mixinScript && pkg) {
+            const mixinModule = await import(`/blocks/${pkg}.js`);
+            const mixinExport = { ...(mixinModule.default || {}) };
 
-          const { pkg } = JSON.parse(mixinDoc.firstChild.data);
-          this.mixins.push(pkg);
-
-          mixinDoc.querySelectorAll("link").forEach((link) => {
-            document.head.appendChild(link.cloneNode(true));
-          });
-          mixinDoc.querySelectorAll("template").forEach((tpl) => {
-            templates.push(tpl);
-          });
-          mixinDoc.querySelectorAll("style").forEach((style) => {
-            this.shadowRoot.appendChild(style.cloneNode(true));
-          });
-          const allMixinScripts = mixinDoc.querySelectorAll("script");
-          Array.from(allMixinScripts)
-            .filter((script) => script.type !== "module")
-            .forEach((s) => {
-              this.shadowRoot.prepend(s.cloneNode(true));
-            });
-          const mixinScript = mixinDoc.querySelector('script[type="module"]');
-          if (mixinScript) {
-            const mixinBlob = new Blob([mixinScript.textContent], {
-              type: "text/javascript",
-            });
-            const mixinUrl = URL.createObjectURL(mixinBlob);
-            try {
-              const mixinModule = await import(mixinUrl);
-              const mixinExport = mixinModule.default || {};
-              for (const key of Object.keys(mixinExport)) {
-                if (key === "init") {
-                  mixinInits.push(mixinExport.init);
-                } else if (key === "destroy") {
-                  mixinDestroys.push(mixinExport.destroy);
-                } else if (key === "mixins") {
-                  mergedExport.mixins.push(...mixinExport.mixins);
-                } else if (mainKeys.has(key)) {
-                  /* throw new Error(
-                    `Mixin is attempting to override already defined key: ${key}`
-                  ); */
-                } else {
-                  mergedExport[key] = mixinExport[key];
-                  mainKeys.add(key);
-                }
+            for (const key of Object.keys(mixinExport)) {
+              if (key === "init") mixinInits.push(mixinExport.init);
+              else if (key === "destroy")
+                mixinDestroys.push(mixinExport.destroy);
+              else if (key === "mixins")
+                (mergedExport.mixins ||= []).push(...mixinExport.mixins);
+              else if (!mainKeys.has(key)) {
+                mergedExport[key] = mixinExport[key];
+                mainKeys.add(key);
               }
-            } finally {
-              URL.revokeObjectURL(mixinUrl);
+              // else: ignore override
             }
           }
         }
       }
+    }
 
-      if (typeof mergedExport.init === "function" || mixinInits.length > 0) {
+    // compose init/destroy
+    if (!window.alpineCache[this.constructor.tagName]) {
+      if (typeof mergedExport.init === "function" || mixinInits.length) {
         const mainInit = mergedExport.init;
         mergedExport.init = function (...args) {
-          for (const fn of mixinInits) {
+          for (const fn of mixinInits)
             if (typeof fn === "function") fn.apply(this, args);
-          }
           if (typeof mainInit === "function") mainInit.apply(this, args);
         };
       }
-      if (
-        typeof mergedExport.destroy === "function" ||
-        mixinDestroys.length > 0
-      ) {
+      if (typeof mergedExport.destroy === "function" || mixinDestroys.length) {
         const mainDestroy = mergedExport.destroy;
         mergedExport.destroy = function (...args) {
-          for (const fn of mixinDestroys) {
+          for (const fn of mixinDestroys)
             if (typeof fn === "function") fn.apply(this, args);
-          }
           if (typeof mainDestroy === "function") mainDestroy.apply(this, args);
         };
       }
 
-      this.rootContent = this.rootNodes[0].cloneNode(true);
+      window.alpineCache[this.constructor.tagName] = { ...mergedExport };
+    }
 
-      // Move <template> nodes that are not already inside the root node into the root node
-      doc.querySelectorAll("template").forEach((tpl) => {
-        if (!this.rootNodes[0].contains(tpl)) {
-          this.rootContent.appendChild(tpl.cloneNode(true));
-        }
-      });
-
-      templates.forEach((tpl) => {
+    // root content + pull in any top-level <template> not already inside root
+    this.rootContent = this.rootNodes[0].cloneNode(true);
+    frag.querySelectorAll("template").forEach((tpl) => {
+      if (!this.rootNodes[0].contains(tpl))
         this.rootContent.appendChild(tpl.cloneNode(true));
-      });
+    });
+    templates.forEach((tpl) =>
+      this.rootContent.appendChild(tpl.cloneNode(true))
+    );
 
-      this.rootContent.setAttribute("x-data", "block");
-      this.shadowRoot.appendChild(this.rootContent);
+    this.rootContent.setAttribute("x-data", "block");
+    this.shadowRoot.appendChild(this.rootContent);
 
-      const self = this;
-      mergedExport.props = new Proxy(
-        {},
-        {
-          set(target, prop, value) {
-            target[prop] = value;
-            if (!prop.startsWith("@") && !prop.startsWith(":")) {
-              self.setAttribute(toDashCase(prop), value);
-            }
-            return true;
-          },
-          get(target, prop) {
-            return target[prop];
-          },
-        }
-      );
-      Array.from(this.attributes).forEach((attr) => {
-        if (!attr.name.startsWith("@") && !attr.name.startsWith(":")) {
-          mergedExport.props[toCamelCase(attr.name)] = attr.value;
-        }
-      });
-      this.props = mergedExport.props;
+    const toDashCase = (s) => s.replace(/[A-Z]/g, (m) => "-" + m.toLowerCase());
+    const toCamelCase = (s) =>
+      s.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
 
-      if (Alpine) {
-        Alpine.data("block", () => mergedExport);
-        Alpine.initTree(this.shadowRoot);
+    const self = this;
+    mergedExport.props = new Proxy(
+      {},
+      {
+        set(target, prop, value) {
+          target[prop] = value;
+          if (!String(prop).startsWith("@") && !String(prop).startsWith(":")) {
+            self.setAttribute(toDashCase(prop), value);
+          }
+          return true;
+        },
+        get(target, prop) {
+          return target[prop];
+        },
       }
-    } catch (e) {
-      console.error(`Error importing SFC module ${name}:`, e);
+    );
+
+    Array.from(this.attributes).forEach((attr) => {
+      if (!attr.name.startsWith("@") && !attr.name.startsWith(":")) {
+        mergedExport.props[toCamelCase(attr.name)] = attr.value;
+      }
+    });
+    this.props = mergedExport.props;
+
+    if (window.Alpine) {
+      Alpine.data("block", () => ({ ...mergedExport }));
+      Alpine.initTree(this.shadowRoot);
     }
   }
 
   reloadFromTemplate(newTemplate) {
     if (this.shadowRoot) {
       this.shadowRoot.replaceChildren();
+      //this.attachShadow({ mode: open });
     }
 
     document

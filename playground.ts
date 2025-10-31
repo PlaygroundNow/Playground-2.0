@@ -103,7 +103,11 @@ Deno.serve(async (req) => {
     } catch {
       // fallback to public
     }
-  } else if (pathname.startsWith("/blocks/") && !pathname.endsWith(".html")) {
+  } else if (
+    pathname.startsWith("/blocks/") &&
+    !pathname.endsWith(".html") &&
+    !pathname.endsWith(".js")
+  ) {
     try {
       let html = await Deno.readTextFile("." + pathname + ".html");
       if (!html) return new Response("Not Found", { status: 404 });
@@ -116,6 +120,30 @@ Deno.serve(async (req) => {
       });
     } catch {
       // fallback to public
+    }
+  }
+
+  if (pathname.startsWith("/blocks/") && pathname.endsWith(".js")) {
+    // Map /foo/bar.html.js to /foo/bar.html
+    const htmlPath = pathname.replace(/\.js$/, "");
+    try {
+      const html = await Deno.readTextFile("." + htmlPath + ".html");
+      // Extract <script type="module">...</script>
+      const match = html.match(
+        /<script\s+type=["']module["'][^>]*>([\s\S]*?)<\/script>/i
+      );
+      if (match && match[1]) {
+        return new Response(match[1], {
+          headers: { "content-type": "application/javascript" },
+        });
+      } else {
+        return new Response('// No <script type="module"></script> found', {
+          headers: { "content-type": "application/javascript" },
+          status: 404,
+        });
+      }
+    } catch {
+      return new Response("Not Found", { status: 404 });
     }
   }
 

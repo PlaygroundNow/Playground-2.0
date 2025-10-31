@@ -7,17 +7,9 @@
       this.x = Math.round(Number(this.props.x)) || 0;
       this.y = Math.round(Number(this.props.y)) || 0;
 
-      this.draggableRender();
-
       this.$watch("props.x", () => {
         this.x = Math.round(Number(this.props.x)) || 0;
         this.y = Math.round(Number(this.props.y)) || 0;
-        this.draggableRender();
-      });
-      this.$watch("props.y", () => {
-        this.x = Math.round(Number(this.props.x)) || 0;
-        this.y = Math.round(Number(this.props.y)) || 0;
-
         this.draggableRender();
       });
 
@@ -80,6 +72,7 @@
 
       this.x = Math.round(this.startX + (e.clientX - this.startClientX));
       this.y = Math.round(this.startY + (e.clientY - this.startClientY));
+
       this.draggableRender();
 
       // send to peers only listening for this id
@@ -93,6 +86,7 @@
       if (this.props.x !== this.x) this.props.x = Math.round(this.x);
       if (this.props.y !== this.y) this.props.y = Math.round(this.y);
     },
+
     draggableRender(x, y) {
       this.$el.style.transform = `translate(${x || this.x}px, ${
         y || this.y
