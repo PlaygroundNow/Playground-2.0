@@ -10,9 +10,12 @@
     html: "",
 
     async getFile(file) {
-      const html = await fetch("/blocks/" + this.props.file + ".html").then(
-        (res) => res.text()
-      );
+      // const html = await fetch("/blocks/" + this.props.file + ".html").then(
+      //   (res) => res.text()
+      // );
+
+      const [pkg, tag] = file.split("/");
+      const html = document.querySelector(`#${pkg.slice(1)}-${tag}`).innerHTML;
 
       this.html = html;
     },
