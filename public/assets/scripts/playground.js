@@ -44,6 +44,36 @@ if (docUrl) {
   window.location.hash = handle.url;
 }
 
+window.throttledQueue = [];
+window.throttledTimer = null;
+
+window.throttledTick = function () {
+  window.throttledTimer = null;
+  if (!window.throttledQueue.length) return;
+  const batch = window.throttledQueue;
+  window.throttledQueue = [];
+  try {
+    handle.change((doc) => {
+      for (const fn of batch) {
+        try {
+          fn(doc);
+        } catch (e) {
+          console.error("throttledChange fn error:", e);
+        }
+      }
+    });
+  } finally {
+    if (window.throttledQueue.length)
+      window.throttledTimer = setTimeout(window.throttledTick, 200);
+  }
+};
+
+window.throttledChange = (fn) => {
+  window.throttledQueue.push(fn);
+  if (window.throttledTimer === null)
+    window.throttledTimer = setTimeout(window.throttledTick, 200);
+};
+
 function createObserved(doc) {
   return new Observer(
     structuredClone(doc),
