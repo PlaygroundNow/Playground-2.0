@@ -294,76 +294,75 @@ export default class AlpineBlock extends HTMLElement {
   }
 
   syncToDoc(action) {
-    window.throttledChange &&
-      window.throttledChange((doc) => {
-        const idx = doc.world.findIndex((n) => n.id === this.id);
+    handle.change((doc) => {
+      const idx = doc.world.findIndex((n) => n.id === this.id);
 
-        if (action === "remove") {
-          if (idx !== -1) {
-            const toDelete = new Set([this.id]);
-            for (const n of doc.world) {
-              if (n.parentId && toDelete.has(n.parentId)) {
-                toDelete.add(n.id);
-              }
-            }
-            for (let i = doc.world.length - 1; i >= 0; i--) {
-              if (toDelete.has(doc.world[i].id)) {
-                doc.world.splice(i, 1);
-              }
+      if (action === "remove") {
+        if (idx !== -1) {
+          const toDelete = new Set([this.id]);
+          for (const n of doc.world) {
+            if (n.parentId && toDelete.has(n.parentId)) {
+              toDelete.add(n.id);
             }
           }
-        } else {
-          // Add or update
-          let i = idx;
-          if (i === -1) {
-            doc.world.push({
-              id: this.id,
-              tagName: this.tagName.toLowerCase(),
-              props: {},
-            });
-            i = doc.world.length - 1;
-          }
-
-          const entry = doc.world[i];
-          entry.tagName = this.tagName.toLowerCase();
-
-          // Sync props
-          const seen = new Set();
-          for (const attr of this.attributes) {
-            if (
-              attr.name === "id" ||
-              attr.name.startsWith(":") ||
-              attr.name.startsWith("@")
-            )
-              continue;
-            if (entry.props[attr.name] !== attr.value) {
-              entry.props[attr.name] = attr.value;
+          for (let i = doc.world.length - 1; i >= 0; i--) {
+            if (toDelete.has(doc.world[i].id)) {
+              doc.world.splice(i, 1);
             }
-            seen.add(attr.name);
           }
+        }
+      } else {
+        // Add or update
+        let i = idx;
+        if (i === -1) {
+          doc.world.push({
+            id: this.id,
+            tagName: this.tagName.toLowerCase(),
+            props: {},
+          });
+          i = doc.world.length - 1;
+        }
 
-          // Only on removeAttribute??
-          /* for (const key of Object.keys(entry.props)) {
+        const entry = doc.world[i];
+        entry.tagName = this.tagName.toLowerCase();
+
+        // Sync props
+        const seen = new Set();
+        for (const attr of this.attributes) {
+          if (
+            attr.name === "id" ||
+            attr.name.startsWith(":") ||
+            attr.name.startsWith("@")
+          )
+            continue;
+          if (entry.props[attr.name] !== attr.value) {
+            entry.props[attr.name] = attr.value;
+          }
+          seen.add(attr.name);
+        }
+
+        // Only on removeAttribute??
+        /* for (const key of Object.keys(entry.props)) {
           if (!seen.has(key)) {
             console.log("delete", key);
             delete entry.props[key];
           }
         } */
 
-          // Set parent
-          const parent = this.parentElement;
-          const pid =
-            this.tagName === "WORLD-BLOCK"
-              ? null
-              : parent?.constructor?.name === "AlpineBlockSFC" &&
-                parent.tagName !== "WORLD-BLOCK"
-              ? (parent.id ||= "pg" + crypto.randomUUID().replace(/-/g, ""))
-              : null;
+        // Set parent
+        const parent = this.parentElement;
+        const pid =
+          this.tagName === "WORLD-BLOCK"
+            ? null
+            : parent?.constructor?.name === "AlpineBlockSFC" &&
+              parent.tagName !== "WORLD-BLOCK"
+            ? (parent.id ||= "pg" + crypto.randomUUID().replace(/-/g, ""))
+            : null;
 
-          if (pid) entry.parentId = pid;
-          else delete entry.parentId;
-        }
-      });
+        if (pid) entry.parentId = pid;
+        else delete entry.parentId;
+      }
+    });
   }
 
   setAttribute(name, value, syncing = false) {
