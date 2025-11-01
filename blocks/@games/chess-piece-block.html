@@ -3,11 +3,8 @@
 </div>
 
 <script type="module">
-  import block from "@playground/block-mixin";
-  import draggable from "@playground/draggable-mixin";
-
   export default {
-    mixins: [block, draggable],
+    mixins: ["@playground/block-mixin", "@playground/draggable-mixin"],
     key: {
       0: "empty",
       1: "pawn",

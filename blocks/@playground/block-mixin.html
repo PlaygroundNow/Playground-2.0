@@ -20,11 +20,8 @@
 </style>
 
 <script type="module">
-  import menu from "@playground/menu-mixin";
-  import coordinates from "@playground/coordinates-mixin";
-
   export default {
-    mixins: [menu, coordinates],
+    mixins: ["@playground/menu-mixin", "@playground/coordinates-mixin"],
     async openApp(pkg, tag, props) {
       const resp = await fetch(`/blocks/${pkg}/${tag}.html`);
       const html = await resp.text();

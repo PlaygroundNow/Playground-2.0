@@ -145,16 +145,39 @@ function defineBlock(pkg, tagName, template) {
   }
 }
 
-for (let pkg of handle.doc().packages || ["@playground", "@games"]) {
-  const blocks = await fetch(`/blocks/${pkg}`, {
-    headers: { accept: "application/json" },
-  }).then((resp) => resp.json());
+const pkgs = handle.doc().packages || ["@playground", "@games"];
 
-  for (let block of blocks) {
-    fetch(`/blocks/${pkg}/${block.name}-${block.type}.html`)
-      .then((res) => res.text())
-      .then((sfc) => {
-        defineBlock(pkg, `${block.name}-${block.type}`, sfc);
-      });
-  }
+const blockTemplates = [];
+
+await Promise.all(
+  pkgs.map(async (pkg) => {
+    const blocks = await fetch(`/blocks/${pkg}`, {
+      headers: { accept: "application/json" },
+    }).then((resp) => resp.json());
+
+    await Promise.all(
+      blocks.map(async (block) => {
+        const sfc = await fetch(
+          `/blocks/${pkg}/${block.name}-${block.type}.html`
+        ).then((res) => res.text());
+        const template = document.createElement("template");
+        template.id = `${pkg.slice(1)}-${block.name}-${block.type}`;
+        template.innerHTML = sfc;
+        document.body.appendChild(template);
+
+        if (block.type === "block") {
+          blockTemplates.push({
+            pkg,
+            name: block.name,
+            type: block.type,
+            template,
+          });
+        }
+      })
+    );
+  })
+);
+
+for (let block of blockTemplates) {
+  defineBlock(block.pkg, `${block.name}-${block.type}`, block.template);
 }

@@ -74,17 +74,24 @@ export default class AlpineBlock extends HTMLElement {
   }
 
   async loadModule(template) {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(template, "text/html");
+    // Instead of parsing, expect the template to already be at #${this.pkg}/${this.constructor.tagName}
+    const doc = document.querySelector(
+      `#${this.pkg.slice(1)}-${this.constructor.tagName}`
+    );
+    if (!doc) {
+      throw new Error(
+        `Template element #${this.pkg}/${this.constructor.tagName} not found in the document.`
+      );
+    }
 
-    const scripts = doc.querySelectorAll("script");
-    const styles = doc.querySelectorAll("style");
+    const scripts = doc.content.querySelectorAll("script");
+    const styles = doc.content.querySelectorAll("style");
 
     if (scripts.length !== 1) {
       throw new Error("SFC must contain exactly one <script>.");
     }
 
-    this.rootNodes = Array.from(doc.body.childNodes).filter(
+    this.rootNodes = Array.from(doc.content.childNodes).filter(
       (node) =>
         !(
           node.nodeType === Node.ELEMENT_NODE &&
@@ -122,21 +129,21 @@ export default class AlpineBlock extends HTMLElement {
       const linkTags = [];
       if (Array.isArray(module.default?.mixins)) {
         for (const mixinSFC of module.default.mixins) {
-          const mixinDoc = new DOMParser().parseFromString(
-            mixinSFC,
-            "text/html"
-          );
+          const [pkg, tag] = mixinSFC.split("/");
 
-          const { pkg } = JSON.parse(mixinDoc.firstChild.data);
-          this.mixins.push(pkg);
+          const mixinDoc = document.querySelector(`#${pkg.slice(1)}-${tag}`);
+          if (!doc) {
+            throw new Error(
+              `Template element #${pkg.slice(
+                1
+              )}-${tag} not found in the document.`
+            );
+          }
 
-          mixinDoc.querySelectorAll("link").forEach((link) => {
-            document.head.appendChild(link.cloneNode(true));
-          });
-          mixinDoc.querySelectorAll("template").forEach((tpl) => {
+          mixinDoc.content.querySelectorAll("template").forEach((tpl) => {
             templates.push(tpl);
           });
-          mixinDoc.querySelectorAll("style").forEach((style) => {
+          mixinDoc.content.querySelectorAll("style").forEach((style) => {
             this.shadowRoot.appendChild(style.cloneNode(true));
           });
           const allMixinScripts = mixinDoc.querySelectorAll("script");
@@ -145,7 +152,9 @@ export default class AlpineBlock extends HTMLElement {
             .forEach((s) => {
               this.shadowRoot.prepend(s.cloneNode(true));
             });
-          const mixinScript = mixinDoc.querySelector('script[type="module"]');
+          const mixinScript = mixinDoc.content.querySelector(
+            'script[type="module"]'
+          );
           if (mixinScript) {
             const mixinBlob = new Blob([mixinScript.textContent], {
               type: "text/javascript",

@@ -18,13 +18,13 @@
 </div>
 
 <script type="module">
-  import block from "@playground/block-mixin";
-  import worldSync from "@playground/world-sync-mixin";
-  import worldScroll from "@playground/world-scroll-mixin";
-  import worldTheme from "@playground/world-theme-mixin";
-
   export default {
-    mixins: [block, worldSync, worldScroll, worldTheme],
+    mixins: [
+      "@playground/block-mixin",
+      "@playground/world-sync-mixin",
+      "@playground/world-scroll-mixin",
+      "@playground/world-theme-mixin",
+    ],
     door: true,
     peerMouseMove,
     handleMouseMove,

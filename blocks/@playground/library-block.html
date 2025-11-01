@@ -91,11 +91,8 @@
 </div>
 
 <script type="module">
-  import block from "@playground/block-mixin";
-  import files from "@playground/files-mixin";
-
   export default {
-    mixins: [block],
+    mixins: ["@playground/block-mixin", "@playground/files-mixin"],
 
     dirty: false,
     files: [],
@@ -194,7 +191,8 @@
 
         this.newFile(
           name + "-" + file.type + ".html",
-          file.type === 'block' || file.type === 'mixin' ? `<div>My new block</div>
+          file.type === "block" || file.type === "mixin"
+            ? `<div>My new block</div>
 
 <script type="module">
   export default {
@@ -203,7 +201,8 @@
 </${"script>"}
 
 <style>
-</style>` : `<window-block x-on:close.stop="$el.remove()" nav-title="My App">
+</style>`
+            : `<window-block x-on:close.stop="$el.remove()" nav-title="My App">
   My new app!
 </window-block>`
         );

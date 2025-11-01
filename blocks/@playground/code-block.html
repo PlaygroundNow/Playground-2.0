@@ -29,9 +29,6 @@
   import { vsCodeDark as theme } from "https://esm.sh/@fsegurai/codemirror-theme-vscode-dark";
   import { vscodeKeymap } from "https://esm.sh/@replit/codemirror-vscode-keymap@6.0.2";
 
-  import peers from "@playground/code-peers-mixin";
-  import scroll from "@playground/code-scroll-mixin";
-
   const playgroundTheme = EditorView.theme({
     "&": { fontSize: "14px" },
     ".cm-editor": { height: "100%" },
@@ -56,7 +53,7 @@
   }
 
   export default {
-    mixins: [peers, scroll],
+    mixins: ["@playground/code-peers-mixin", "@playground/code-scroll-mixin"],
     init() {
       this.name =
         "source-" + this.props.file.replace(/^@/, "").split("/").join("-");

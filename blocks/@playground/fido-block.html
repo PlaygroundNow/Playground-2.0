@@ -5,25 +5,30 @@
 </div>
 
 <script type="module">
-    import block from "@playground/block-mixin";
-    import draggable from "@playground/draggable-mixin";
-  
-    export default {
-      states: ['sleeping', 'begging', 'sprinting', 'running', 'laying', 'sitting', 'wagging'],
-      mixins: [block, draggable],
-      init() {
-        this.props.state = 'begging';
-      },
-      nextState(e) {
-        let next = this.states.indexOf(this.props.state) + 1;
+  export default {
+    states: [
+      "sleeping",
+      "begging",
+      "sprinting",
+      "running",
+      "laying",
+      "sitting",
+      "wagging",
+    ],
+    mixins: ["@playground/block-mixin", "@playground/draggable-mixin"],
+    init() {
+      this.props.state = "begging";
+    },
+    nextState(e) {
+      let next = this.states.indexOf(this.props.state) + 1;
 
-        if (next > this.states.length - 1) {
-          next = 0;
-        }
-        
-        this.props.state = this.states[next];
+      if (next > this.states.length - 1) {
+        next = 0;
       }
-    }
+
+      this.props.state = this.states[next];
+    },
+  };
 </script>
 
 <style>
@@ -32,7 +37,7 @@
     cursor: pointer;
     border: 1px solid var(--grey);
   }
-  
+
   button.red {
     width: 25px;
     height: 25px;

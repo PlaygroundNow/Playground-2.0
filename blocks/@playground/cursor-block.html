@@ -26,10 +26,8 @@
 </div>
 
 <script type="module">
-  import blockMixin from "@playground/block-mixin";
-
   export default {
-    mixins: [blockMixin],
+    mixins: ["@playground/block-mixin"],
     mouseX: 0,
     mouseY: 0,
     positionUpdated(event) {

@@ -36,11 +36,8 @@
 </div>
 
 <script type="module">
-  import block from "@playground/block-mixin";
-  import menu from "@playground/menu-mixin";
-
   export default {
-    mixins: [block],
+    mixins: ["@playground/block-mixin"],
     init() {
       localStorage.setItem("door", false);
 

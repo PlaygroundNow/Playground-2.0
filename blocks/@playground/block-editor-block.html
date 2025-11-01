@@ -5,11 +5,10 @@
 </div>
 
 <script type="module">
-  import block from "@playground/block-mixin";
-
   export default {
+    mixins: ["@playground/block-mixin"],
     html: "",
-    mixins: [block],
+
     async getFile(file) {
       const html = await fetch("/blocks/" + this.props.file + ".html").then(
         (res) => res.text()

@@ -9,11 +9,8 @@
 </div>
 
 <script type="module">
-  import coordinates from "@playground/coordinates-mixin";
-  import draggable from "@playground/draggable-mixin";
-
   export default {
-    mixins: [coordinates, draggable],
+    mixins: ["@playground/coordinates-mixin", "@playground/draggable-mixin"],
     init() {},
   };
 </script>

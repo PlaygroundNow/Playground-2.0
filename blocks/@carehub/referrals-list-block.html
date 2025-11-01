@@ -6,12 +6,7 @@
         x-model="props.search"
         x-effect="filter(props.search)"
       />
-      <button
-        @click="props.search=''"
-        x-show="props.search"
-      >
-        Clear
-      </button>
+      <button @click="props.search=''" x-show="props.search">Clear</button>
     </div>
     <template x-for="referral in filtered">
       <div
@@ -23,35 +18,28 @@
       </div>
     </template>
     <div class="pagination">
-      <template
-        x-for="i in Math.ceil(referrals.length / limit)"
-      >
+      <template x-for="i in Math.ceil(referrals.length / limit)">
         <button
           @click="props.page = i-1"
           x-text="i"
-          :class="{ selected: i-1 === Number(props.page) }">
-        </button>
+          :class="{ selected: i-1 === Number(props.page) }"
+        ></button>
       </template>
     </div>
   </div>
-  <div
-    x-show="props.selectedReferral"
-    x-transition
-  >
-      <caregiver-form-block
-        :id="props.selectedReferral"
-      ></caregiver-form-block>
+  <div x-show="props.selectedReferral" x-transition>
+    <caregiver-form-block :id="props.selectedReferral"></caregiver-form-block>
   </div>
 </div>
 
 <script type="module">
-  import utils from "@carehub/utils-mixin";
-  import styles from "@carehub/styles-mixin";
-  import block from "@playground/block-mixin";
-  import draggable from "@playground/draggable-mixin";
-
   export default {
-    mixins: [utils, styles, block, draggable],
+    mixins: [
+      "@carehub/utils-mixin",
+      "@carehub/styles-mixin",
+      "@playground/block-mixin",
+      "@playground/draggable-mixin",
+    ],
     section: "caregiver",
     search: "",
     limit: 12,
@@ -70,25 +58,28 @@
         if (this.section !== this.props.section) {
           this.props.section = this.section;
         }
-      })
+      });
       this.$watch("props.section", () => {
         if (this.props.section !== this.section) {
           this.section = this.props.section;
         }
-      })
-      
+      });
+
       this.root = this.$el;
       this.referrals = this.parse(this.doc.referrals);
       this.filtered = this.referrals.slice(0, this.limit);
     },
-    filter(search) {      
+    filter(search) {
       if (search) {
         this.props.page = 0;
       }
-      
+
       this.filtered = this.referrals
         .filter((r) => r.name.toLowerCase().includes(search.toLowerCase()))
-        .slice(Number(this.props.page)*this.limit, Number(this.props.page)*this.limit+this.limit);
+        .slice(
+          Number(this.props.page) * this.limit,
+          Number(this.props.page) * this.limit + this.limit
+        );
     },
     parse(list) {
       return Object.entries(list).map(([id]) => this.getReferralById(id));
@@ -140,7 +131,8 @@
     padding: 8px 16px;
   }
 
-  .referral:hover, .referral.selected {
+  .referral:hover,
+  .referral.selected {
     background: var(--light-blue);
   }
 

@@ -2,7 +2,7 @@
   button {
     display: flex;
     gap: 8px;
-    background: #DFE2E2;
+    background: #dfe2e2;
     border: 1px solid black;
     border-radius: 8px;
     align-items: center;
@@ -53,11 +53,9 @@
 </button>
 
 <script type="module">
-  import block from "@playground/block-mixin";
-
   export default {
-    spotlightOpen: false,
+    mixins: ["@playground/block-mixin"],
 
-    mixins: [block],
+    spotlightOpen: false,
   };
 </script>

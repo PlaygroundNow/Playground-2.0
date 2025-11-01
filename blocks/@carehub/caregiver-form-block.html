@@ -10,13 +10,13 @@
 </div>
 
 <script type="module">
-  import utils from "@carehub/utils-mixin";
-  import styles from "@carehub/styles-mixin";
-  import block from "@playground/block-mixin";
-  import draggable from "@playground/draggable-mixin";
-
   export default {
-    mixins: [utils, styles, block, draggable],
+    mixins: [
+      "@carehub/utils-mixin",
+      "@carehub/styles-mixin",
+      "@playground/block-mixin",
+      "@playground/draggable-mixin",
+    ],
     referral: null,
     init() {
       this.referral = this.getReferralById(this.props.id);

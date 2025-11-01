@@ -87,7 +87,9 @@
             @click="$world.theme = bg"
           ></button>
         </template>
-        <div :style="{ lineHeight: 1, marginTop: '4px' }">particles.js<br/>vincentgarreau.com</div>
+        <div :style="{ lineHeight: 1, marginTop: '4px' }">
+          particles.js<br />vincentgarreau.com
+        </div>
       </div>
     </div>
   </template>
@@ -102,10 +104,8 @@
 </div>
 
 <script type="module">
-  import block from "@playground/block-mixin";
-
   export default {
-    mixins: [block],
+    mixins: ["@playground/block-mixin"],
     themeOpen: false,
     heartbeats: {},
     numOps: 0,
@@ -155,7 +155,7 @@
     margin: -12px;
   }
 
-  @media(max-width: 1024px) {
+  @media(max-width: 480px) {
     .wrapper { display: none }
   }
 
