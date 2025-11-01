@@ -64,14 +64,14 @@ window.throttledTick = function () {
     });
   } finally {
     if (window.throttledQueue.length)
-      window.throttledTimer = setTimeout(window.throttledTick, 200);
+      window.throttledTimer = setTimeout(window.throttledTick, 1000);
   }
 };
 
 window.throttledChange = (fn) => {
   window.throttledQueue.push(fn);
   if (window.throttledTimer === null)
-    window.throttledTimer = setTimeout(window.throttledTick, 200);
+    window.throttledTimer = setTimeout(window.throttledTick, 1000);
 };
 
 function createObserved(doc) {

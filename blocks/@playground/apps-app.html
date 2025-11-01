@@ -1,5 +1,7 @@
 <window-block @close.stop="$el.remove()" nav-title="Apps">
-  <flex-block x-bind:style="{ gap: '12px' }" x-data="{
+  <flex-block
+    x-bind:style="{ gap: '12px' }"
+    x-data="{
     apps: [],
     async init() {
       const blocks = await Promise.all(doc.packages.map(function(pkg) {
@@ -13,7 +15,8 @@
         .flat()
         .filter(function(b) { return b.type === 'app' && b.name !== 'apps' });
     }
-  }">
+  }"
+  >
     <template x-for="pkg in apps">
       <app-block
         :pkg="pkg.pkg"
