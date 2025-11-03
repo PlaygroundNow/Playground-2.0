@@ -104,6 +104,7 @@
     svg.setAttribute("role", "presentation");
     container.appendChild(svg);
     state.canvas.el = svg;
+    const cometTimers = new Set();
 
     function retinaInit() {
       const rect = container.getBoundingClientRect();
@@ -134,6 +135,8 @@
     }
 
     function rebuildStars(count) {
+      cometTimers.forEach((id) => clearTimeout(id));
+      cometTimers.clear();
       const col = hexToRgb(state.particles.color.value || "#ffffff");
       const color = `rgb(${col.r}, ${col.g}, ${col.b})`;
       const sizeBase = (state.particles.size.value * state.canvas.pxratio) / 2;
@@ -150,6 +153,10 @@
           move.direction === "bottom-left");
       const fallSpeed = Math.max(0.1, move.speed || 1);
       const fallDurationBase = 160 / fallSpeed; // slower baseline for gentler snowfall
+      const stillMode =
+        !fallEnabled &&
+        (!move.enable ||
+          (move.enable && (move.speed || 0) <= 1 && move.random !== false));
       const driftBias =
         move.direction === "bottom-left" ? -1 : move.direction === "bottom-right" ? 1 : 0;
 
@@ -199,7 +206,7 @@
           circle.appendChild(animSize);
         }
 
-        if (!fallEnabled && move.enable) {
+        if (!fallEnabled && move.enable && !stillMode) {
           const driftDuration = Math.max(6, 120 / Math.max(0.1, move.speed || 1));
           const steps = 5;
           const cxValues = [cx];
@@ -311,6 +318,98 @@
 
         frag.appendChild(circle);
       }
+
+      if (stillMode) {
+        const cometCount = Math.max(1, Math.min(4, Math.round(count * 0.1) || 1));
+        for (let i = 0; i < cometCount; i++) {
+          const cometGroup = document.createElementNS(SVG_NS, "g");
+          cometGroup.setAttribute("opacity", "0");
+
+          const tail = document.createElementNS(SVG_NS, "line");
+          tail.setAttribute("x1", "0");
+          tail.setAttribute("y1", "0");
+          tail.setAttribute("stroke", `rgba(255,255,255,0.6)`);
+          tail.setAttribute("stroke-linecap", "round");
+          tail.setAttribute("stroke-opacity", "0.75");
+          cometGroup.appendChild(tail);
+
+          const head = document.createElementNS(SVG_NS, "circle");
+          head.setAttribute("fill", "rgba(255,255,255,0.9)");
+          cometGroup.appendChild(head);
+
+          const opacityAnim = document.createElementNS(SVG_NS, "animate");
+          opacityAnim.setAttribute("attributeName", "opacity");
+          opacityAnim.setAttribute("values", "0;0;1;0;0");
+          opacityAnim.setAttribute("keyTimes", "0;0.78;0.82;0.9;1");
+          opacityAnim.setAttribute("repeatCount", "1");
+          opacityAnim.setAttribute("begin", "indefinite");
+          cometGroup.appendChild(opacityAnim);
+
+          const motion = document.createElementNS(SVG_NS, "animateMotion");
+          motion.setAttribute("repeatCount", "1");
+          motion.setAttribute("rotate", "auto");
+          motion.setAttribute("begin", "indefinite");
+          cometGroup.appendChild(motion);
+
+          function randomizeComet() {
+            const span = Math.max(state.canvas.w, state.canvas.h);
+            const tailLength = (Math.random() * 0.25 + 0.12) * span;
+            const headRadius = Math.max(1.5, sizeBase * 0.4);
+            const dur = 10 + Math.random() * 20;
+
+            tail.setAttribute("x2", tailLength.toFixed(2));
+            tail.setAttribute("y2", (Math.random() * headRadius * 0.3).toFixed(2));
+            tail.setAttribute("stroke-width", Math.max(1.5, headRadius * 0.6).toFixed(2));
+
+            head.setAttribute("cx", tailLength.toFixed(2));
+            head.setAttribute("cy", "0");
+            head.setAttribute("r", headRadius.toFixed(2));
+
+            const margin = tailLength * 0.3;
+            const startX =
+              Math.random() * (state.canvas.w + margin * 2) - margin;
+            const startY =
+              Math.random() * (state.canvas.h + margin * 2) - margin;
+
+            const baseAngle = Math.random() * Math.PI * 2;
+            const speedScale = 0.6 + Math.random() * 0.4;
+            const dx = Math.cos(baseAngle) * span * speedScale;
+            const dy = Math.sin(baseAngle) * span * speedScale;
+
+            const endX = startX + dx;
+            const endY = startY + dy;
+
+            const path = `M ${startX.toFixed(2)} ${startY.toFixed(
+              2
+            )} L ${endX.toFixed(2)} ${endY.toFixed(2)}`;
+            opacityAnim.setAttribute("dur", `${dur.toFixed(2)}s`);
+            motion.setAttribute("dur", `${dur.toFixed(2)}s`);
+            motion.setAttribute("path", path);
+            return dur;
+          }
+
+          function scheduleLaunch(initialDelay) {
+            const duration = randomizeComet();
+            const delay = Math.max(0, initialDelay);
+            const startTimer = setTimeout(() => {
+              cometTimers.delete(startTimer);
+              opacityAnim.beginElement();
+              motion.beginElement();
+            }, delay * 1000);
+            cometTimers.add(startTimer);
+            const pause = 2 + Math.random() * 6;
+            const nextTimer = setTimeout(() => {
+              cometTimers.delete(nextTimer);
+              scheduleLaunch(0);
+            }, (delay + duration + pause) * 1000);
+            cometTimers.add(nextTimer);
+          }
+
+          scheduleLaunch(Math.random() * 6);
+          frag.appendChild(cometGroup);
+        }
+      }
+
       svg.replaceChildren(frag);
     }
 
@@ -332,6 +431,8 @@
         if (resizeHandler) {
           window.removeEventListener("resize", resizeHandler);
         }
+        cometTimers.forEach((id) => clearTimeout(id));
+        cometTimers.clear();
         svg.remove();
         if (forcedPosition) container.style.position = "";
       },
