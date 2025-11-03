@@ -5,6 +5,8 @@
 </div>
 
 <script type="module">
+  import { decode } from "https://esm.sh/html-entities";
+
   export default {
     mixins: ["@playground/block-mixin"],
     html: "",
@@ -17,7 +19,7 @@
       const [pkg, tag] = file.split("/");
       const html = document.querySelector(`#${pkg.slice(1)}-${tag}`).innerHTML;
 
-      this.html = html;
+      this.html = decode(html);
     },
     async save(event) {
       const { source } = event.detail; // e.g. "source-playground-my-widget-block"
@@ -33,6 +35,8 @@
         headers: { accept: "application/json" },
         body: html,
       });
+
+      document.querySelector(`#${pkg}-${tag}`).innerHTML = html;
 
       this.$broadcast("updated-file", { file, name: `${pkg}-${tag}`, tag });
       if (!source.endsWith("block")) return;

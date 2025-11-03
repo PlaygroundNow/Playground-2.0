@@ -139,6 +139,8 @@
     "https://esm.sh/ms@2.1.3?target=denonext": "36f5aa7503ff0ff44ce9e3155a60362d8d3ae5db8db048be5764a3a515b6a263",
     "https://esm.sh/node-gyp-build@4.8.4/denonext/node-gyp-build.mjs": "9a86f2d044fc77bd60aaa3d697c2ba1b818da5fb1b9aaeedec59a40b8e908803",
     "https://esm.sh/node-gyp-build@4.8.4?target=denonext": "261a6cedf1fdbf159798141ba1e2311ac1510682c5c8b55dacc8cf5fdee4aa06",
+    "https://esm.sh/regl@2.1.0": "fa317c3070e7f42c12a91a2b8ccf2bbe287330ba27f9b92d6e2031c19da15ace",
+    "https://esm.sh/regl@2.1.0/denonext/regl.mjs": "c849fbc2f5180bc5487f3f45d68a7b3437cf53ffd5935a8e80ff2ce8cbe2b338",
     "https://esm.sh/supports-color@10.2.2/denonext/supports-color.mjs": "a263c0229c209e3fed166348cd02e96f08996902c9e8e7c6de4ac50c8ee2a748",
     "https://esm.sh/supports-color@10.2.2?target=denonext": "f938c90ae6175cd0ec937dabb90259b115033d9dfde267b69566089f06f92d06",
     "https://esm.sh/utf-8-validate@6.0.5/denonext/utf-8-validate.mjs": "66b8ea532a0c745068f5b96ddb1bae332c3036703243541d2e89e66331974d98",

@@ -1,11 +1,4 @@
-<div
-  class="world"
-  @peer-mousemove.document="peerMouseMove"
-  @mousemove.document="handleMouseMove"
-  @touchmove.document="handleMouseMove"
-  @peer-updated-file.window="updatedFile"
-  @keydown.window="if ($event.key.toLowerCase() === 'k' && $event.metaKey) openLibrary()"
->
+<div id="world" class="world" @peer-mousemove.document="peerMouseMove" @mousemove.document="handleMouseMove" @touchmove.document="handleMouseMove" @peer-updated-file.window="updatedFile" @keydown.window="if ($event.key.toLowerCase() === 'k' && $event.metaKey) openLibrary()">
   <div id="space" class="space">
     <template x-teleport="body">
       <navbar-block data-block="world-block"></navbar-block>
@@ -51,7 +44,7 @@
 
       // if (
       //   localStorage.getItem("door") !== "true" ||
-      //   document.querySelectorAll("welcome-block").length
+      //   documenwt.querySelectorAll("welcome-block").length
       // ) {
       //   this.door = false;
       //   const screenWidth = this.space.clientWidth / 2 - 150;
@@ -119,19 +112,12 @@
   }
   .space {
     touch-action: none;
+    will-change: transform;
     position: absolute;
     top: 0;
     left: 0;
     width: 4096px;
     height: 4096px;
-    /* background-size: 1024px 1024px; */
-    /* background-image: linear-gradient(
-        to right,
-        rgba(0, 0, 0, 1) 1px,
-        transparent 1px
-      ),
-      linear-gradient(to bottom, rgba(0, 0, 0, 1) 1px, transparent 1px); */
     transform: translate3d(0, 0, 0);
-    /* background-image: url(/assets/img/planet.png); */
   }
 </style>

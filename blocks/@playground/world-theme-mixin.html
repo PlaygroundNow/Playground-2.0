@@ -7,17 +7,17 @@
       if (lsTheme) {
         this.theme = lsTheme;
       }
-      /* this.$nextTick(this.loadParticles.bind(this));
-      this.$watch("theme", this.loadParticles.bind(this)); */
+      this.$nextTick(this.loadParticles.bind(this));
+      this.$watch("theme", this.loadParticles.bind(this));
     },
-    /* loadParticles() {
+    loadParticles() {
       localStorage.setItem("theme", this.theme);
       particlesJS.load.call(
         this.$el,
         "space",
         `assets/scripts/particle-presets/${this.theme || "bubble"}.json`
       );
-    }, */
+    },
   };
 </script>
 
@@ -25,6 +25,7 @@
   <style>
     .space {
       background-color: #2c2e43;
+      box-shadow: 0 0 80px 20px #2c2e43, 0 0 200px 60px #2c2e43;
     }
   </style>
 </template>
@@ -33,6 +34,7 @@
   <style>
     .space {
       background-color: var(--red);
+      box-shadow: 0 0 80px 20px var(--red), 0 0 200px 60px var(--red);
     }
   </style>
 </template>
@@ -41,6 +43,7 @@
   <style>
     .space {
       background-color: #232741;
+      box-shadow: 0 0 80px 20px #232741, 0 0 200px 60px #232741;
     }
   </style>
 </template>

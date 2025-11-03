@@ -14,14 +14,12 @@
     margin-top: -3px;
     width: 20px;
     height: 20px;
+    filter: invert(1);
   }
 </style>
 
-<div
-  @peer-mousemove.window="positionUpdated"
-  :style="{ transform: `translate(${mouseX}px, ${mouseY}px)`}"
->
-  <img src="/assets/img/cursor.png" />
+<div @peer-mousemove.window="positionUpdated" :style="{ transform: `translate(${mouseX}px, ${mouseY}px)`}">
+  <img src="/assets/img/cursor.png">
   <span x-text="props.peer"></span>
 </div>
 

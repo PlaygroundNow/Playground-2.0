@@ -1,9 +1,18 @@
-<div
-  @wheel.document.throttle.20ms="drawMinimap"
-  @touchmove.document.throttle.20ms="drawMinimap"
-  class="minimap"
->
+<div @wheel.document.throttle.20ms="drawMinimap" @touchmove.document.throttle.20ms="drawMinimap" class="minimap">
   <canvas class="minimap-canvas" width="100" height="100"></canvas>
+  <flex-block :style="{
+    flexDirection: 'column',
+    gap: '8px',
+    padding: '0 0 0 4px',
+  }">
+    <button @click="$world.scale += 0.1; drawMinimap()">
+      +
+    </button>
+    <button @click="$world.scale -= 0.1; drawMinimap()">
+      -
+    </button>
+    <button @click="$world.scale = 1; drawMinimap()">=</button>
+  </flex-block>
 </div>
 
 <script type="module">
@@ -53,8 +62,8 @@
 
       const worldWidth = 4096;
       const worldHeight = 4096;
-      const viewportWidth = window.innerWidth;
-      const viewportHeight = window.innerHeight;
+      const viewportWidth = window.innerWidth / this.scale;
+      const viewportHeight = window.innerHeight / this.scale;
       const scrollX = this.scrollX ? Number(this.scrollX) : 0;
       const scrollY = this.scrollY ? Number(this.scrollY) : 0;
 
@@ -94,5 +103,20 @@
     height: 100px;
     background: #36454f11;
     margin-bottom: 2px;
+  }
+
+  button {
+    cursor: pointer;
+    border: 1px solid var(--grey);
+    background: #111;
+    width: 24px;
+    height: 24px;
+    color: white;
+    font-size: 22px;
+    line-height: 20px;
+  }
+
+  img {
+    filter: invert(1);
   }
 </style>

@@ -78,8 +78,8 @@
     draggableMouseMove(e) {
       if (!this.dragging) return;
 
-      this.x = Math.round(this.startX + (e.clientX - this.startClientX));
-      this.y = Math.round(this.startY + (e.clientY - this.startClientY));
+      this.x = Math.round(this.startX + (e.clientX - this.startClientX) / this.$world.scale);
+      this.y = Math.round(this.startY + (e.clientY - this.startClientY) / this.$world.scale);
       this.draggableRender();
 
       // send to peers only listening for this id
