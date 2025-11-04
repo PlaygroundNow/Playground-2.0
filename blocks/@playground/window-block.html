@@ -1,5 +1,5 @@
 <div class="window" part="window">
-  <div drag-handle class="window-nav" part="nav" title="Close">
+  <div drag-handle="" class="window-nav" part="nav" title="Close">
     <button class="close" @click="$dispatch('close')"></button>
     <span x-text="props.navTitle"></span>
   </div>
@@ -18,7 +18,7 @@
 <style>
   .window {
     min-width: 400px;
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(1px);
   }
 

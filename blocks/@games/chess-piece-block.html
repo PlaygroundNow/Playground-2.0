@@ -1,5 +1,5 @@
-<div class="piece" drag-handle @mouseup="mouseup">
-  <img :src="`/assets/img/chess/${props.color}_${props.piece}.png`" />
+<div class="piece" drag-handle="" @mouseup="mouseup">
+  <img :src="`/assets/img/chess/${props.color}_${props.piece}.png`">
 </div>
 
 <script type="module">
@@ -25,8 +25,8 @@
       const col = this.props.square.charCodeAt(0) - 97;
       const row = 8 - parseInt(this.props.square[1]);
 
-      this.props.x = col * 55;
-      this.props.y = row * 55;
+      this.props.x = col * 60;
+      this.props.y = row * 60;
     },
     mouseup() {
       const idx = this.hoveredSquareIndex;
@@ -52,10 +52,14 @@
   }
 
   .piece {
-    height: 53px;
-    width: 53px;
+    height: 60px;
+    width: 60px;
     cursor: pointer;
     transition: scale 50ms;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .pieces:active {

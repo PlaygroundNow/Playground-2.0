@@ -1,0 +1,21 @@
+<div>
+  <template x-for="attr in host?.attributes">
+    <div class="attr">
+      <label x-text="attr.name"></label>
+      <input x-model="attr.value">
+    </div>
+  </template>
+</div>
+
+<script type="module">
+  export default {
+    mixins: [],
+    host: null,
+    init() {
+      this.host = document.getElementById(this.props.target);
+    }
+  }
+</script>
+
+<style>
+</style>

@@ -1,105 +1,51 @@
-<div
-  @peer-heartbeat.window="heartbeat"
-  @resize.window="width = window.innerWidth"
-  class="wrapper"
->
-  <div
-    class="square"
-    :class="{ purple: door }"
-    title="Apps"
-    @click="door && openApp('@playground', 'apps-app')"
-  >
-    <img src="/assets/img/bolt.svg" />
+<div @peer-heartbeat.window="heartbeat" @resize.window="width = window.innerWidth" class="wrapper">
+  <div class="square" :class="{ purple: door }" title="Apps" @click="door && openApp('@playground', 'apps-app')">
+    <img src="/assets/img/bolt.svg">
     <label>Apps</label>
   </div>
-  <div
-    class="square"
-    :class="{ blue: door }"
-    title="Games"
-    @click="door && openApp('@playground', 'games-app')"
-  >
-    <img src="/assets/img/games.svg" />
+  <div class="square" :class="{ blue: door }" title="Games" @click="door && openApp('@playground', 'games-app')">
+    <img src="/assets/img/games.svg">
     <label>Games</label>
   </div>
-  <div
-    class="square"
-    :class="{ green: door }"
-    title="Script"
-    @click="door && openLibrary"
-  >
-    <img src="/assets/img/code-slash.svg" />
+  <div class="square" :class="{ green: door }" title="Script" @click="door && openLibrary">
+    <img src="/assets/img/code-slash.svg">
     <label>Script</label>
   </div>
   <div class="square"></div>
-  <div
-    class="square"
-    :class="{ 'light-blue': door }"
-    title="Profile"
-    @click="door && openApp('@playground', 'profile-app')"
-  >
-    <img
-      src="/assets/img/profile.svg"
-      :style="{ width: '9px', height: '9px' }"
-    />
+  <div class="square" :class="{ 'light-blue': door }" title="Profile" @click="door && openApp('@playground', 'profile-app')">
+    <img src="/assets/img/profile.svg" :style="{ width: '9px', height: '9px' }">
     <label>Profile</label>
   </div>
-  <div
-    class="square"
-    :class="{ yellow: door }"
-    title="Fido"
-    @click="door && openApp('@playground', 'fido-app')"
-  >
-    <img src="/assets/img/fido.svg" :style="{ width: '9px', height: '9px' }" />
+  <div class="square" :class="{ yellow: door }" title="Fido" @click="door && openApp('@playground', 'fido-app')">
+    <img src="/assets/img/fido.svg" :style="{ width: '9px', height: '9px' }">
     <label>Fido</label>
   </div>
 
   <template x-teleport="body">
-    <div
-      data-block="navbar-block"
-      @outside="themeOpen = false"
-      :style="{ position: 'fixed', top: '12px', right: '12px' }"
-    >
-      <button
-        @click="themeOpen = !themeOpen"
-        :style="{ cursor: 'pointer', background: '#222', border: 0, padding: '6px', border: '1px solid rgba(255, 255, 255, 0.5)' }"
-      >
-        <img
-          :style="{ filter: 'invert(1)', width: '22px' }"
-          src="/assets/img/theme.svg"
-        />
+    <div data-block="navbar-block" @click.outside="themeOpen = false" :style="{ position: 'fixed', top: '12px', right: '12px' }">
+      <button @click="themeOpen = !themeOpen" :style="{ cursor: 'pointer', background: '#222', border: 0, padding: '6px', border: '1px solid rgba(255, 255, 255, 0.5)' }">
+        <img :style="{ filter: 'invert(1)', width: '22px' }" src="/assets/img/theme.svg">
       </button>
-      <div
-        x-show="themeOpen"
-        x-transition
-        :style="{ textAlign: 'right', color: 'white', position: 'absolute', marginTop: '1px', right: 0 }"
-      >
+      <div x-show="themeOpen" x-transition="" :style="{ textAlign: 'right', color: 'white', position: 'absolute', marginTop: '1px', right: 0 }">
         <template x-for="bg in ['snow', 'bubble', 'night']">
-          <button
-            :style="{
+          <button :style="{
               marginBottom: '1px',
               cursor: 'pointer',
               width: '120px',
               background: '#222',
               color: 'white',
               border: '1px solid rgba(255, 255, 255, 0.5)',
-            }"
-            x-text="bg"
-            @click="$world.theme = bg"
-          ></button>
+            }" x-text="bg" @click="$world.theme = bg"></button>
         </template>
         <div :style="{ lineHeight: 1, marginTop: '4px' }">
-          particles.js<br />vincentgarreau.com
+          particles.js<br>vincentgarreau.com
         </div>
       </div>
     </div>
   </template>
 
   <template x-teleport="body">
-    <data
-      data-block="navbar-block"
-      x-text="numOps"
-      :style="{ color: 'white', position: 'fixed', bottom: '12px', left: '12px', fontFamily: 'monospace', fontSize: '12px' }"
-    ></data>
+    <data data-block="navbar-block" x-text="numOps" :style="{ color: 'white', position: 'fixed', bottom: '12px', left: '12px', fontFamily: 'monospace', fontSize: '12px' }"></data>
   </template>
 </div>
 

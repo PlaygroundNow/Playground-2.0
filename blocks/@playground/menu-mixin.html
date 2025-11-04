@@ -1,6 +1,6 @@
 <template x-if="menuOpen">
   <template x-teleport="body">
-    <menu-block data-block="menu-mixin" :x="menuX" :y="menuY" @click.window="if (!$event.target.closest('menu-block')) menuOpen = false;">
+    <menu-block :data-block="tag" :x="menuX" :y="menuY" @click.window="if (!$event.target.closest('menu-block')) menuOpen = false;">
   </menu-block></template>
 </template>
 

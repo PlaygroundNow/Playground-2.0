@@ -252,7 +252,10 @@ export default class AlpineBlock extends HTMLElement {
         Alpine.initTree(this.shadowRoot);
       }
     } catch (e) {
-      console.error(`Error importing SFC module ${name}:`, e);
+      console.error(
+        `Error importing SFC module ${this.constructor.tagName}:`,
+        e
+      );
     }
   }
 
