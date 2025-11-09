@@ -1,4 +1,12 @@
-<div id="world" class="world" @peer-mousemove.document="peerMouseMove" @mousemove.document="handleMouseMove" @touchmove.document="handleMouseMove" @peer-updated-file.window="updatedFile" @keydown.window="if ($event.key.toLowerCase() === 'k' && $event.metaKey) openLibrary()">
+<div
+  id="world"
+  class="world"
+  @peer-mousemove.document="peerMouseMove"
+  @mousemove.document="handleMouseMove"
+  @touchmove.document="handleMouseMove"
+  @peer-updated-file.window="updatedFile"
+  @keydown.window="if ($event.key.toLowerCase() === 'k' && $event.metaKey) openLibrary()"
+>
   <div id="space" class="space">
     <template x-teleport="body">
       <navbar-block data-block="world-block"></navbar-block>
@@ -21,7 +29,6 @@
     door: true,
     peerMouseMove,
     handleMouseMove,
-
     async updatedFile(event) {
       const { file, name, tag, senderId } = event.detail;
       const [_, block, pkg] = file.split("/");
@@ -41,26 +48,6 @@
       this._heartbeatInterval = setInterval(() => {
         this.$broadcast("heartbeat", { timestamp: Date.now() });
       }, 1000);
-
-      // if (
-      //   localStorage.getItem("door") !== "true" ||
-      //   documenwt.querySelectorAll("welcome-block").length
-      // ) {
-      //   this.door = false;
-      //   const screenWidth = this.space.clientWidth / 2 - 150;
-      //   const screenHeight = this.space.clientHeight / 2 - 300;
-      //   document.querySelectorAll("welcome-block").forEach((b) => {
-      //     b.remove();
-      //   });
-      //   document
-      //     .querySelector("world-block")
-      //     .insertAdjacentHTML(
-      //       "afterbegin",
-      //       `<welcome-block x="${screenWidth}" y="${screenHeight}" data-block="world-block"></welcome-block>`
-      //     );
-      // } else {
-      //   this.door = true;
-      // }
     },
   };
 
