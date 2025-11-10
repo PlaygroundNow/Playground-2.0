@@ -158,7 +158,11 @@
         (!move.enable ||
           (move.enable && (move.speed || 0) <= 1 && move.random !== false));
       const driftBias =
-        move.direction === "bottom-left" ? -1 : move.direction === "bottom-right" ? 1 : 0;
+        move.direction === "bottom-left"
+          ? -1
+          : move.direction === "bottom-right"
+          ? 1
+          : 0;
 
       const frag = document.createDocumentFragment();
       for (let i = 0; i < count; i++) {
@@ -179,42 +183,61 @@
         const animTwinkle = document.createElementNS(SVG_NS, "animate");
         animTwinkle.setAttribute("attributeName", "opacity");
         const low = (
-          opacityAnim.enable ? opacityAnim.opacity_min ?? 0.1 : 0.2 + Math.random() * 0.4
+          opacityAnim.enable
+            ? opacityAnim.opacity_min ?? 0.1
+            : 0.2 + Math.random() * 0.4
         ).toFixed(3);
         const high = op.toFixed(3);
         animTwinkle.setAttribute("values", `${low};${high};${low}`);
         const durBase = opacityAnim.enable
-          ? Math.max(0.5, (10 / Math.max(0.1, opacityAnim.speed || 1)))
+          ? Math.max(0.5, 10 / Math.max(0.1, opacityAnim.speed || 1))
           : 2 + Math.random() * 3;
         animTwinkle.setAttribute("dur", `${durBase.toFixed(2)}s`);
         animTwinkle.setAttribute("repeatCount", "indefinite");
-        animTwinkle.setAttribute("begin", `${(Math.random() * durBase).toFixed(2)}s`);
-        circle.appendChild(animTwinkle);
+        animTwinkle.setAttribute(
+          "begin",
+          `${(Math.random() * durBase).toFixed(2)}s`
+        );
+        //circle.appendChild(animTwinkle);
 
         if (sizeAnim.enable && fallEnabled) {
           const animSize = document.createElementNS(SVG_NS, "animate");
           animSize.setAttribute("attributeName", "r");
           const minR = Math.max(1, sizeAnim.size_min || radius * 0.5);
-          const values = `${minR.toFixed(2)};${radius.toFixed(2)};${minR.toFixed(2)}`;
+          const values = `${minR.toFixed(2)};${radius.toFixed(
+            2
+          )};${minR.toFixed(2)}`;
           animSize.setAttribute("values", values);
           const sizeDur = Math.max(1, 8 / Math.max(0.1, sizeAnim.speed || 1));
           animSize.setAttribute("dur", `${sizeDur.toFixed(2)}s`);
           animSize.setAttribute("repeatCount", "indefinite");
-          animSize.setAttribute("begin", `${(Math.random() * sizeDur).toFixed(2)}s`);
+          animSize.setAttribute(
+            "begin",
+            `${(Math.random() * sizeDur).toFixed(2)}s`
+          );
           animSize.setAttribute("keyTimes", "0;0.5;1");
           animSize.setAttribute("calcMode", "linear");
-          circle.appendChild(animSize);
+          //circle.appendChild(animSize);
         }
 
         if (!fallEnabled && move.enable && !stillMode) {
-          const driftDuration = Math.max(6, 120 / Math.max(0.1, move.speed || 1));
+          const driftDuration = Math.max(
+            6,
+            120 / Math.max(0.1, move.speed || 1)
+          );
           const steps = 5;
           const cxValues = [cx];
           const cyValues = [cy];
           const clampX = (val) =>
-            Math.min(Math.max(val, radius), Math.max(radius, state.canvas.w - radius));
+            Math.min(
+              Math.max(val, radius),
+              Math.max(radius, state.canvas.w - radius)
+            );
           const clampY = (val) =>
-            Math.min(Math.max(val, radius), Math.max(radius, state.canvas.h - radius));
+            Math.min(
+              Math.max(val, radius),
+              Math.max(radius, state.canvas.h - radius)
+            );
           let currentX = cx;
           let currentY = cy;
           const moveRangeX = Math.max(state.canvas.w * 0.2, radius * 8);
@@ -236,7 +259,10 @@
           const keyTimes = Array.from({ length: segmentCount + 1 }, (_, idx) =>
             (idx / segmentCount).toFixed(3)
           );
-          const splineSegments = Array.from({ length: segmentCount }, () => "0.42 0 0.58 1");
+          const splineSegments = Array.from(
+            { length: segmentCount },
+            () => "0.42 0 0.58 1"
+          );
           const beginOffset = -(Math.random() * driftDuration);
 
           const animCX = document.createElementNS(SVG_NS, "animate");
@@ -255,7 +281,7 @@
           } else {
             animCX.setAttribute("calcMode", "linear");
           }
-          circle.appendChild(animCX);
+          //circle.appendChild(animCX);
 
           const animCY = document.createElementNS(SVG_NS, "animate");
           animCY.setAttribute("attributeName", "cy");
@@ -273,7 +299,7 @@
           } else {
             animCY.setAttribute("calcMode", "linear");
           }
-          circle.appendChild(animCY);
+          //circle.appendChild(animCY);
         }
 
         if (fallEnabled) {
@@ -283,17 +309,23 @@
           const endY = state.canvas.h + radius * 2;
           circle.setAttribute("cy", startY.toFixed(2));
 
-          const dur = Math.max(4, fallDurationBase + Math.random() * (fallDurationBase * 0.6));
+          const dur = Math.max(
+            4,
+            fallDurationBase + Math.random() * (fallDurationBase * 0.6)
+          );
           const animFall = document.createElementNS(SVG_NS, "animate");
           animFall.setAttribute("attributeName", "cy");
-          animFall.setAttribute("values", `${(-radius * 2).toFixed(2)};${endY.toFixed(2)}`);
+          animFall.setAttribute(
+            "values",
+            `${(-radius * 2).toFixed(2)};${endY.toFixed(2)}`
+          );
           animFall.setAttribute("dur", `${dur.toFixed(2)}s`);
           animFall.setAttribute("repeatCount", "indefinite");
           const beginOffset = -((phaseOffset / fallDistance) * dur);
           animFall.setAttribute("begin", `${beginOffset.toFixed(2)}s`);
           animFall.setAttribute("keyTimes", "0;1");
           animFall.setAttribute("calcMode", "linear");
-          circle.appendChild(animFall);
+          //circle.appendChild(animFall);
 
           const driftRangeBase = Math.max(2, radius * 6);
           const driftRandom = (Math.random() * 2 - 1) * driftRangeBase;
@@ -312,7 +344,7 @@
             animDrift.setAttribute("begin", `${beginOffset.toFixed(2)}s`);
             animDrift.setAttribute("keyTimes", "0;0.5;1");
             animDrift.setAttribute("calcMode", "linear");
-            circle.appendChild(animDrift);
+            //circle.appendChild(animDrift);
           }
         }
 
@@ -320,7 +352,10 @@
       }
 
       if (stillMode) {
-        const cometCount = Math.max(1, Math.min(4, Math.round(count * 0.1) || 1));
+        const cometCount = Math.max(
+          1,
+          Math.min(4, Math.round(count * 0.1) || 1)
+        );
         for (let i = 0; i < cometCount; i++) {
           const cometGroup = document.createElementNS(SVG_NS, "g");
           cometGroup.setAttribute("opacity", "0");
@@ -358,8 +393,14 @@
             const dur = 10 + Math.random() * 20;
 
             tail.setAttribute("x2", tailLength.toFixed(2));
-            tail.setAttribute("y2", (Math.random() * headRadius * 0.3).toFixed(2));
-            tail.setAttribute("stroke-width", Math.max(1.5, headRadius * 0.6).toFixed(2));
+            tail.setAttribute(
+              "y2",
+              (Math.random() * headRadius * 0.3).toFixed(2)
+            );
+            tail.setAttribute(
+              "stroke-width",
+              Math.max(1.5, headRadius * 0.6).toFixed(2)
+            );
 
             head.setAttribute("cx", tailLength.toFixed(2));
             head.setAttribute("cy", "0");

@@ -1,22 +1,22 @@
 <div @peer-heartbeat.window="heartbeat" @resize.window="width = window.innerWidth" class="wrapper">
-  <div class="square" :class="{ purple: door }" title="Apps" @click="door && openApp('@playground', 'apps-app')">
+  <div class="square blue" title="Apps" @click="openApp('@playground', 'apps-app')">
     <img src="/assets/img/bolt.svg">
     <label>Apps</label>
   </div>
-  <div class="square" :class="{ blue: door }" title="Games" @click="door && openApp('@playground', 'games-app')">
+  <div class="square purple" title="Games" @click="openApp('@playground', 'games-app')">
     <img src="/assets/img/games.svg">
     <label>Games</label>
   </div>
-  <div class="square" :class="{ green: door }" title="Script" @click="door && openLibrary">
+  <div class="square red" title="Script" @click="openLibrary">
     <img src="/assets/img/code-slash.svg">
     <label>Script</label>
   </div>
   <div class="square"></div>
-  <div class="square" :class="{ 'light-blue': door }" title="Profile" @click="door && openApp('@playground', 'profile-app')">
+  <div class="square green" title="Profile" @click="openApp('@playground', 'profile-app')">
     <img src="/assets/img/profile.svg" :style="{ width: '9px', height: '9px' }">
     <label>Profile</label>
   </div>
-  <div class="square" :class="{ yellow: door }" title="Fido" @click="door && openApp('@playground', 'fido-app')">
+  <div class="square yellow" title="Fido" @click="openApp('@playground', 'fido-app')">
     <img src="/assets/img/fido.svg" :style="{ width: '9px', height: '9px' }">
     <label>Fido</label>
   </div>

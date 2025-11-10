@@ -1,4 +1,5 @@
-import Alpine from "https://esm.sh/alpinejs@3.15.0/builds/module.js";
+//import Alpine from "https://esm.sh/alpinejs@3.15.0/builds/module.js";
+import Alpine from "./alpine-fork.js";
 import {
   Automerge,
   Repo,

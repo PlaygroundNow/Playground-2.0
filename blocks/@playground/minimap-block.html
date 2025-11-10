@@ -45,8 +45,8 @@
           );
           const world = document.querySelector("world-block");
           if (world) {
-            this.scrollX = newScrollX;
-            this.scrollY = newScrollY;
+            this.$world.scrollX = newScrollX;
+            this.$world.scrollY = newScrollY;
           }
 
           this.drawMinimap();
@@ -62,10 +62,10 @@
 
       const worldWidth = 4096;
       const worldHeight = 4096;
-      const viewportWidth = window.innerWidth / this.scale;
-      const viewportHeight = window.innerHeight / this.scale;
-      const scrollX = this.scrollX ? Number(this.scrollX) : 0;
-      const scrollY = this.scrollY ? Number(this.scrollY) : 0;
+      const viewportWidth = window.innerWidth / this.$world.scale;
+      const viewportHeight = window.innerHeight / this.$world.scale;
+      const scrollX = this.$world.scrollX ? Number(this.$world.scrollX) : 0;
+      const scrollY = this.$world.scrollY ? Number(this.$world.scrollY) : 0;
 
       const scaleX = canvas.width / worldWidth;
       const scaleY = canvas.height / worldHeight;

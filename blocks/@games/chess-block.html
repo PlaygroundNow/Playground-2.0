@@ -2,7 +2,7 @@
   <template x-for="row in 8">
     <div class="row">
       <template x-for="col in 8">
-        <div :data-index="(row-1)*8+col-1" class="square"></div>
+        <div :data-index="(row-1)*8+col-1" class="square" :class="{ active: Number($el.dataset.index) === hoveredSquareIndex }"></div>
       </template>
     </div>
   </template>
@@ -61,6 +61,10 @@
     height: 60px;
 
     border: 0.5px solid rgba(0, 0, 0, 0.2);
+  }
+
+  .square.active {
+    background: var(--yellow) !important;
   }
 
   .row:nth-child(odd) .square:nth-child(odd),
