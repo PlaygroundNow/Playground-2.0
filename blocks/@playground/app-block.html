@@ -1,5 +1,5 @@
-<div class="wrapper" :title="props.label || props.tag">
-  <div class="square" @click="openApp(props.pkg, props.tag)">
+<div class="wrapper" :title="props.label || props.tag" @click="openApp(props.pkg, props.tag)">
+  <div class="square">
     <img :src="`/assets/img/${props.icon}.svg`">
   </div>
   <template x-if="props.label">
@@ -20,6 +20,10 @@
     align-items: center;
   }
 
+  .wrapper:hover {
+    scale: 0.9;
+  }
+
   .square {
     cursor: pointer;
     position: relative;
@@ -28,6 +32,8 @@
     align-items: center;
     width: 45px;
     height: 45px;
+
+    transition: all 0.1s ease;
   }
 
   .square img {
