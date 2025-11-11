@@ -1,29 +1,38 @@
 <div @peer-heartbeat.window="heartbeat" @resize.window="width = window.innerWidth" class="wrapper">
-  <div class="square blue" title="Apps" @click="openApp('@playground', 'apps-app')">
-    <img src="/assets/img/bolt.svg">
-    <label>Apps</label>
+  <div class="square white" :class="{ active: spotlightOpen }" @click.stop="spotlightOpen = !spotlightOpen">
+    <img src="/assets/img/favicon.svg">
   </div>
-  <div class="square purple" title="Games" @click="openApp('@playground', 'games-app')">
-    <img src="/assets/img/games.svg">
-    <label>Games</label>
-  </div>
-  <div class="square red" title="Script" @click="openLibrary">
-    <img src="/assets/img/code-slash.svg">
-    <label>Script</label>
-  </div>
-  <div class="square"></div>
-  <div class="square green" title="Profile" @click="openApp('@playground', 'profile-app')">
-    <img src="/assets/img/profile.svg" :style="{ width: '9px', height: '9px' }">
-    <label>Profile</label>
-  </div>
-  <div class="square yellow" title="Fido" @click="openApp('@playground', 'fido-app')">
-    <img src="/assets/img/fido.svg" :style="{ width: '9px', height: '9px' }">
-    <label>Fido</label>
+
+  <div id="spotlight" x-show="spotlightOpen" class="spotlight" @click.outside="if ($event.target.tagName !== 'NAVBAR-BLOCK') {
+    spotlightOpen = false
+  }">
+    <div class="search">
+      <img src="/assets/img/search.svg"><input autofocus="" x-model="search">
+    </div>
+    <flex-block :style="{ gap: '12px', flexWrap: 'wrap' }" x-data="{
+      apps: [],
+      async init() {
+        const blocks = await Promise.all(doc.packages.map(function(pkg) {
+          return fetch('/blocks/' + pkg, { headers: { accept: 'application/json' }})
+            .then(function(resp) { return resp.json() })
+            .then(function(data) {
+              return data.map(function(d) {  return { pkg, ...d } });
+            });
+        }));
+        this.apps = blocks
+          .flat()
+          .filter(function(b) { return b.type === 'app' && b.name !== 'apps' });
+      }
+    }">
+      <template x-for="pkg in apps">
+        <app-block @click="spotlightOpen = false" :pkg="pkg.pkg" :tag="`${pkg.name}-app`" :icon="pkg.name" :label="`${pkg.name.split('-').join(' ')}`"></app-block>
+      </template>
+    </flex-block>
   </div>
 
   <template x-teleport="body">
     <div data-block="navbar-block" @click.outside="themeOpen = false" :style="{ position: 'fixed', top: '12px', right: '12px' }">
-      <button @click="themeOpen = !themeOpen" :style="{ cursor: 'pointer', background: '#222', border: 0, padding: '6px', border: '1px solid rgba(255, 255, 255, 0.5)' }">
+      <button @click="themeOpen = !themeOpen" :style="{ cursor: 'pointer', background: '#222', border: 0, padding: '6px', border: '1px solid rgba(255, 255, 255, 0.5)', borderRadius: '4px' }">
         <img :style="{ filter: 'invert(1)', width: '22px' }" src="/assets/img/theme.svg">
       </button>
       <div x-show="themeOpen" x-transition="" :style="{ textAlign: 'right', color: 'white', position: 'absolute', marginTop: '1px', right: 0 }">
@@ -34,6 +43,7 @@
               width: '120px',
               background: '#222',
               color: 'white',
+              borderRadius: '4px',
               border: '1px solid rgba(255, 255, 255, 0.5)',
             }" x-text="bg" @click="$world.theme = bg"></button>
         </template>
@@ -52,7 +62,9 @@
 <script type="module">
   export default {
     mixins: ["@playground/block-mixin"],
+    search: '',
     themeOpen: false,
+    spotlightOpen: false,
     heartbeats: {},
     numOps: 0,
     peers: new Set(["Me"]),
@@ -90,123 +102,92 @@
     z-index: 1000;
     position: fixed;
     top: 12px;
-    left: calc(50% + 12px);
+    left: calc(50%);
     transform: translateX(-50%);
     transform-origin: top;
     color: white;
     font-size: 24px;
     transition: transform 75ms;
-
-    padding: 12px;
-    margin: -12px;
   }
 
   @media(max-width: 480px) {
     .wrapper { display: none }
   }
 
-  .wrapper:hover {
-    transform: translateX(-50%) translateY(-24px) scale(3);
-  }
-
-  .wrapper:hover .square img {
-    opacity: 1;
-  }
-
   .square {
     position: relative;
     cursor: pointer;
-    width: 20px;
-    height: 20px;
-    border: 0.5px solid var(--grey);
-    border-right: none;
+    width: 42px;
+    height: 42px;
 
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    border-radius: 4px;
+
+    transition: all 0.1s ease;
   }
 
   .square:last-of-type {
-    border-right: 0.5px solid var(--grey);;
+    border-right: 0.5px solid var(--grey);
+  }
+
+  .square:hover {
+    scale: 0.95;
+    background: rgba(25,25,25,0.8);
+  }
+
+  .square.active {
+    background: rgba(25,25,25,0.8);
   }
 
   .square:hover label {
     opacity: 1;
   }
 
-  label {
+  .spotlight {
     position: absolute;
-    top: 100%;
-    left: 0;
-    width: 100%;
-    text-align: center;
-    opacity: 0;
-    font-size: 8px;
-    transition: opacity 300ms;
+    top: calc(100% + 4px);
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px;
+    border-radius: 4px;
+    background: rgba(25,25,25,0.95);
+    width: 400px;
   }
 
   .square img {
-    width: 8px;
-    height: 8px;
+    width: 24px;
+    height: 24px;
     filter: invert(1) brightness(2);
-    opacity: 0;
     transition: opacity: 1s;
   }
 
-  .purple {
-    background: var(--purple);
-  }
-
-  .red {
-    background: var(--red);
-  }
-
-  .blue {
-    background: var(--blue);
-  }
-
-  .green {
-    background: var(--green);
-  }
-
-  .yellow {
-    background: var(--yellow);
-  }
-
-  .light-blue {
-    background: var(--light-blue);
-  }
-
-  .people {
-    display: flex;
-  }
-
-  .peers {
-    display: flex;
-    align-items: center;
-  }
-
-  .peer {
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 16px;
-    height: 16px;
-    background: pink;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  input {
+    width: 100%;
+    padding: 8px 8px 8px 32px;
+    background: white;
     color: black;
+    border: none;
+    border-radius: 4px;
     font-size: 18px;
-    font-weight: bold;
-    text-transform: uppercase;
+    outline: none;
   }
 
-  .logo {
-    display: flex;
-    flex-direction: column;
+  .search {
+    position: relative;
+  }
 
-    align-items: center;
+  .search > img {
+    display: block;
+    z-index: 1;
+    pointer-events: none;
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 12px;
+    height: 12px;
   }
 </style>

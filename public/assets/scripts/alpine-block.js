@@ -10,35 +10,23 @@ export default class AlpineBlock extends HTMLElement {
   static tagName = "";
   static pkg = "";
 
-  static set template(newTemplate) {
-    const skip = !this._template;
-    this._template = newTemplate;
-
-    if (skip) return;
-
-    function reloadAllBlocks(root) {
-      const elements = root.querySelectorAll(this.tagName.toLowerCase());
-      elements.forEach((el) => {
-        if (typeof el.reloadFromTemplate === "function") {
-          el.reloadFromTemplate(newTemplate);
-        }
-      });
-      // Recursively search shadowRoots of elements ending with -block
-      root.querySelectorAll("*").forEach((el) => {
-        if (
-          el.tagName &&
-          el.tagName.toLowerCase().endsWith("-block") &&
-          el.shadowRoot
-        ) {
-          reloadAllBlocks.call(this, el.shadowRoot);
-        }
-      });
-    }
-    reloadAllBlocks.call(this, document);
-  }
-
-  static get template() {
-    return this._template;
+  static reloadAllBlocks(root = document) {
+    const elements = root.querySelectorAll(this.tagName.toLowerCase());
+    elements.forEach((el) => {
+      if (typeof el.reloadFromTemplate === "function") {
+        el.reloadFromTemplate();
+      }
+    });
+    // Recursively search shadowRoots of elements ending with -block
+    root.querySelectorAll("*").forEach((el) => {
+      if (
+        el.tagName &&
+        el.tagName.toLowerCase().endsWith("-block") &&
+        el.shadowRoot
+      ) {
+        this.reloadAllBlocks.call(this, el.shadowRoot);
+      }
+    });
   }
 
   mixins = [];
@@ -70,10 +58,10 @@ export default class AlpineBlock extends HTMLElement {
       });
     }).observe(this, { attributes: true });
 
-    this.loadModule(this.constructor.template);
+    this.loadModule();
   }
 
-  async loadModule(template) {
+  async loadModule() {
     // Instead of parsing, expect the template to already be at #${this.pkg}/${this.constructor.tagName}
     const doc = document.querySelector(
       `#${this.pkg.slice(1)}-${this.constructor.tagName}`
@@ -259,7 +247,7 @@ export default class AlpineBlock extends HTMLElement {
     }
   }
 
-  reloadFromTemplate(newTemplate) {
+  reloadFromTemplate() {
     if (this.shadowRoot) {
       this.shadowRoot.replaceChildren();
     }
@@ -268,7 +256,7 @@ export default class AlpineBlock extends HTMLElement {
       .querySelectorAll(`[data-block="${this.tagName.toLowerCase()}"]`)
       .forEach((el) => el.remove());
 
-    this.loadModule(newTemplate);
+    this.loadModule();
   }
 
   needsSync(docEntry) {

@@ -42,7 +42,7 @@
       if (!source.endsWith("block")) return;
 
       const wc = customElements.get(tag);
-      if (wc) wc.template = html;
+      if (wc) wc.reloadAllBlocks();
     },
   };
 </script>
