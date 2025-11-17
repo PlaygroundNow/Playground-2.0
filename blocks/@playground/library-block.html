@@ -1,12 +1,7 @@
 <div class="wrapper" x-effect="getPackageFiles">
   <div class="section">
     <template x-for="pkg in packages">
-      <div
-        class="package"
-        :class="{ selected: props.selectedPackage === pkg.name }"
-        x-text="pkg.name"
-        @click="selectPackage(pkg.name)"
-      ></div>
+      <div class="package" :class="{ selected: props.selectedPackage === pkg.name }" x-text="pkg.name" @click="selectPackage(pkg.name)"></div>
     </template>
   </div>
   <div class="section">
@@ -14,78 +9,46 @@
       <div class="actions">
         <button @click="createScript('block')" title="Create Block">
           <!-- <div class="plus"></div> -->
-          <img src="/assets/img/extension.svg" />
+          <img src="/assets/img/extension.svg">
         </button>
         <button @click="createScript('mixin')" title="Create Mixin">
           <!-- <div class="plus"></div> -->
-          <img src="/assets/img/plug.svg" />
+          <img src="/assets/img/plug.svg">
         </button>
         <button @click="createScript('app')" title="Create App">
           <!-- <div class="plus"></div> -->
-          <img src="/assets/img/bolt.svg" />
+          <img src="/assets/img/bolt.svg">
         </button>
       </div>
-      <input
-        id="filter"
-        placeholder="Filter..."
-        x-model="props.search"
-        x-effect="filter(props.search)"
-      />
+      <input id="filter" placeholder="Filter..." x-model="props.search" x-effect="filter(props.search)">
     </div>
     <div :style="{ overflowY: 'scroll' }">
       <template x-for="file in filtered">
-        <div
-          class="package"
-          :data-selected="props.selectedFile === file.name + '-' + file.type"
-          :class="{ selected: props.selectedFile === file.name + '-' + file.type }"
-          @click="if (!files.some(f => f.newName !== undefined)) {
+        <div class="package" :data-selected="props.selectedFile === file.name + '-' + file.type" :class="{ selected: props.selectedFile === file.name + '-' + file.type }" @click="if (!files.some(f => f.newName !== undefined)) {
             props.selectedFile = file.name + '-' + file.type
-          }"
-        >
-          <img
-            :style="{ alignSelf: 'flex-start' }"
-            :src="file.type === 'block'
+          }">
+          <img :style="{ alignSelf: 'flex-start' }" :src="file.type === 'block'
                 ? '/assets/img/extension.svg'
                 : file.type === 'mixin'
                   ? '/assets/img/plug.svg'
-                  : '/assets/img/bolt.svg'"
-          />
+                  : '/assets/img/bolt.svg'">
           <template x-if="file.newName === undefined">
             <span x-show="file.newName === undefined" x-text="file.name"></span>
           </template>
           <template x-if="file.newName !== undefined">
             <div :style="{ display: 'flex', flexDirection: 'column' }">
-              <input
-                class="edit-name"
-                autofocus=""
-                x-model="file.newName"
-                x-effect="validateName(file)"
-                @blur.stop.prevent="validateName(file, true)"
-                @keydown.enter="validateName(file, true)"
-              />
-              <div
-                :style="{ color: 'darkred', fontSize: '16px', textTransform: 'none' }"
-                x-show="file.error"
-                x-html="file.error"
-              ></div>
+              <input class="edit-name" autofocus="" x-model="file.newName" x-effect="validateName(file)" @blur.stop.prevent="validateName(file, true)" @keydown.enter="validateName(file, true)">
+              <div :style="{ color: 'darkred', fontSize: '16px', textTransform: 'none' }" x-show="file.error" x-html="file.error"></div>
             </div>
           </template>
-          <div
-            class="dirty"
-            x-show="dirty && props.selectedFile === file.name + '-' + file.type"
-          ></div>
+          <div class="dirty" x-show="dirty && props.selectedFile === file.name + '-' + file.type"></div>
         </div>
       </template>
     </div>
   </div>
-  <div
-    class="section"
-    x-show="props.selectedFile && props.selectedFile !== 'false'"
-  >
+  <div class="section" x-show="props.selectedFile && props.selectedFile !== 'false'">
     <template x-if="props.selectedFile && props.selectedFile !== 'false'">
-      <block-editor-block
-        :file="`${props.selectedPackage}/${props.selectedFile}`"
-      ></block-editor-block>
+      <block-editor-block :file="`${props.selectedPackage}/${props.selectedFile}`"></block-editor-block>
     </template>
   </div>
 </div>
@@ -233,7 +196,7 @@
 <style>
   .wrapper {
     max-height: 600px;
-    font-size: 20px;
+    font-size: 18px;
 
     display: flex;
     align-items: stretch;

@@ -1,17 +1,11 @@
-<ul
-  class="menu"
-  :style="{ transform: `translate(${props.x || 0}px, ${props.y || 0}px)`}"
->
-  <div
-    :style="{ textTransform: 'capitalize', borderBottom: '0.5px solid grey', padding: '0 8px', fontSize: label?.length > 12 ? '18px' : '22px' }"
-    x-text="label"
-  ></div>
+<ul class="menu" :style="{ transform: `translate(${props.x || 0}px, ${props.y || 0}px)`}">
+  <div :style="{ textTransform: 'capitalize', borderBottom: '0.5px solid grey', padding: '0 8px', fontSize: label?.length > 12 ? '18px' : '22px' }" x-text="label"></div>
   <li @click="duplicate()">
-    <img src="/assets/img/duplicate.svg" /> Duplicate
+    <img src="/assets/img/duplicate.svg"> Duplicate
   </li>
-  <li @click="remove()"><img src="/assets/img/trash.svg" /> Remove</li>
-  <li @click="openInspector()"><img src="/assets/img/debug.svg" /> Inspect</li>
-  <li @click="openScript()"><img src="/assets/img/code-slash.svg" /> Script</li>
+  <li @click="remove()"><img src="/assets/img/trash.svg"> Remove</li>
+  <li @click="openInspector()"><img src="/assets/img/inspector.svg"> Inspect</li>
+  <li @click="openScript()"><img src="/assets/img/code-slash.svg"> Script</li>
 </ul>
 
 <script type="module">
