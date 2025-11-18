@@ -1,0 +1,19 @@
+<div>My new block</div>
+
+<script type="module">
+  import { basicSetup } from "https://esm.sh/codemirror";
+  import { EditorView } from "https://esm.sh/@codemirror/view";
+
+  export default {
+    mixins: [],
+    init() {
+      const view = new EditorView({
+        doc: "Inventor",
+        parent: this.$el,
+        extensions: [basicSetup],
+      });
+    },
+  };
+</script>
+
+<style></style>

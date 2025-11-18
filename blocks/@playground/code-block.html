@@ -1,11 +1,3 @@
-<style>
-  .wrapper {
-    width: 800px;
-    height: 600px;
-    background: rgb(40, 44, 52);
-  }
-</style>
-
 <div class="wrapper"></div>
 
 <script type="module">
@@ -16,7 +8,7 @@
     Decoration,
     keymap,
     WidgetType,
-  } from "https://esm.sh/@codemirror/view@6.38.6";
+  } from "https://esm.sh/@codemirror/view@6.38.8";
   import {
     ChangeSet,
     Annotation,
@@ -26,7 +18,7 @@
   } from "https://esm.sh/@codemirror/state@6.5.2";
   import { html } from "https://esm.sh/@codemirror/lang-html@6.4.11";
   import { javascriptLanguage } from "https://esm.sh/@codemirror/lang-javascript@6.2.4";
-  import { vsCodeDark as theme } from "https://esm.sh/@fsegurai/codemirror-theme-vscode-dark";
+  import { vsCodeDark as theme } from "https://esm.sh/@fsegurai/codemirror-theme-vscode-dark@6.2.2";
   import { vscodeKeymap } from "https://esm.sh/@replit/codemirror-vscode-keymap@6.0.2";
 
   const playgroundTheme = EditorView.theme({
@@ -36,7 +28,7 @@
       height: "600px",
       overflow: "auto",
       fontFamily: "'Source Code Pro', monospace",
-      borderBottomRightRadius: '4px'
+      borderBottomRightRadius: "4px",
     },
   });
 
@@ -149,3 +141,11 @@
     },
   };
 </script>
+
+<style>
+  .wrapper {
+    width: 800px;
+    height: 600px;
+    /* background: rgb(40, 44, 52); */
+  }
+</style>
