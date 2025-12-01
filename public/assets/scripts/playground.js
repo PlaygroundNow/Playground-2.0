@@ -40,6 +40,7 @@ if (docUrl) {
 } else {
   handle = repo.create({
     packages: ["@playground"],
+    theme: "night",
     world: [],
   });
   window.location.hash = handle.url;

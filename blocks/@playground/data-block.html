@@ -27,7 +27,7 @@
                   <span x-text="column"></span>
                 </template>
                 <flex-block :style="{padding: 0, gap: '4px', alignItems: 'center'}">
-                  <button @click="editedColIndex = index">
+                  <button @click="editedColIndex = index; colName = column">
                     <img :style="{ width: '16px', height: '16px' }" src="/assets/img/pen.svg">
                   </button>
                   <button @click="doc.tables[selectedIndex].columns = doc.tables[selectedIndex].columns.filter((item, i) => i !== index)">

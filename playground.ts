@@ -3,14 +3,14 @@ import { serveDir } from "https://deno.land/std@0.224.0/http/file_server.ts";
 Deno.serve(async (req) => {
   const { pathname } = new URL(req.url);
 
-  const cookies = Object.fromEntries(
+  /* const cookies = Object.fromEntries(
     (req.headers.get("cookie") ?? "")
       .split(";")
       .map((c) => c.trim().split("="))
       .filter(([k, v]) => k && v)
   );
 
-  console.log(cookies);
+  console.log(cookies); */
 
   // REST application/json
   if (req.headers.get("accept")?.includes("application/json")) {
