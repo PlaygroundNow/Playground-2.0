@@ -39,7 +39,7 @@ if (docUrl) {
   handle = await repo.find(docUrl);
 } else {
   handle = repo.create({
-    packages: ["@playground", "@games"],
+    packages: ["@playground"],
     world: [],
   });
   window.location.hash = handle.url;

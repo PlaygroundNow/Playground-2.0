@@ -36,7 +36,7 @@
         <img :style="{ filter: 'invert(1)', width: '22px' }" src="/assets/img/theme.svg">
       </button>
       <div x-show="themeOpen" x-transition="" :style="{ textAlign: 'right', color: 'white', position: 'absolute', marginTop: '1px', right: 0 }">
-        <template x-for="bg in ['snow', 'bubble', 'night']">
+        <template x-for="bg in ['snow', 'bubble', 'night', 'turf']">
           <button :style="{
               marginBottom: '1px',
               cursor: 'pointer',
@@ -45,7 +45,7 @@
               color: 'white',
               borderRadius: '4px',
               border: '1px solid rgba(255, 255, 255, 0.5)',
-            }" x-text="bg" @click="$world.theme = bg"></button>
+            }" x-text="bg" @click="doc.theme = bg"></button>
         </template>
         <div :style="{ lineHeight: 1, marginTop: '4px' }">
           particles.js<br>vincentgarreau.com
@@ -125,6 +125,7 @@
     justify-content: center;
     align-items: center;
     border-radius: 4px;
+    background: rgba(25,25,25,0.8);
 
     transition: all 0.1s ease;
   }
@@ -135,7 +136,6 @@
 
   .square:hover {
     scale: 0.95;
-    background: rgba(25,25,25,0.8);
   }
 
   .square.active {

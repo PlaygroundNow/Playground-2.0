@@ -498,6 +498,15 @@
     window.pJSDom.push(inst);
     return inst;
   };
+  window.particlesJS.clear = function (tag_id) {
+    const root = this?.getRootNode?.() ?? document;
+    const container = root.getElementById(tag_id);
+    if (!container)
+      throw new Error(`particlesJS: container with id "${tag_id}" not found`);
+
+    const prev = container.querySelector(".particles-js-svg-el");
+    if (prev) prev.remove();
+  };
   window.particlesJS.load = function (tag_id, url, cb) {
     fetch(url)
       .then((r) => r.json())

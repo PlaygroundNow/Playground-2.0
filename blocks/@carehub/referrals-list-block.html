@@ -1,33 +1,21 @@
 <div x-effect="referrals = parse(doc.referrals)" class="wrapper">
   <div class="list">
     <div class="search">
-      <input
-        placeholder="Search referrals"
-        x-model="props.search"
-        x-effect="filter(props.search)"
-      />
+      <input placeholder="something" x-model="props.search" x-effect="filter(props.search)">
       <button @click="props.search=''" x-show="props.search">Clear</button>
     </div>
     <template x-for="referral in filtered">
-      <div
-        class="referral"
-        :class="{ selected: props.selectedReferral === referral.id }"
-        @click="props.selectedReferral = referral.id"
-      >
+      <div class="referral" :class="{ selected: props.selectedReferral === referral.id }" @click="props.selectedReferral = referral.id">
         <div x-text="referral.name"></div>
       </div>
     </template>
     <div class="pagination">
       <template x-for="i in Math.ceil(referrals.length / limit)">
-        <button
-          @click="props.page = i-1"
-          x-text="i"
-          :class="{ selected: i-1 === Number(props.page) }"
-        ></button>
+        <button @click="props.page = i-1" x-text="i" :class="{ selected: i-1 === Number(props.page) }"></button>
       </template>
     </div>
   </div>
-  <div x-show="props.selectedReferral" x-transition>
+  <div x-show="props.selectedReferral" x-transition="">
     <caregiver-form-block :id="props.selectedReferral"></caregiver-form-block>
   </div>
 </div>

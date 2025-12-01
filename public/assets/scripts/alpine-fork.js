@@ -275,6 +275,8 @@ function addScopeToNode(node, data2, referenceNode) {
   };
 }
 function closestDataStack(node) {
+  if (!node) return [];
+  
   if (node._x_dataStack)
     return node._x_dataStack;
   if (node.shadowRoot && node.shadowRoot.querySelector("[x-data]")) {
