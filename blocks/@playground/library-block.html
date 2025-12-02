@@ -27,21 +27,28 @@
         <div class="package" :data-selected="props.selectedFile === file.name + '-' + file.type" :class="{ selected: props.selectedFile === file.name + '-' + file.type }" @click="if (!files.some(f => f.newName !== undefined)) {
             props.selectedFile = file.name + '-' + file.type
           }">
-          <img :style="{ alignSelf: 'flex-start' }" :src="file.type === 'block'
-                ? '/assets/img/extension.svg'
-                : file.type === 'mixin'
-                  ? '/assets/img/plug.svg'
-                  : '/assets/img/bolt.svg'">
-          <template x-if="file.newName === undefined">
-            <span x-show="file.newName === undefined" x-text="file.name"></span>
+          <div>
+            <img :style="{ alignSelf: 'flex-start' }" :src="file.type === 'block'
+                  ? '/assets/img/extension.svg'
+                  : file.type === 'mixin'
+                    ? '/assets/img/plug.svg'
+                    : '/assets/img/bolt.svg'">
+            <template x-if="file.newName === undefined">
+              <span x-show="file.newName === undefined" x-text="file.name"></span>
+            </template>
+            <template x-if="file.newName !== undefined">
+              <div :style="{ display: 'flex', flexDirection: 'column' }">
+                <input class="edit-name" autofocus="" x-model="file.newName" x-effect="validateName(file)" @blur.stop.prevent="validateName(file, true)" @keydown.enter="validateName(file, true)">
+                <div :style="{ color: 'darkred', fontSize: '16px', textTransform: 'none' }" x-show="file.error" x-html="file.error"></div>
+              </div>
+            </template>
+            <div class="dirty" x-show="dirty && props.selectedFile === file.name + '-' + file.type"></div>
+          </div>
+          <template x-if="file.type === 'app'">
+            <button @click.stop="openApp(props.selectedPackage, file.name + '-' + file.type)">
+              <img src="/assets/img/play.svg">
+            </button>
           </template>
-          <template x-if="file.newName !== undefined">
-            <div :style="{ display: 'flex', flexDirection: 'column' }">
-              <input class="edit-name" autofocus="" x-model="file.newName" x-effect="validateName(file)" @blur.stop.prevent="validateName(file, true)" @keydown.enter="validateName(file, true)">
-              <div :style="{ color: 'darkred', fontSize: '16px', textTransform: 'none' }" x-show="file.error" x-html="file.error"></div>
-            </div>
-          </template>
-          <div class="dirty" x-show="dirty && props.selectedFile === file.name + '-' + file.type"></div>
         </div>
       </template>
     </div>
@@ -223,6 +230,7 @@
 
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 12px;
     text-transform: capitalize;
   }
@@ -236,6 +244,12 @@
   .package:hover {
     background: #eee;
     color: black;
+  }
+
+  .package button {
+    background: none;
+    border: 0;
+    cursor: pointer;
   }
 
   .file-menu {

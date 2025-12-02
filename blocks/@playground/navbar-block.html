@@ -9,24 +9,9 @@
     <div class="search">
       <img src="/assets/img/search.svg"><input x-effect="spotlightOpen && $nextTick(() => $el.focus())" autofocus="true" x-model="search">
     </div>
-    <flex-block :style="{ gap: '12px', flexWrap: 'wrap' }" x-data="{
-      apps: [],
-      async init() {
-        const blocks = await Promise.all(doc.packages.map(function(pkg) {
-          return fetch('/blocks/' + pkg, { headers: { accept: 'application/json' }})
-            .then(function(resp) { return resp.json() })
-            .then(function(data) {
-              return data.map(function(d) {  return { pkg, ...d } });
-            });
-        }));
-        this.apps = blocks
-          .flat()
-          .filter(function(b) { return b.type === 'app' && b.name !== 'apps' });
-      }
-    }">
-      <template x-for="pkg in apps">
-        <app-block @click="spotlightOpen = false" :pkg="pkg.pkg" :tag="`${pkg.name}-app`" :icon="pkg.name" :label="`${pkg.name.split('-').join(' ')}`"></app-block>
-      </template>
+    <flex-block :style="{ gap: '12px', flexWrap: 'wrap' }">
+      <app-block @click="spotlightOpen = false" pkg="@playground" tag="data-app" icon="Data" label="Data"></app-block>
+      <app-block @click="spotlightOpen = false" pkg="@playground" tag="library-app" icon="Library" label="Library"></app-block>
     </flex-block>
   </div>
 

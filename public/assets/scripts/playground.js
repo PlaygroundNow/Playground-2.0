@@ -34,7 +34,8 @@ const repo = new Repo({
 
 window.repo = repo;
 window.handle = null;
-const docUrl = window.location.hash.slice(1);
+
+/* const docUrl = window.location.hash.slice(1);
 if (docUrl) {
   handle = await repo.find(docUrl);
 } else {
@@ -44,7 +45,10 @@ if (docUrl) {
     world: [],
   });
   window.location.hash = handle.url;
-}
+} */
+
+handle = await repo.find("automerge:3cg8A46vXQVNrW9RjwFisgUWjPo5");
+console.log(handle.url);
 
 window.throttledQueue = [];
 window.throttledTimer = null;

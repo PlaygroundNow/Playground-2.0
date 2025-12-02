@@ -3,14 +3,24 @@ import { serveDir } from "https://deno.land/std@0.224.0/http/file_server.ts";
 Deno.serve(async (req) => {
   const { pathname } = new URL(req.url);
 
-  /* const cookies = Object.fromEntries(
-    (req.headers.get("cookie") ?? "")
-      .split(";")
-      .map((c) => c.trim().split("="))
-      .filter(([k, v]) => k && v)
-  );
+  /* // Get token from cookie
+  const cookie = req.headers.get("cookie");
+  let token: string | undefined;
+  if (cookie) {
+    const match = cookie.match(/(?:^|;\s*)token=([^;]+)/);
+    if (match) token = match[1];
+  }
 
-  console.log(cookies); */
+  const isBlockOrAsset =
+    pathname.startsWith("/blocks/") ||
+    pathname.startsWith("/assets/") ||
+    pathname === "/login";
+  if (!token && !isBlockOrAsset) {
+    const loginHtml = await Deno.readTextFile("./public/login.html");
+    return new Response(loginHtml, {
+      headers: { "content-type": "text/html" },
+    });
+  } */
 
   // REST application/json
   if (req.headers.get("accept")?.includes("application/json")) {

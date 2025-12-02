@@ -1,0 +1,222 @@
+<div class="wrapper" :style="{ flexDirection: 'column' }">
+  <div class="card">
+    <flex-block :style="{ flexDirection: 'column', alignItems: 'center' }">
+      <img class="logo" src="/assets/img/favicon.svg" />
+      <h1>Playground</h1>
+    </flex-block>
+    <flex-block :style="{ width: '100%' }">
+      <input x-model="email" placeholder="Email" />
+    </flex-block>
+    <flex-block :style="{ width: '100%' }">
+      <input
+        x-show="!resetPassword"
+        x-model="password"
+        type="password"
+        placeholder="Password"
+      />
+    </flex-block>
+    <flex-block :style="{ width: '100%', flexDirection: 'column' }">
+      <button
+        @click="resetPassword ? reset() : newAccount ? signUp() : signIn()"
+        x-text="resetPassword ? 'Reset Password' : newAccount ? 'Get Started' : 'Login'"
+      ></button>
+      <div class="messages">
+        <div class="error" x-text="errorMessage"></div>
+        <div class="success" x-text="successMessage"></div>
+      </div>
+      <div :style="{ marginTop: '8px'}">
+        <template x-if="!newAccount">
+          <div :style="{ textAlign: 'center' }">
+            Don't have an account?
+            <br />
+            <span @click="newAccount = true; resetPassword = false;"
+              >Get started</span
+            >
+            or
+            <span @click="resetPassword = true; newAccount = false;"
+              >Reset your password</span
+            >
+          </div>
+        </template>
+        <template x-if="newAccount">
+          <div>
+            Have an account already?
+            <span @click="newAccount = false; resetPassword = false;"
+              >Login</span
+            >
+          </div>
+        </template>
+      </div>
+    </flex-block>
+  </div>
+</div>
+
+<script type="module">
+  import { createClient } from "https://esm.sh/@supabase/supabase-js";
+
+  const supabase = createClient(
+    "https://ifteoortevgzwvlbkjev.supabase.co",
+    "sb_publishable_HVSLUqC4MdXCJzTbbJR24w_ylDOODOF"
+  );
+
+  export default {
+    mixins: [],
+    newAccount: false,
+    resetPassword: false,
+    recovery: false,
+    params: null,
+    errorMessage: "",
+    successMessage: "",
+    email: "",
+    password: "",
+    init() {
+      if (location.hash.includes("access_token")) {
+        this.params = new URLSearchParams(location.hash.slice(1));
+
+        if (params.get("type") === "recovery") {
+          this.recovery = true;
+        }
+      }
+    },
+    async reset() {
+      this.errorMessage = "";
+      this.successMessage = "";
+
+      const { data, error } = await supabase.auth.resetPasswordForEmail(
+        this.email,
+        {
+          redirectTo: location.origin,
+        }
+      );
+
+      if (error) {
+        this.errorMessage = error.message;
+      }
+    },
+    async signIn() {
+      this.errorMessage = "";
+      this.successMessage = "";
+
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: this.email,
+        password: this.password,
+      });
+
+      if (error) {
+        this.errorMessage = error.message;
+      }
+
+      console.log(data, error);
+    },
+    async signUp() {
+      this.errorMessage = "";
+      this.successMessage = "";
+
+      const { data, error } = await supabase.auth.signUp({
+        email: this.email,
+        password: this.password,
+        options: {
+          emailRedirectTo: location.origin,
+        },
+      });
+
+      if (error) {
+        this.errorMessage = error.message;
+      } else {
+        this.successMessage = "Success! Check your email";
+      }
+
+      console.log(data, error);
+    },
+  };
+</script>
+
+<style>
+  .wrapper {
+    background: #48c9b0;
+    min-width: 100vw;
+    min-height: 100vh;
+
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .messages {
+    position: relative;
+    height: 16px;
+  }
+
+  .error {
+    position: absolute;
+    color: #f94b5a;
+    font-size: 20px !important;
+  }
+
+  .success {
+    position: absolute;
+    color: #2cbf5e;
+    font-size: 20px !important;
+  }
+
+  h1 {
+    margin: 0;
+  }
+
+  .logo {
+    width: 40px;
+    height: 40px;
+  }
+
+  .card {
+    margin-top: -200px;
+    min-width: 320px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: white;
+    border-radius: 4px;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    padding: 24px;
+  }
+
+  .card *:not(h1) {
+    font-size: 16px;
+  }
+
+  .card div,
+  .card span {
+    font-size: 18px;
+  }
+
+  input {
+    width: 100%;
+    border: 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.4);
+    padding: 4px 8px;
+  }
+
+  button {
+    cursor: pointer;
+    background: #708ad8;
+    color: white;
+    width: 100%;
+    border: 0;
+    border-radius: 4px;
+    padding: 8px 0;
+    font-size: 20px !important;
+    font-family: inherit;
+  }
+
+  button:active {
+    opacity: 0.9;
+  }
+
+  span {
+    color: #708ad8;
+    cursor: pointer;
+  }
+</style>
