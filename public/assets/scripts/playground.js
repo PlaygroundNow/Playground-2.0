@@ -40,7 +40,7 @@ if (docUrl) {
   handle = await repo.find(docUrl);
 } else {
   handle = repo.create({
-    packages: ["@playground"],
+    packages: ["@playground", "@games"],
     theme: "night",
     world: [],
   });
