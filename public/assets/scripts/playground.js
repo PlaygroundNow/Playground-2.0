@@ -4,16 +4,16 @@ import {
   Automerge,
   Repo,
   initializeWasm,
-} from "https://esm.sh/@automerge/automerge-repo@2.4.0/slim?bundle-deps";
-import { IndexedDBStorageAdapter } from "https://esm.sh/@automerge/automerge-repo-storage-indexeddb@2.4.0?bundle-deps";
-import { WebSocketClientAdapter } from "https://esm.sh/@automerge/automerge-repo-network-websocket@2.4.0?bundle-deps";
+} from "https://esm.sh/@automerge/automerge-repo@2.5.1/slim?bundle-deps";
+import { IndexedDBStorageAdapter } from "https://esm.sh/@automerge/automerge-repo-storage-indexeddb@2.5.1?bundle-deps";
+import { WebSocketClientAdapter } from "https://esm.sh/@automerge/automerge-repo-network-websocket@2.5.1?bundle-deps";
 
 import AlpineBlock from "./alpine-block.js";
 import Observer from "./observer.js";
 import automergeSyncPlugin from "./automerge-sync-plugin.js";
 
 await initializeWasm(
-  fetch("https://esm.sh/@automerge/automerge@3.1.2/dist/automerge.wasm")
+  fetch("https://esm.sh/@automerge/automerge@3.2.1/dist/automerge.wasm")
 );
 
 window.lock = false;
