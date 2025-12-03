@@ -5,45 +5,48 @@
       <h1>Playground</h1>
     </flex-block>
     <flex-block :style="{ width: '100%' }">
-      <input x-model="email" placeholder="Email" />
+      <input x-show="state !== 'recover'" x-model="email" placeholder="Email" />
     </flex-block>
     <flex-block :style="{ width: '100%' }">
       <input
-        x-show="!resetPassword"
+        x-show="state !== 'reset'"
         x-model="password"
         type="password"
         placeholder="Password"
       />
     </flex-block>
+    <template x-if="state === 'recover'">
+      <flex-block :style="{ width: '100%' }">
+        <input
+          x-model="confirmPassword"
+          type="password"
+          placeholder="Password"
+        />
+      </flex-block>
+    </template>
     <flex-block :style="{ width: '100%', flexDirection: 'column' }">
       <button
-        @click="resetPassword ? reset() : newAccount ? signUp() : signIn()"
-        x-text="resetPassword ? 'Reset Password' : newAccount ? 'Get Started' : 'Login'"
+        @click="state === 'recover' ? updatePassword() : state === 'reset' ? reset() : state === 'create' ? signUp() : signIn()"
+        x-text="state === 'recover' ? 'Update Password' : state === 'reset' ? 'Reset Password' : state === 'create' ? 'Get Started' : 'Login'"
       ></button>
       <div class="messages">
         <div class="error" x-text="errorMessage"></div>
         <div class="success" x-text="successMessage"></div>
       </div>
       <div :style="{ marginTop: '8px'}">
-        <template x-if="!newAccount">
+        <template x-if="state !== 'create'">
           <div :style="{ textAlign: 'center' }">
             Don't have an account?
             <br />
-            <span @click="newAccount = true; resetPassword = false;"
-              >Get started</span
-            >
+            <span @click="state = 'create'">Get started</span>
             or
-            <span @click="resetPassword = true; newAccount = false;"
-              >Reset your password</span
-            >
+            <span @click="state = 'reset'">Reset your password</span>
           </div>
         </template>
-        <template x-if="newAccount">
+        <template x-if="state === 'create'">
           <div>
             Have an account already?
-            <span @click="newAccount = false; resetPassword = false;"
-              >Login</span
-            >
+            <span @click="state = 'login'">Login</span>
           </div>
         </template>
       </div>
@@ -61,20 +64,21 @@
 
   export default {
     mixins: [],
-    newAccount: false,
-    resetPassword: false,
-    recovery: false,
+    state: "login", // login | reset | create | recover
     params: null,
     errorMessage: "",
     successMessage: "",
     email: "",
     password: "",
+    confirmPassword: "",
     init() {
       if (location.hash.includes("access_token")) {
         this.params = new URLSearchParams(location.hash.slice(1));
 
-        if (params.get("type") === "recovery") {
-          this.recovery = true;
+        if (this.params.get("type") === "recovery") {
+          this.state = "recover";
+
+          console.log(this.params);
         }
       }
     },
@@ -91,6 +95,8 @@
 
       if (error) {
         this.errorMessage = error.message;
+      } else {
+        this.successMessage = "Check your email";
       }
     },
     async signIn() {
@@ -147,7 +153,8 @@
 
   .messages {
     position: relative;
-    height: 16px;
+    height: 32px;
+    line-height: 1;
   }
 
   .error {
