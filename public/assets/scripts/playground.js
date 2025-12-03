@@ -37,7 +37,7 @@ window.handle = null;
 
 let docUrl = location.pathname.split("/").pop();
 
-if (!location.pathname.includes("/world/")) {
+if (!location.pathname.includes("/worlds/")) {
   docUrl = isProd
     ? "4ZKx8x3HiCVpEaUARmXrbLSCwxE9"
     : "35jyEsyK25Utw6LNFNpUnCdadKDx";
