@@ -39,7 +39,7 @@ let docUrl = location.pathname.split("/").pop();
 
 if (!location.pathname.includes("/worlds/")) {
   docUrl = isProd
-    ? "4ZKx8x3HiCVpEaUARmXrbLSCwxE9"
+    ? "XaAJ18AA8SHxgLDvGaPfXtxAcAd"
     : "35jyEsyK25Utw6LNFNpUnCdadKDx";
 }
 
