@@ -10,8 +10,8 @@
       <img src="/assets/img/search.svg"><input x-effect="spotlightOpen && $nextTick(() => $el.focus())" autofocus="true" x-model="search">
     </div>
     <flex-block :style="{ gap: '12px', flexWrap: 'wrap' }">
-      <app-block @click="spotlightOpen = false" pkg="@playground" tag="data-app" icon="Data" label="Data"></app-block>
-      <app-block @click="spotlightOpen = false" pkg="@playground" tag="library-app" icon="Library" label="Library"></app-block>
+      <app-block @click="spotlightOpen = false" pkg="@playground" tag="data-app" icon="data" label="Data"></app-block>
+      <app-block @click="spotlightOpen = false" pkg="@playground" tag="library-app" icon="library" label="Library"></app-block>
     </flex-block>
   </div>
 
