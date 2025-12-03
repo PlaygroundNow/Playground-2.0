@@ -38,7 +38,9 @@ window.handle = null;
 let docUrl = location.pathname.split("/").pop();
 
 if (!location.pathname.includes("/world/")) {
-  docUrl = "35jyEsyK25Utw6LNFNpUnCdadKDx";
+  docUrl = isProd
+    ? "32eW2Mb4DqG8s51LoEazd6QXpxar"
+    : "35jyEsyK25Utw6LNFNpUnCdadKDx";
 }
 
 if (docUrl) {
