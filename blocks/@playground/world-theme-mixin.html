@@ -6,18 +6,15 @@
       this.$watch("doc.theme", this.loadParticles.bind(this));
     },
     loadParticles() {
-      if (this.doc.theme === 'turf') {
-        particlesJS.clear.call(
-          this.$el,
-          "space"
-        );
+      if (this.doc.theme === "turf") {
+        particlesJS.clear.call(this.$el, "space");
         return;
       }
-      
+
       particlesJS.load.call(
         this.$el,
         "space",
-        `assets/scripts/particle-presets/${this.doc.theme || "bubble"}.json`
+        `/assets/scripts/particle-presets/${this.doc.theme || "bubble"}.json`
       );
     },
   };

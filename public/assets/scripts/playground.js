@@ -35,20 +35,17 @@ const repo = new Repo({
 window.repo = repo;
 window.handle = null;
 
-/* const docUrl = window.location.hash.slice(1);
-if (docUrl) {
-  handle = await repo.find(docUrl);
-} else {
-  handle = repo.create({
-    packages: ["@playground"],
-    theme: "night",
-    world: [],
-  });
-  window.location.hash = handle.url;
-} */
+let docUrl = location.pathname.split("/").pop();
 
-handle = await repo.find("automerge:4ZKx8x3HiCVpEaUARmXrbLSCwxE9");
-console.log(handle.url);
+if (!location.pathname.includes("/world/")) {
+  docUrl = "35jyEsyK25Utw6LNFNpUnCdadKDx";
+}
+
+if (docUrl) {
+  handle = await repo.find("automerge:" + docUrl);
+} else {
+  throw new Error("Automerge ID is required");
+}
 
 window.throttledQueue = [];
 window.throttledTimer = null;

@@ -1,0 +1,133 @@
+<div x-effect="getWorlds()" class="wrapper">
+  <img class="logo" src="/assets/img/favicon.svg" />
+
+  <flex-block
+    :style="{ flexDirection: 'column', alignItems: 'center', fontSize: '64px', marginTop: '-120px', color: 'white' }"
+  >
+    <h1>Welcome to Playground</h1>
+    <div class="grey">The collaborative web toolkit</div>
+  </flex-block>
+
+  <flex-block>
+    <template x-for="world in worlds">
+      <div
+        @click="location.href = '/worlds/' + world.automerge_id"
+        class="world"
+      >
+        <div class="pane"></div>
+        <div class="title">My world</div>
+      </div>
+    </template>
+  </flex-block>
+
+  <flex-block>
+    <button @click="createWorld()">Create a World</button>
+  </flex-block>
+</div>
+
+<script type="module">
+  export default {
+    mixins: [],
+    worlds: [],
+    async getWorlds() {
+      const data = await fetch("/worlds", {
+        headers: new Headers({
+          accept: "application/json",
+        }),
+        credentials: "include",
+      }).then((resp) => resp.json());
+
+      this.worlds = data;
+    },
+    async createWorld() {
+      const worldHandle = repo.create({
+        packages: ["@playground"],
+        theme: "night",
+        world: [],
+      });
+
+      await fetch("/worlds", {
+        method: "POST",
+        credentials: "include",
+        headers: new Headers({
+          accept: "application/json",
+        }),
+        body: JSON.stringify({
+          id: worldHandle.url.split(":")[1],
+        }),
+      });
+    },
+  };
+</script>
+
+<style>
+  .wrapper {
+    position: relative;
+    background: #48c9b0;
+    min-width: 100vw;
+    min-height: 100vh;
+
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .world {
+    cursor: pointer;
+    background: #7289da;
+    padding: 4px;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 24px;
+    color: white;
+  }
+
+  .pane {
+    width: 150px;
+    height: 100px;
+    background: white;
+    border-radius: 4px;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 72px;
+  }
+
+  .grey {
+    margin-top: -24px;
+    font-size: 48px;
+    color: rgba(0, 0, 0, 0.5);
+  }
+
+  .logo {
+    position: absolute;
+    top: 24px;
+    width: 30px;
+    height: 30px;
+    background: white;
+    padding: 8px;
+    border-radius: 4px;
+  }
+
+  button {
+    cursor: pointer;
+    background: #7289da;
+    color: white;
+    width: 100%;
+    border: 0;
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-size: 28px !important;
+    font-family: inherit;
+
+    box-shadow: 0px 1px 2px 0px #ffffff40 inset;
+    box-shadow: 0px -1px 1px 0px #1d153a3d inset;
+    box-shadow: 0px 0px 8px 0px #0d609e8a;
+    backdrop-filter: blur(54px);
+  }
+</style>
