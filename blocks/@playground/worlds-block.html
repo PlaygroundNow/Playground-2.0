@@ -1,21 +1,18 @@
 <div x-effect="getWorlds()" class="wrapper">
-  <img class="logo" src="/assets/img/favicon.svg" />
+  <img class="logo" src="/assets/img/favicon.svg">
 
-  <flex-block
-    :style="{ flexDirection: 'column', alignItems: 'center', fontSize: '64px', marginTop: '-120px', color: 'white' }"
-  >
+  <flex-block :style="{ flexDirection: 'column', alignItems: 'center', fontSize: '64px', color: 'white' }">
     <h1>Welcome to Playground</h1>
     <div class="grey">The collaborative web toolkit</div>
   </flex-block>
 
-  <flex-block>
+  <flex-block :style="{ gap: '12px' }">
     <template x-for="world in worlds">
-      <div
-        @click="location.href = '/worlds/' + world.automerge_id"
-        class="world"
-      >
-        <div class="pane"></div>
-        <div class="title">My world</div>
+      <div @click="location.href = '/worlds/' + world.automerge_id" class="world">
+        <div class="pane">
+          <img src="/assets/img/globe-alt.svg" />
+        </div>
+        <div class="title" x-text="(await repo.find(world.automerge_id)).doc().name">My world</div>
       </div>
     </template>
   </flex-block>
@@ -64,16 +61,18 @@
   .wrapper {
     position: relative;
     background: #48c9b0;
-    min-width: 100vw;
-    min-height: 100vh;
 
     width: 100%;
     height: 100%;
 
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
+    text-align: center;
+
+    container: content / size;
+    padding-top: 80px;
   }
 
   .world {
@@ -91,6 +90,13 @@
     height: 100px;
     background: white;
     border-radius: 4px;
+
+    display: flex;
+    justify-content: center;
+  }
+
+  .pane img {
+    width: 40px;
   }
 
   h1 {
@@ -112,6 +118,27 @@
     background: white;
     padding: 8px;
     border-radius: 4px;
+  }
+
+   @container content (max-width: 500px) {
+    h1 {
+      font-size: 64px;
+      line-height: 1;
+    }
+     .grey {
+       line-height: 1;
+       margin-top: 20px;
+     }
+  }
+
+  @container content (max-height: 500px) {
+    flex-block:first-of-type {
+      margin-top: -80px;
+    }
+    
+    .logo {
+      right: 24px;
+    }
   }
 
   button {

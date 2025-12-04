@@ -2,17 +2,11 @@
   <div drag-handle="" class="window-nav" part="nav" title="Close">
     <button class="close" @click="$dispatch('close')"></button>
     <span x-text="props.navTitle"></span>
-    <div
-      :style="{ position: 'relative', zIndex: '9999' }"
-      @click.outside="sizeOpen = false"
-    >
+    <div :style="{ position: 'relative', zIndex: '9999' }" @click.outside="sizeOpen = false">
       <button class="size" @click.stop="sizeOpen = !sizeOpen">
-        <img src="/assets/img/size.svg" />
+        <img src="/assets/img/size.svg">
       </button>
-      <div
-        x-show="sizeOpen"
-        x-transition=""
-        :style="{
+      <div x-show="sizeOpen" x-transition="" :style="{
           display: 'flex',
           flexDirection: 'column',
           textAlign: 'right',
@@ -20,14 +14,9 @@
           position: 'absolute',
           marginTop: '1px',
           right: 0
-        }"
-      >
-        <template
-          x-for="size in ['Auto', 'Mobile', 'Mobile - Landscape', 'Tablet', 'Desktop']"
-        >
-          <button
-            @click="updateSize(size)"
-            :style="{
+        }">
+        <template x-for="size in ['Auto', 'Mobile', 'Mobile - Landscape', 'Tablet', 'Desktop']">
+          <button @click="updateSize(size)" :style="{
               cursor: 'pointer',
               width: '120px',
               padding: '4px 0',
@@ -35,22 +24,16 @@
               color: 'white',
               borderRadius: '4px',
               border: '1px solid rgba(255, 255, 255, 0.5)',
-            }"
-            x-text="size"
-          ></button>
+            }" x-text="size"></button>
         </template>
       </div>
     </div>
   </div>
-  <div
-    class="content"
-    part="content"
-    :style="{
+  <div class="content" part="content" :style="{
     width,
     height,
-    overflow: props.size === 'Auto' ? 'auto' : 'scroll'
-  }"
-  >
+    overflow: props.size === 'Auto' ? 'auto' : 'scroll',
+  }">
     <slot></slot>
   </div>
 </div>
