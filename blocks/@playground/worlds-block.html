@@ -6,11 +6,11 @@
     <div class="grey">The collaborative web toolkit</div>
   </flex-block>
 
-  <flex-block :style="{ gap: '12px' }">
+  <flex-block :style="{ gap: '12px', flexWrap: 'wrap' }">
     <template x-for="world in worlds">
       <div @click="location.href = '/worlds/' + world.automerge_id" class="world">
         <div class="pane">
-          <img src="/assets/img/globe-alt.svg" />
+          <img src="/assets/img/globe-alt.svg">
         </div>
         <div class="title" x-text="(await repo.find(world.automerge_id)).doc().name">My world</div>
       </div>
@@ -53,6 +53,8 @@
           id: worldHandle.url.split(":")[1],
         }),
       });
+
+      await getWorlds();
     },
   };
 </script>

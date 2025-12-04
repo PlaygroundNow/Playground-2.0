@@ -30,6 +30,9 @@
       const html = handle.doc()[source];
       if (!html) throw new Error("Cannot save text, missing from handle");
 
+      const pgHandle = await repo.find("PJiSsC8Stu59dxDcsguTftcge22");
+      pgHandle.change((doc) => (doc[tag] = html));
+
       await fetch(file, {
         method: "PUT",
         headers: { accept: "application/json" },

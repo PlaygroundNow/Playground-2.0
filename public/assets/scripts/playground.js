@@ -25,11 +25,7 @@ const isProd = location.hostname.endsWith("playground.now");
 
 const repo = new Repo({
   storage: new IndexedDBStorageAdapter(),
-  network: [
-    new WebSocketClientAdapter(
-      isProd ? "wss://sync.playground.now" : "ws://localhost:3030"
-    ),
-  ],
+  network: [new WebSocketClientAdapter("wss://sync.playground.now")],
 });
 
 window.repo = repo;
@@ -38,9 +34,7 @@ window.handle = null;
 let docUrl = location.pathname.split("/").pop();
 
 if (!location.pathname.includes("/worlds/")) {
-  docUrl = isProd
-    ? "XaAJ18AA8SHxgLDvGaPfXtxAcAd"
-    : "35jyEsyK25Utw6LNFNpUnCdadKDx";
+  docUrl = "XaAJ18AA8SHxgLDvGaPfXtxAcAd";
 }
 
 if (docUrl) {
@@ -180,39 +174,32 @@ function defineBlock(pkg, tagName, template) {
   }
 }
 
-const pkgs = handle.doc().packages || ["@playground", "@games"];
+const pkgs = ["PJiSsC8Stu59dxDcsguTftcge22"];
 
 const blockTemplates = [];
 
-await Promise.all(
-  pkgs.map(async (pkg) => {
-    const blocks = await fetch(`/blocks/${pkg}`, {
-      headers: { accept: "application/json" },
-    }).then((resp) => resp.json());
+for (let pkg of pkgs) {
+  const pkgHandle = await repo.find(pkg);
+  const pkgDoc = pkgHandle.doc();
 
-    await Promise.all(
-      blocks.map(async (block) => {
-        const sfc = await fetch(
-          `/blocks/${pkg}/${block.name}-${block.type}.html`
-        ).then((res) => res.text());
-        const template = document.createElement("template");
-        template.id = `${pkg.slice(1)}-${block.name}-${block.type}`;
-        template.innerHTML = sfc;
-        document.body.appendChild(template);
+  const files = Object.entries(pkgDoc);
 
-        if (block.type === "block") {
-          blockTemplates.push({
-            pkg,
-            name: block.name,
-            type: block.type,
-            template,
-          });
-        }
-      })
-    );
-  })
-);
+  for (let [name, source] of files) {
+    const template = document.createElement("template");
+    template.id = `${pkgDoc.name}-${name}`;
+    template.innerHTML = source;
+    document.body.appendChild(template);
+
+    if (name.split("-").pop() === "block") {
+      blockTemplates.push({
+        pkg: pkgDoc.name,
+        name: name,
+        template,
+      });
+    }
+  }
+}
 
 for (let block of blockTemplates) {
-  defineBlock(block.pkg, `${block.name}-${block.type}`, block.template);
+  defineBlock(block.pkg, block.name, block.template);
 }

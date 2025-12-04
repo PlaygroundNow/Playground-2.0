@@ -25,7 +25,7 @@
     "&": { fontSize: "13px" },
     ".cm-editor": { height: "100%" },
     ".cm-scroller": {
-      height: '600px',
+      height: "600px",
       overflow: "auto",
       fontFamily: "'Source Code Pro', monospace",
       borderBottomRightRadius: "4px",
@@ -48,8 +48,11 @@
   export default {
     mixins: ["@playground/code-peers-mixin", "@playground/code-scroll-mixin"],
     init() {
-      this.name =
-        "source-" + this.props.file.replace(/^@/, "").split("/").join("-");
+      this.name = this.props.file
+        .replace(/^@/, "")
+        .split("/")
+        .slice(1)
+        .join("-");
       this.loadEditor();
 
       this.$watch("props.source", () => this.loadEditor());
@@ -62,14 +65,13 @@
       return true;
     },
 
-    loadEditor() {
-      this.name =
-        "source-" + this.props.file.replace(/^@/, "").split("/").join("-");
+    async loadEditor() {
+      this.name = this.props.file
+        .replace(/^@/, "")
+        .split("/")
+        .slice(1)
+        .join("-");
       this.$el.replaceChildren();
-
-      if (this.doc[this.name] !== this.props.source) {
-        this.doc[this.name] = this.props.source;
-      }
 
       const saveKeymap = keymap.of([
         { key: "Meta-s", run: this.save.bind(this) },
@@ -117,13 +119,15 @@
         nestedAttributes,
       });
 
+      const pgHandle = await repo.find("PJiSsC8Stu59dxDcsguTftcge22");
+
       this.view = new EditorView({
-        doc: handle.doc()[this.name],
+        doc: pgHandle.doc()[this.name],
         parent: this.$el,
         extensions: [
           basicSetup,
           window.automergeSyncPlugin({
-            handle,
+            pgHandle,
             path: [this.name],
             automerge: window.Automerge,
             codemirror: {

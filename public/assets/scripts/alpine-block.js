@@ -64,7 +64,7 @@ export default class AlpineBlock extends HTMLElement {
   async loadModule() {
     // Instead of parsing, expect the template to already be at #${this.pkg}/${this.constructor.tagName}
     const doc = document.querySelector(
-      `#${this.pkg.slice(1)}-${this.constructor.tagName}`
+      `#${this.pkg}-${this.constructor.tagName}`
     );
     if (!doc) {
       throw new Error(

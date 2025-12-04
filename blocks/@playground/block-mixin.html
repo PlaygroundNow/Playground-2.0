@@ -23,7 +23,6 @@
   export default {
     mixins: ["@playground/menu-mixin", "@playground/coordinates-mixin"],
     async openApp(pkg, tag, props) {
-      const resp = await fetch(`/blocks/${pkg}/${tag}.html`);
       const html = await resp.text();
 
       const screenWidth = window.innerWidth / 2 - 550;

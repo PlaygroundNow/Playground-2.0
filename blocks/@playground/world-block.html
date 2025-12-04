@@ -34,7 +34,7 @@
       const [_, block, pkg] = file.split("/");
 
       const html = await fetch(file).then((resp) => resp.text());
-      document.querySelector(`#${pkg.slice(1)}-${tag}`).innerHTML = html;
+      document.querySelector(`#${pkg}-${tag}`).innerHTML = html;
 
       if (tag.endsWith("mixin")) return;
 
