@@ -1,10 +1,10 @@
 <div class="wrapper" x-effect="getPackageFiles">
-  <div class="section">
+  <div class="section" x-show="!focusMode" x-transition="">
     <template x-for="pkg in packages">
       <div class="package" :class="{ selected: props.selectedPackage === pkg.name }" x-text="pkg.name" @click="selectPackage(pkg.name)"></div>
     </template>
   </div>
-  <div class="section">
+  <div class="section" x-show="!focusMode" x-transition="">
     <div class="file-menu">
       <div class="actions">
         <button @click="createScript('block')" title="Create Block">
@@ -58,6 +58,21 @@
       <block-editor-block :file="`${props.selectedPackage}/${props.selectedFile}`"></block-editor-block>
     </template>
   </div>
+  <div @click="focusMode = !focusMode" :style="{
+        position: 'absolute',
+        cursor: 'pointer',
+        bottom: '8px',
+        left: '8px',
+        width: '32px',
+        height: '32px',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        background: 'white',
+        borderRadius: '4px'
+      }">
+    <img src="/assets/img/eye-alt.svg">
+  </div>
 </div>
 
 <script type="module">
@@ -65,6 +80,7 @@
     mixins: ["@playground/block-mixin", "@playground/files-mixin"],
 
     dirty: false,
+    focusMode: false,
     files: [],
     packages: [],
 
@@ -210,6 +226,7 @@
   }
 
   .section {
+    position: relative;
     min-width: 120px;
     display: flex;
     flex-direction: column;

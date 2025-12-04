@@ -1,16 +1,20 @@
 <script type="module">
   export default {
     mixins: [],
+    theme: '',
     init() {
       this.$nextTick(this.loadParticles.bind(this));
       this.$watch("doc.theme", this.loadParticles.bind(this));
     },
     loadParticles() {
+      if (this.theme === this.doc.theme) return;
+
+      this.theme = this.doc.theme;      
       if (this.doc.theme === "turf") {
         particlesJS.clear.call(this.$el, "space");
         return;
       }
-
+      
       particlesJS.load.call(
         this.$el,
         "space",

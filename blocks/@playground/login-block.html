@@ -1,34 +1,22 @@
 <div class="wrapper" :style="{ flexDirection: 'column' }">
   <div class="card">
     <flex-block :style="{ flexDirection: 'column', alignItems: 'center' }">
-      <img class="logo" src="/assets/img/favicon.svg" />
+      <img class="logo" src="/assets/img/favicon.svg">
       <h1>Playground</h1>
     </flex-block>
     <flex-block :style="{ width: '100%' }">
-      <input x-show="state !== 'recover'" x-model="email" placeholder="Email" />
+      <input x-show="state !== 'recover'" x-model="email" placeholder="Email">
     </flex-block>
     <flex-block :style="{ width: '100%' }">
-      <input
-        x-show="state !== 'reset'"
-        x-model="password"
-        type="password"
-        placeholder="Password"
-      />
+      <input x-show="state !== 'reset'" x-model="password" type="password" placeholder="Password">
     </flex-block>
     <template x-if="state === 'recover'">
       <flex-block :style="{ width: '100%' }">
-        <input
-          x-model="confirmPassword"
-          type="password"
-          placeholder="Confirm Password"
-        />
+        <input x-model="confirmPassword" type="password" placeholder="Confirm Password">
       </flex-block>
     </template>
     <flex-block :style="{ width: '100%', flexDirection: 'column' }">
-      <button
-        @click="state === 'recover' ? updatePassword() : state === 'reset' ? reset() : state === 'create' ? signUp() : signIn()"
-        x-text="state === 'recover' ? 'Update Password' : state === 'reset' ? 'Reset Password' : state === 'create' ? 'Get Started' : 'Login'"
-      ></button>
+      <button @click="state === 'recover' ? updatePassword() : state === 'reset' ? reset() : state === 'create' ? signUp() : signIn()" x-text="state === 'recover' ? 'Update Password' : state === 'reset' ? 'Reset Password' : state === 'create' ? 'Get Started' : 'Login'"></button>
       <div class="messages">
         <div class="error" x-text="errorMessage"></div>
         <div class="success" x-text="successMessage"></div>
@@ -37,7 +25,7 @@
         <template x-if="state !== 'create'">
           <div :style="{ textAlign: 'center' }">
             Don't have an account?
-            <br />
+            <br>
             <span @click="state = 'create'">Get started</span>
             or
             <span @click="state = 'reset'">Reset your password</span>
@@ -191,8 +179,6 @@
 <style>
   .wrapper {
     background: #48c9b0;
-    min-width: 100vw;
-    min-height: 100vh;
 
     width: 100%;
     height: 100%;

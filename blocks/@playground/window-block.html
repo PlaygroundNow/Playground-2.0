@@ -2,8 +2,55 @@
   <div drag-handle="" class="window-nav" part="nav" title="Close">
     <button class="close" @click="$dispatch('close')"></button>
     <span x-text="props.navTitle"></span>
+    <div
+      :style="{ position: 'relative', zIndex: '9999' }"
+      @click.outside="sizeOpen = false"
+    >
+      <button class="size" @click.stop="sizeOpen = !sizeOpen">
+        <img src="/assets/img/size.svg" />
+      </button>
+      <div
+        x-show="sizeOpen"
+        x-transition=""
+        :style="{
+          display: 'flex',
+          flexDirection: 'column',
+          textAlign: 'right',
+          color: 'white',
+          position: 'absolute',
+          marginTop: '1px',
+          right: 0
+        }"
+      >
+        <template
+          x-for="size in ['Auto', 'Mobile', 'Mobile - Landscape', 'Tablet', 'Desktop']"
+        >
+          <button
+            @click="updateSize(size)"
+            :style="{
+              cursor: 'pointer',
+              width: '120px',
+              padding: '4px 0',
+              background: '#222',
+              color: 'white',
+              borderRadius: '4px',
+              border: '1px solid rgba(255, 255, 255, 0.5)',
+            }"
+            x-text="size"
+          ></button>
+        </template>
+      </div>
+    </div>
   </div>
-  <div class="content" part="content">
+  <div
+    class="content"
+    part="content"
+    :style="{
+    width,
+    height,
+    overflow: props.size === 'Auto' ? 'auto' : 'scroll'
+  }"
+  >
     <slot></slot>
   </div>
 </div>
@@ -11,13 +58,46 @@
 <script type="module">
   export default {
     mixins: ["@playground/coordinates-mixin", "@playground/draggable-mixin"],
-    init() {},
+    sizeOpen: false,
+    width: "auto",
+    height: "auto",
+    init() {
+      if (this.props.size) {
+        this.updateSize(this.props.size);
+      }
+    },
+    updateSize(size) {
+      switch (size) {
+        case "Auto":
+          this.width = "auto";
+          this.height = "auto";
+          break;
+        case "Mobile":
+          this.width = "390px";
+          this.height = "844px";
+          break;
+        case "Mobile - Landscape":
+          this.width = "844px";
+          this.height = "390px";
+          break;
+        case "Tablet":
+          this.width = "1024px";
+          this.height = "1366px";
+          break;
+        case "Desktop":
+          this.width = "1280px";
+          this.height = "853px";
+          break;
+      }
+
+      this.props.size = size;
+    },
   };
 </script>
 
 <style>
   .window {
-    min-width: 400px;
+    min-width: 390px;
     border-radius: 4px;
     background: rgba(255, 255, 255, 1);
     backdrop-filter: blur(1px);
@@ -28,6 +108,7 @@
     cursor: pointer;
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 8px;
     font-size: 20px;
     height: 30px;
@@ -46,5 +127,11 @@
     border: 0.5px solid var(--grey);
     border-radius: 50%;
     transform: translate(-10px, -10px);
+  }
+
+  .size {
+    background: none;
+    border: 0;
+    cursor: pointer;
   }
 </style>
