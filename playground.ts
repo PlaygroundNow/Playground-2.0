@@ -61,16 +61,6 @@ app.use(async (c, next) => {
   await next();
 });
 
-// Origin-based HTML override
-app.use(async (c, next) => {
-  const origin = c.req.header("origin") || c.req.header("host") || "";
-  if (origin.includes("turfbuddy.land")) {
-    const html = await Deno.readTextFile("./public/turfbuddy.html");
-    return c.html(html);
-  }
-  await next();
-});
-
 // Middleware: refresh access token if expired
 app.use(async (c, next) => {
   const refreshToken = getCookie(c, "playground_refresh_token");
