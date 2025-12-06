@@ -33,7 +33,7 @@ window.handle = null;
 
 let docUrl = window.AUTOMERGE_ID || location.pathname.split("/").pop();
 
-if (!window.AUTOMERGE_ID && location.pathname.includes("/worlds/")) {
+if (!docUrl && location.pathname.includes("/worlds/")) {
   docUrl = "XaAJ18AA8SHxgLDvGaPfXtxAcAd";
 }
 
