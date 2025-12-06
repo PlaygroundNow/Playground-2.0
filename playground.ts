@@ -40,6 +40,16 @@ const supabase = createClient(
 
 const app = new Hono();
 
+// Origin-based HTML override
+app.use(async (c, next) => {
+  const origin = c.req.header("origin") || c.req.header("host") || "";
+  if (origin.includes("turfbuddy.land")) {
+    const html = await Deno.readTextFile("./public/turfbuddy.html");
+    return c.html(html);
+  }
+  await next();
+});
+
 // Mount route modules
 app.route("/api/auth", createAuthRoutes(supabase));
 app.route("/worlds", createWorldsRoutes(supabase));
@@ -50,6 +60,16 @@ app.use("/api/auth/*", (c, next) => next());
 app.use("/assets/*", (c, next) => next());
 app.use("/blocks/*", (c, next) => next());
 app.use("/login", (c, next) => next());
+
+// Origin-based HTML override
+app.use(async (c, next) => {
+  const origin = c.req.header("origin") || c.req.header("host") || "";
+  if (origin.includes("turfbuddy.land")) {
+    const html = await Deno.readTextFile("./public/turfbuddy.html");
+    return c.html(html);
+  }
+  await next();
+});
 
 // Middleware: refresh access token if expired
 app.use(async (c, next) => {

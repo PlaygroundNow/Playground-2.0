@@ -1,6 +1,6 @@
 {
   "tasks": {
-    "dev": "deno run --watch --allow-all playground.ts"
+    "dev": "deno run --watch --allow-all --unstable-broadcast-channel playground.ts"
   },
   "importMap": "./import_map.json"
 }

@@ -31,9 +31,9 @@ const repo = new Repo({
 window.repo = repo;
 window.handle = null;
 
-let docUrl = location.pathname.split("/").pop();
+let docUrl = window.AUTOMERGE_ID || location.pathname.split("/").pop();
 
-if (!location.pathname.includes("/worlds/")) {
+if (!window.AUTOMERGE_ID && location.pathname.includes("/worlds/")) {
   docUrl = "XaAJ18AA8SHxgLDvGaPfXtxAcAd";
 }
 
