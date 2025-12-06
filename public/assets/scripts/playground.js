@@ -33,10 +33,6 @@ window.handle = null;
 
 let docUrl = window.AUTOMERGE_ID || location.pathname.split("/").pop();
 
-if (!docUrl && location.pathname.includes("/worlds/")) {
-  docUrl = "XaAJ18AA8SHxgLDvGaPfXtxAcAd";
-}
-
 if (docUrl) {
   handle = await repo.find("automerge:" + docUrl);
 } else {
