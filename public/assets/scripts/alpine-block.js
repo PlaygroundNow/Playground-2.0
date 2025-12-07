@@ -365,7 +365,7 @@ export default class AlpineBlock extends HTMLElement {
       !name.startsWith(":") &&
       !name.startsWith("@")
     ) {
-      const entry = handle.doc().world.find((n) => n.id === this.id);
+      const entry = handle.doc().world?.find((n) => n.id === this.id);
       if (entry && this.needsSync(entry)) {
         this.syncToDoc("update");
       }
