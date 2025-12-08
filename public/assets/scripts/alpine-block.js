@@ -10,21 +10,26 @@ export default class AlpineBlock extends HTMLElement {
   static tagName = "";
   static pkg = "";
 
-  static reloadAllBlocks(root = document) {
-    const elements = root.querySelectorAll(this.tagName.toLowerCase());
+  static reloadAllBlocks(root = document, mixin) {
+    const elements = root.querySelectorAll("*");
     elements.forEach((el) => {
-      if (typeof el.reloadFromTemplate === "function") {
+      if (
+        typeof el.reloadFromTemplate === "function" &&
+        (!mixin
+          ? el.tagName.toLowerCase() === this.tagName.toLowerCase()
+          : Array.isArray(el.mixins) && el.mixins.includes(mixin))
+      ) {
         el.reloadFromTemplate();
       }
     });
     // Recursively search shadowRoots of elements ending with -block
-    root.querySelectorAll("*").forEach((el) => {
+    elements.forEach((el) => {
       if (
         el.tagName &&
         el.tagName.toLowerCase().endsWith("-block") &&
         el.shadowRoot
       ) {
-        this.reloadAllBlocks.call(this, el.shadowRoot);
+        this.reloadAllBlocks.call(this, el.shadowRoot, mixin);
       }
     });
   }
@@ -114,7 +119,6 @@ export default class AlpineBlock extends HTMLElement {
       const mixinDestroys = [];
       const mainKeys = new Set(Object.keys(mergedExport));
       const templates = [];
-      const linkTags = [];
 
       if (Array.isArray(module.default?.mixins)) {
         this.mixins = module.default?.mixins;
@@ -215,7 +219,6 @@ export default class AlpineBlock extends HTMLElement {
       this.rootContent.setAttribute("x-data", "block");
       this.shadowRoot.appendChild(this.rootContent);
 
-      const self = this;
       mergedExport.props = new Proxy(
         {},
         {
