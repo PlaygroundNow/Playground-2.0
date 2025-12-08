@@ -138,4 +138,14 @@ app.all("*", (c) => {
   return serveDir(c.req.raw, { fsRoot: "./public", quiet: true });
 });
 
-Deno.serve(app.fetch);
+if (Deno.env.get("LOCAL_DEV") === "true") {
+  Deno.serve(
+    {
+      cert: await Deno.readTextFile("./localhost.pem"),
+      key: await Deno.readTextFile("./localhost-key.pem"),
+    },
+    app.fetch
+  );
+} else {
+  Deno.serve(app.fetch);
+}

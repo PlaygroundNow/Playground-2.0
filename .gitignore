@@ -2,3 +2,5 @@
 automerge-repo-data
 *.crt
 *.key
+.env
+*.pem
