@@ -34,7 +34,7 @@ window.handle = null;
 let docUrl = window.AUTOMERGE_ID || location.pathname.split("/").pop();
 
 if (docUrl) {
-  handle = await repo.find("automerge:" + docUrl);
+  handle = await repo.find(docUrl);
 } else {
   throw new Error("Automerge ID is required");
 }
