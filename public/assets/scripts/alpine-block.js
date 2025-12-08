@@ -219,6 +219,7 @@ export default class AlpineBlock extends HTMLElement {
       this.rootContent.setAttribute("x-data", "block");
       this.shadowRoot.appendChild(this.rootContent);
 
+      const self = this;
       mergedExport.props = new Proxy(
         {},
         {
