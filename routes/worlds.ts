@@ -51,10 +51,6 @@ export function createWorldsRoutes(supabase: SupabaseClient) {
 
     const body = await c.req.json();
 
-    if (!body.id) {
-      throw new HTTPException(400, { message: "id not provided" });
-    }
-
     // Update the world entry for the authenticated user and provided automerge_id
     const worldId = c.req.param("id");
 
