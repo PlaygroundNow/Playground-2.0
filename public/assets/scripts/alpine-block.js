@@ -115,7 +115,9 @@ export default class AlpineBlock extends HTMLElement {
       const mainKeys = new Set(Object.keys(mergedExport));
       const templates = [];
       const linkTags = [];
+
       if (Array.isArray(module.default?.mixins)) {
+        this.mixins = module.default?.mixins;
         for (const mixinSFC of module.default.mixins) {
           const [pkg, tag] = mixinSFC.split("/");
 
@@ -134,6 +136,7 @@ export default class AlpineBlock extends HTMLElement {
           mixinDoc.content.querySelectorAll("style").forEach((style) => {
             this.shadowRoot.appendChild(style.cloneNode(true));
           });
+
           const allMixinScripts = mixinDoc.querySelectorAll("script");
           Array.from(allMixinScripts)
             .filter((script) => script.type !== "module")
