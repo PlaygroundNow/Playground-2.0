@@ -35,7 +35,7 @@ const username = userResponse?.data?.user?.user_metadata?.displayName;
 const repo = new Repo({
   storage: new IndexedDBStorageAdapter(),
   network: [new WebSocketClientAdapter("wss://sync.playground.now")],
-  peerId: username + Math.random().toString(36).slice(-4),
+  peerId: username + "-" + crypto.randomUUID(),
 });
 
 window.repo = repo;
