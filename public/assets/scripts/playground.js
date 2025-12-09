@@ -181,7 +181,7 @@ function defineBlock(pkg, tagName, template) {
 }
 
 const pkgs = Array.from(
-  new Set(["QdBsmQzMaJH2rq396biVdUWaa63", ...handle.doc().packages])
+  new Set(["QdBsmQzMaJH2rq396biVdUWaa63", ...(handle.doc()?.packages || [])])
 );
 
 const blockTemplates = [];
