@@ -7,6 +7,7 @@ import {
 } from "https://esm.sh/@automerge/automerge-repo@2.5.1/slim?bundle-deps";
 import { IndexedDBStorageAdapter } from "https://esm.sh/@automerge/automerge-repo-storage-indexeddb@2.5.1?bundle-deps";
 import { WebSocketClientAdapter } from "https://esm.sh/@automerge/automerge-repo-network-websocket@2.5.1?bundle-deps";
+import { createClient } from "https://esm.sh/@supabase/supabase-js";
 
 import AlpineBlock from "./alpine-block.js";
 import Observer from "./observer.js";
@@ -16,6 +17,11 @@ await initializeWasm(
   fetch("https://esm.sh/@automerge/automerge@3.2.1/dist/automerge.wasm")
 );
 
+const supabase = createClient(
+  "https://ifteoortevgzwvlbkjev.supabase.co",
+  "sb_publishable_HVSLUqC4MdXCJzTbbJR24w_ylDOODOF"
+);
+
 window.lock = false;
 window.Automerge = Automerge;
 window.Alpine = Alpine;
@@ -23,9 +29,13 @@ window.automergeSyncPlugin = automergeSyncPlugin;
 
 const isProd = location.hostname.endsWith("playground.now");
 
+const userResponse = await supabase.auth.getUser();
+const username = userResponse?.data?.user?.user_metadata?.displayName;
+
 const repo = new Repo({
   storage: new IndexedDBStorageAdapter(),
   network: [new WebSocketClientAdapter("wss://sync.playground.now")],
+  peerId: username,
 });
 
 window.repo = repo;
