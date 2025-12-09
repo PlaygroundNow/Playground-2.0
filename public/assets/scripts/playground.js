@@ -180,7 +180,9 @@ function defineBlock(pkg, tagName, template) {
   }
 }
 
-const pkgs = ["QdBsmQzMaJH2rq396biVdUWaa63"];
+const pkgs = Array.from(
+  new Set(["QdBsmQzMaJH2rq396biVdUWaa63", ...handle.doc().packages])
+);
 
 const blockTemplates = [];
 
