@@ -1,12 +1,12 @@
 // main.ts
 import { Hono } from "npm:hono";
+import { getCookie } from "npm:hono/cookie";
 import { serveDir } from "https://deno.land/std@0.224.0/http/file_server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 import { createAuthRoutes } from "./routes/auth.ts";
-import { createBlocksRoutes } from "./routes/blocks.ts";
 import { createWorldsRoutes } from "./routes/worlds.ts";
-import { getCookie } from "npm:hono/cookie";
+import { createAPIRoutes } from "./routes/api.ts";
 
 function parseCookies(req: Request) {
   const header = req.headers.get("cookie") ?? "";
@@ -41,9 +41,10 @@ const supabase = createClient(
 const app = new Hono();
 
 // Mount route modules
+app.route("/api", createAPIRoutes(supabase));
 app.route("/api/auth", createAuthRoutes(supabase));
+
 app.route("/worlds", createWorldsRoutes(supabase));
-app.route("/blocks", createBlocksRoutes());
 
 // PUBLIC static files
 app.use("/api/auth/*", (c, next) => next());
