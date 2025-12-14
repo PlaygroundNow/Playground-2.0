@@ -44,7 +44,13 @@ window.handle = null;
 let docUrl = window.AUTOMERGE_ID || location.pathname.split("/").pop();
 
 if (docUrl) {
-  handle = await repo.findClassic(docUrl);
+  try {
+    handle = await repo.find(docUrl);
+  } catch (e) {
+    console.warn("find failed, falling back to findClassic:", e);
+    handle = await repo.findClassic(docUrl);
+  }
+  handle = handle || (await repo.find(docUrl));
 } else {
   throw new Error("Automerge ID is required");
 }
@@ -188,6 +194,14 @@ const blockTemplates = [];
 
 for (let pkg of pkgs) {
   const pkgHandle = await repo.findClassic(pkg);
+  let pkgHandle;
+  try {
+    pkgHandle = await repo.find(pkg);
+  } catch (e) {
+    console.warn("find failed for pkg", pkg, "falling back to findClassic:", e);
+    pkgHandle = await repo.findClassic(pkg);
+  }
+  pkgHandle = pkgHandle || (await repo.find(pkg));
   const pkgDoc = pkgHandle.doc();
 
   const files = Object.entries(pkgDoc);
