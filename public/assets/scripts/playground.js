@@ -38,18 +38,35 @@ const repo = new Repo({
   peerId: username ? username + "-" + crypto.randomUUID() : undefined,
 });
 
+async function findWithBackoff(id, maxRetries = 3, delay = 300) {
+  let attempt = 0;
+  while (attempt <= maxRetries) {
+    try {
+      return await repo.find(id);
+    } catch (e) {
+      console.log(e);
+      if (attempt === maxRetries) {
+        try {
+          return await repo.findClassic(id);
+        } catch (classicErr) {
+          console.log(classicErr);
+          if (attempt === maxRetries) throw classicErr;
+        }
+      }
+      await new Promise((res) => setTimeout(res, delay * Math.pow(2, attempt)));
+    }
+    attempt++;
+  }
+  throw new Error(`Failed to find document with id: ${id}`);
+}
+
 window.repo = repo;
 window.handle = null;
 
 let docUrl = window.AUTOMERGE_ID || location.pathname.split("/").pop();
 
 if (docUrl) {
-  try {
-    handle = await repo.find(docUrl);
-  } catch (e) {
-    console.warn("find failed, falling back to findClassic:", e);
-    handle = await repo.findClassic(docUrl);
-  }
+  handle = findWithBackoff(docUrl);
 } else {
   throw new Error("Automerge ID is required");
 }
@@ -192,13 +209,7 @@ const pkgs = Array.from(
 const blockTemplates = [];
 
 for (let pkg of pkgs) {
-  let pkgHandle;
-  try {
-    pkgHandle = await repo.find(pkg);
-  } catch (e) {
-    console.warn("find failed for pkg", pkg, "falling back to findClassic:", e);
-    pkgHandle = await repo.findClassic(pkg);
-  }
+  let pkgHandle = await findWithBackoff(pkg);
   const pkgDoc = pkgHandle.doc();
 
   const files = Object.entries(pkgDoc);
