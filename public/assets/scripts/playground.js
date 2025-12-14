@@ -192,7 +192,6 @@ const pkgs = Array.from(
 const blockTemplates = [];
 
 for (let pkg of pkgs) {
-  let pkgHandle = await repo.findClassic(pkg);
   let pkgHandle;
   try {
     pkgHandle = await repo.find(pkg);
