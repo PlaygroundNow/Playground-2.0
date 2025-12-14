@@ -66,7 +66,7 @@ window.handle = null;
 let docUrl = window.AUTOMERGE_ID || location.pathname.split("/").pop();
 
 if (docUrl) {
-  handle = findWithBackoff(docUrl);
+  handle = await findWithBackoff(docUrl);
 } else {
   throw new Error("Automerge ID is required");
 }
