@@ -12,8 +12,8 @@
     .b8 { animation-delay: 0.56s; }
 
     @keyframes pulse {
-      0%, 100% { transform: scale(0.88); }
-      50%      { transform: scale(1.12); }
+      0%, 100% { transform: scale(0.8); }
+      50%      { transform: scale(1); }
     }
 
     /* respect reduced motion */

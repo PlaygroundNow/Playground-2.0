@@ -13,6 +13,20 @@ import AlpineBlock from "./alpine-block.js";
 import Observer from "./observer.js";
 import automergeSyncPlugin from "./automerge-sync-plugin.js";
 
+document.body.innerHTML += `
+  <div id="page-loader" style="
+    position:fixed;
+    inset:0;
+    background:black;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:999999;
+  ">
+    <img width="50" height="50" src="https://playground.now/assets/img/loading.svg" alt="Loading">
+  </div>
+`;
+
 await initializeWasm(
   fetch("https://esm.sh/@automerge/automerge@3.2.1/dist/automerge.wasm")
 );
@@ -233,3 +247,5 @@ for (let pkg of pkgs) {
 for (let block of blockTemplates) {
   defineBlock(block.pkg, block.name, block.template);
 }
+
+document.getElementById("page-loader")?.remove();
