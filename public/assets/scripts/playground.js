@@ -22,8 +22,10 @@ document.body.innerHTML += `
     align-items:center;
     justify-content:center;
     z-index:999999;
+    opacity:1;
+    transition: opacity 300ms ease;
   ">
-    <img width="50" height="50" src="https://playground.now/assets/img/loading.svg" alt="Loading">
+    <img src="https://playground.now/assets/img/loading.svg" alt="Loading">
   </div>
 `;
 
@@ -248,4 +250,8 @@ for (let block of blockTemplates) {
   defineBlock(block.pkg, block.name, block.template);
 }
 
-document.getElementById("page-loader")?.remove();
+const loader = document.getElementById("page-loader");
+if (!loader) return;
+
+loader.style.opacity = "0";
+setTimeout(() => loader.remove(), 300);
