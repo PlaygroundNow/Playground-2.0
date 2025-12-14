@@ -44,7 +44,7 @@ window.handle = null;
 let docUrl = window.AUTOMERGE_ID || location.pathname.split("/").pop();
 
 if (docUrl) {
-  handle = await repo.find(docUrl);
+  handle = await repo.findClassic(docUrl);
 } else {
   throw new Error("Automerge ID is required");
 }
@@ -187,7 +187,7 @@ const pkgs = Array.from(
 const blockTemplates = [];
 
 for (let pkg of pkgs) {
-  const pkgHandle = await repo.find(pkg);
+  const pkgHandle = await repo.findClassic(pkg);
   const pkgDoc = pkgHandle.doc();
 
   const files = Object.entries(pkgDoc);
