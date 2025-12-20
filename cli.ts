@@ -12,12 +12,9 @@
 import * as path from "https://deno.land/std@0.224.0/path/mod.ts";
 import { ensureDir } from "https://deno.land/std@0.224.0/fs/ensure_dir.ts";
 
-import {
-  Repo,
-  initializeWasm,
-} from "https://esm.sh/@automerge/automerge-repo@2.5.1/slim?bundle-deps";
-import { NodeFSStorageAdapter } from "https://esm.sh/@automerge/automerge-repo-storage-nodefs";
-import { WebSocketClientAdapter } from "https://esm.sh/@automerge/automerge-repo-network-websocket@2.5.1?bundle-deps";
+import { Repo, initializeWasm } from "npm:@automerge/automerge-repo@2.5.1/slim";
+import { WebSocketClientAdapter } from "npm:@automerge/automerge-repo-network-websocket@2.5.1";
+import { NodeFSStorageAdapter } from "npm:@automerge/automerge-repo-storage-nodefs@2.5.1";
 
 await initializeWasm(
   fetch("https://esm.sh/@automerge/automerge@3.2.1/dist/automerge.wasm")
@@ -25,12 +22,12 @@ await initializeWasm(
     .then((arr) => new Uint8Array(arr))
 );
 
-/* const worldUrl = Deno.args[0];
+const worldUrl = Deno.args[0];
 if (!worldUrl) {
   console.error("Usage: playground <worldAutomergeUrl> <packageAutomergeUrl>");
   Deno.exit(1);
-} */
-const docUrl = Deno.args[0];
+}
+const docUrl = Deno.args[1];
 if (!docUrl) {
   console.error("Usage: playground <packageAutomergeUrl>");
   Deno.exit(1);
@@ -60,7 +57,7 @@ type DocShape = { name: string; [k: string]: any };
 
 const baseDir = path.resolve(".playground-sync");
 
-//const worldHandle = await findWithBackoff(worldUrl.trim());
+const worldHandle = await findWithBackoff(worldUrl.trim());
 const handle = await findWithBackoff(docUrl.trim());
 
 const folder = (handle.doc() as any).name;
@@ -103,6 +100,15 @@ async function main() {
       await handle.change((doc: any) => {
         doc[key] = newValue;
       });
+
+      setTimeout(() => {
+        worldHandle.broadcast({
+          type: "peer-updated-file",
+          pkgId: docUrl,
+          pkg: (handle.doc() as any).name,
+          tag: key,
+        });
+      }, 100);
     }
   }
 }

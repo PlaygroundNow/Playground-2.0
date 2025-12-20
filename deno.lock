@@ -2,9 +2,12 @@
   "version": "5",
   "specifiers": {
     "npm:@automerge/automerge-repo-network-broadcastchannel@*": "2.5.1",
-    "npm:@automerge/automerge-repo-network-websocket@*": "2.5.1_ws@8.18.3",
-    "npm:@automerge/automerge-repo-storage-nodefs@*": "2.5.1",
-    "npm:@automerge/automerge-repo@*": "2.5.1",
+    "npm:@automerge/automerge-repo-network-websocket@*": "2.4.0_ws@8.18.3",
+    "npm:@automerge/automerge-repo-network-websocket@2.4.0": "2.4.0_ws@8.18.3",
+    "npm:@automerge/automerge-repo-storage-nodefs@*": "2.4.0",
+    "npm:@automerge/automerge-repo-storage-nodefs@2.4.0": "2.4.0",
+    "npm:@automerge/automerge-repo@*": "2.4.0",
+    "npm:@automerge/automerge-repo@2.4.0": "2.4.0",
     "npm:@supabase/supabase-js@2": "2.86.0",
     "npm:@types/node@*": "24.2.0",
     "npm:hono@*": "4.10.7",
@@ -14,13 +17,13 @@
     "@automerge/automerge-repo-network-broadcastchannel@2.5.1": {
       "integrity": "sha512-htjVAPOzWvaal7jXkXhMBWW1OLHBAmGJp3fujdxgMmHa6/KUmhmHsn7VGvVqrU3vCfbfdu5PAupcla95AwlEbA==",
       "dependencies": [
-        "@automerge/automerge-repo"
+        "@automerge/automerge-repo@2.5.1"
       ]
     },
-    "@automerge/automerge-repo-network-websocket@2.5.1_ws@8.18.3": {
-      "integrity": "sha512-urvhlmTZ6VoJi5o0T2mtkVd4X1cuUdBC5/C/UY5FFgWczEq7PwCdNhUndv1CQSn8ePPsT59z7ZnRzZJbqqu22Q==",
+    "@automerge/automerge-repo-network-websocket@2.4.0_ws@8.18.3": {
+      "integrity": "sha512-xdJEMO+7oK40Y7hs/YyiTwaOrgxWv4JCQlQnVZ5KlGIkTwyzFoPguZYZskxYIJqmx239XXm8YikVsmm0CSSlDQ==",
       "dependencies": [
-        "@automerge/automerge-repo",
+        "@automerge/automerge-repo@2.4.0",
         "cbor-x",
         "debug",
         "eventemitter3",
@@ -28,11 +31,24 @@
         "ws"
       ]
     },
-    "@automerge/automerge-repo-storage-nodefs@2.5.1": {
-      "integrity": "sha512-KH2ZMMq0x9Y19MuOOFYueDklHBkK4c9WAnV22D/kFBpHQ65OF9QO2mDWPD80kaBO/17LHCaYLwPSfpdyz+aC8g==",
+    "@automerge/automerge-repo-storage-nodefs@2.4.0": {
+      "integrity": "sha512-nviM1e75KfB0hAz1SHFvdRdeuaxUo/Ve+glcR8cUdDhaO9rlD2+y2biVrxdhNUVT15czbmqPLMNJy5bTg//kYw==",
       "dependencies": [
-        "@automerge/automerge-repo",
+        "@automerge/automerge-repo@2.4.0",
         "rimraf"
+      ]
+    },
+    "@automerge/automerge-repo@2.4.0": {
+      "integrity": "sha512-cpSl4VRyu4iDoxi1eFl91mAND+VXnZUt80Clxd15JMn6XD6RUzpAGVACVKLLhgsccqpQQ5VeFuyTFrszHV6PsA==",
+      "dependencies": [
+        "@automerge/automerge",
+        "bs58check",
+        "cbor-x",
+        "debug",
+        "eventemitter3",
+        "fast-sha256",
+        "uuid",
+        "xstate"
       ]
     },
     "@automerge/automerge-repo@2.5.1": {
@@ -582,7 +598,9 @@
     "https://esm.sh/@automerge/automerge-repo-storage-indexeddb@2.4.0/denonext/automerge-repo-storage-indexeddb.mjs": "d77218a34c1713fc3e4c5636d1a4d788f10ae149faaa92a5a81165dcc9b3659f",
     "https://esm.sh/@automerge/automerge-repo-storage-indexeddb@2.4.0?bundle-deps": "eae79fa4e62194f0b6b90498b38fb9d3ef4f8cce12ac8acd9d6aeefbec0e03fe",
     "https://esm.sh/@automerge/automerge-repo-storage-nodefs@2.5.1": "57d4e749229059919398868bab8d478c9fbc496a493187b7bf9785ddfa9a306c",
+    "https://esm.sh/@automerge/automerge-repo-storage-nodefs@2.5.1/denonext/automerge-repo-storage-nodefs.bundle.mjs": "ad3cce3853c88bc0dd9173545072efa44dae0be2bb04e0a474300840de827758",
     "https://esm.sh/@automerge/automerge-repo-storage-nodefs@2.5.1/denonext/automerge-repo-storage-nodefs.mjs": "e6097206988f957b175f7b3be9bc48963004097e6c85e98ab103fb8829ffe752",
+    "https://esm.sh/@automerge/automerge-repo-storage-nodefs@2.5.1?bundle-deps": "3e9f5d73a4bf606fd9ac648c46e160fef17809d9915c24528fa490d68e3e2361",
     "https://esm.sh/@automerge/automerge-repo@2.3.0/denonext/slim.bundle.mjs": "5fd032c3f0a15b7e542e5f8e037531f08302e8faca2e3033f6edae1222623b2a",
     "https://esm.sh/@automerge/automerge-repo@2.3.0/slim?bundle-deps": "03183f5f33566962b34ee6158910754d36f043b4bd8ace127b4b1b60792627b2",
     "https://esm.sh/@automerge/automerge-repo@2.4.0/denonext/automerge-repo.mjs": "a8e8059051d87a4ccf245c8705d6a6df3585f967f11dc8f343cdd4b7a15a44b2",
