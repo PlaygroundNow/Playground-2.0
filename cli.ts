@@ -13,7 +13,6 @@ import * as path from "https://deno.land/std@0.224.0/path/mod.ts";
 import { ensureDir } from "https://deno.land/std@0.224.0/fs/ensure_dir.ts";
 
 import {
-  Automerge,
   Repo,
   initializeWasm,
 } from "https://esm.sh/@automerge/automerge-repo@2.5.1/slim?bundle-deps";
@@ -26,9 +25,14 @@ await initializeWasm(
     .then((arr) => new Uint8Array(arr))
 );
 
+/* const worldUrl = Deno.args[0];
+if (!worldUrl) {
+  console.error("Usage: playground <worldAutomergeUrl> <packageAutomergeUrl>");
+  Deno.exit(1);
+} */
 const docUrl = Deno.args[0];
 if (!docUrl) {
-  console.error("Usage: playground <automergeUrl>");
+  console.error("Usage: playground <packageAutomergeUrl>");
   Deno.exit(1);
 }
 
@@ -47,51 +51,40 @@ async function findWithBackoff(id: any, maxRetries = 3, delay = 300) {
   throw new Error(`Failed to find document with id: ${id}`);
 }
 
-const ws = new WebSocketClientAdapter("wss://sync.playground.now");
-
-console.log(
-  ws.socket
-    ?.on("message", (data) => {
-      console.log(data);
-    })
-    .on("error", (code, reason) => {
-      console.log(code, reason);
-    })
-);
-
 const repo = new Repo({
   storage: new NodeFSStorageAdapter(),
-  network: [ws],
+  network: [new WebSocketClientAdapter("wss://sync.playground.now")],
 });
 
 type DocShape = { name: string; [k: string]: any };
 
 const baseDir = path.resolve(".playground-sync");
 
-const handle = await findWithBackoff(docUrl);
+//const worldHandle = await findWithBackoff(worldUrl.trim());
+const handle = await findWithBackoff(docUrl.trim());
+
+const folder = (handle.doc() as any).name;
+const outDir = path.join(baseDir, folder);
+await ensureDir(outDir);
+
+handle.on("change", (evt) => {
+  // re-pull latest doc contents and rewrite files when doc changes from other peers
+  //writeAll(evt.doc).catch(console.error);
+});
 
 function isTextKey(doc: DocShape, key: string) {
   return key !== "name" && typeof doc[key] === "string";
 }
 
-async function writeAll() {
-  const doc = handle.doc() as DocShape;
-  if (!doc?.name) throw new Error("Doc has no name");
-
-  const folder = doc.name;
-  const outDir = path.join(baseDir, folder);
-  await ensureDir(outDir);
-
+async function writeAll(doc: any) {
   for (const key of Object.keys(doc)) {
     if (!isTextKey(doc, key)) continue;
     await Deno.writeTextFile(path.join(outDir, `${key}.html`), doc[key] ?? "");
   }
-
-  return outDir;
 }
 
 async function main() {
-  const outDir = await writeAll();
+  await writeAll(handle.doc());
 
   console.log(`Synced to: ${outDir}`);
   console.log("Watching for .html changes…");
@@ -107,10 +100,8 @@ async function main() {
       const key = path.basename(filePath).replace(/\.html$/i, "");
       const newValue = await Deno.readTextFile(filePath);
 
-      console.log(newValue);
-
       await handle.change((doc: any) => {
-        Automerge.updateText(doc, [key], newValue);
+        doc[key] = newValue;
       });
     }
   }
