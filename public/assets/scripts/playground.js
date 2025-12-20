@@ -61,7 +61,14 @@ async function findWithBackoff(id, maxRetries = 3, delay = 300) {
       return await repo.find(id);
     } catch (e) {
       console.log(e);
-      if (attempt === maxRetries) throw e;
+      if (attempt === maxRetries) {
+        try {
+          return await repo.findClassic(id);
+        } catch (classicErr) {
+          console.log(classicErr);
+          if (attempt === maxRetries) throw classicErr;
+        }
+      }
       await new Promise((res) => setTimeout(res, delay * Math.pow(2, attempt)));
     }
     attempt++;
