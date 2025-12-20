@@ -4,3 +4,4 @@ automerge-repo-data
 *.key
 .env
 *.pem
+.playground-sync
