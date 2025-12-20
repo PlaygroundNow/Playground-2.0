@@ -29,7 +29,7 @@ if (!worldUrl) {
 }
 const docUrl = Deno.args[1];
 if (!docUrl) {
-  console.error("Usage: playground <packageAutomergeUrl>");
+  console.error("Usage: playground <worldAutomergeUrl> <packageAutomergeUrl>");
   Deno.exit(1);
 }
 

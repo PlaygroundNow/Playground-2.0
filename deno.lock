@@ -2,12 +2,15 @@
   "version": "5",
   "specifiers": {
     "npm:@automerge/automerge-repo-network-broadcastchannel@*": "2.5.1",
-    "npm:@automerge/automerge-repo-network-websocket@*": "2.4.0_ws@8.18.3",
+    "npm:@automerge/automerge-repo-network-websocket@*": "2.5.1_ws@8.18.3",
     "npm:@automerge/automerge-repo-network-websocket@2.4.0": "2.4.0_ws@8.18.3",
-    "npm:@automerge/automerge-repo-storage-nodefs@*": "2.4.0",
+    "npm:@automerge/automerge-repo-network-websocket@2.5.1": "2.5.1_ws@8.18.3",
+    "npm:@automerge/automerge-repo-storage-nodefs@*": "2.5.1",
     "npm:@automerge/automerge-repo-storage-nodefs@2.4.0": "2.4.0",
-    "npm:@automerge/automerge-repo@*": "2.4.0",
+    "npm:@automerge/automerge-repo-storage-nodefs@2.5.1": "2.5.1",
+    "npm:@automerge/automerge-repo@*": "2.5.1",
     "npm:@automerge/automerge-repo@2.4.0": "2.4.0",
+    "npm:@automerge/automerge-repo@2.5.1": "2.5.1",
     "npm:@supabase/supabase-js@2": "2.86.0",
     "npm:@types/node@*": "24.2.0",
     "npm:hono@*": "4.10.7",
@@ -31,10 +34,28 @@
         "ws"
       ]
     },
+    "@automerge/automerge-repo-network-websocket@2.5.1_ws@8.18.3": {
+      "integrity": "sha512-urvhlmTZ6VoJi5o0T2mtkVd4X1cuUdBC5/C/UY5FFgWczEq7PwCdNhUndv1CQSn8ePPsT59z7ZnRzZJbqqu22Q==",
+      "dependencies": [
+        "@automerge/automerge-repo@2.5.1",
+        "cbor-x",
+        "debug",
+        "eventemitter3",
+        "isomorphic-ws",
+        "ws"
+      ]
+    },
     "@automerge/automerge-repo-storage-nodefs@2.4.0": {
       "integrity": "sha512-nviM1e75KfB0hAz1SHFvdRdeuaxUo/Ve+glcR8cUdDhaO9rlD2+y2biVrxdhNUVT15czbmqPLMNJy5bTg//kYw==",
       "dependencies": [
         "@automerge/automerge-repo@2.4.0",
+        "rimraf"
+      ]
+    },
+    "@automerge/automerge-repo-storage-nodefs@2.5.1": {
+      "integrity": "sha512-KH2ZMMq0x9Y19MuOOFYueDklHBkK4c9WAnV22D/kFBpHQ65OF9QO2mDWPD80kaBO/17LHCaYLwPSfpdyz+aC8g==",
+      "dependencies": [
+        "@automerge/automerge-repo@2.5.1",
         "rimraf"
       ]
     },
