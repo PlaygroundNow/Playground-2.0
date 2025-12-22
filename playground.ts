@@ -55,7 +55,19 @@ app.use("/login", (c, next) => next());
 // Origin-based HTML override
 app.use(async (c, next) => {
   const origin = c.req.header("origin") || c.req.header("host") || "";
-  if (origin.includes("turfbuddy.land") && !c.req.path.startsWith("/assets")) {
+
+  if (
+    c.req.url.includes("massage.chelsea.art") &&
+    !c.req.path.startsWith("/assets")
+  ) {
+    const html = await Deno.readTextFile("./public/chelsea.html");
+    return c.html(html);
+  }
+
+  if (
+    c.req.url.includes("turfbuddy.land") &&
+    !c.req.path.startsWith("/assets")
+  ) {
     const html = await Deno.readTextFile("./public/turfbuddy.html");
     return c.html(html);
   }
