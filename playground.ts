@@ -57,7 +57,7 @@ app.use(async (c, next) => {
   const origin = c.req.header("origin") || c.req.header("host") || "";
 
   if (
-    c.req.url.includes("massage.chelsea.art") &&
+    c.req.url.includes("massage.chelsealoves.art") &&
     !c.req.path.startsWith("/assets")
   ) {
     const html = await Deno.readTextFile("./public/chelsea.html");
