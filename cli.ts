@@ -40,7 +40,14 @@ async function findWithBackoff(id: any, maxRetries = 3, delay = 300) {
       return await repo.find(id);
     } catch (e) {
       console.log(e);
-      if (attempt === maxRetries) throw e;
+      if (attempt === maxRetries) {
+        try {
+          return await repo.findClassic(id);
+        } catch (classicErr) {
+          console.log(classicErr);
+          if (attempt === maxRetries) throw classicErr;
+        }
+      }
       await new Promise((res) => setTimeout(res, delay * Math.pow(2, attempt)));
     }
     attempt++;
@@ -50,7 +57,7 @@ async function findWithBackoff(id: any, maxRetries = 3, delay = 300) {
 
 const repo = new Repo({
   storage: new NodeFSStorageAdapter(),
-  network: [new WebSocketClientAdapter("wss://sync.playground.now")],
+  network: [new WebSocketClientAdapter("wss://localhost:3030")],
 });
 
 type DocShape = { name: string; [k: string]: any };

@@ -52,7 +52,7 @@ app.use("/assets/*", (c, next) => next());
 app.use("/blocks/*", (c, next) => next());
 app.use("/login", (c, next) => next());
 
-// Origin-based HTML override
+// Origin-based HTML override and /demo/:id handler
 app.use(async (c, next) => {
   const origin = c.req.header("origin") || c.req.header("host") || "";
 
@@ -71,6 +71,19 @@ app.use(async (c, next) => {
     const html = await Deno.readTextFile("./public/turfbuddy.html");
     return c.html(html);
   }
+
+  // /demo/:id → ./public/${id}.html
+  const demoMatch = c.req.path.match(/^\/demo\/([\w-]+)$/);
+  if (demoMatch) {
+    const id = demoMatch[1];
+    try {
+      const html = await Deno.readTextFile(`./public/${id}.html`);
+      return c.html(html);
+    } catch (e) {
+      return c.text("Demo not found", 404);
+    }
+  }
+
   await next();
 });
 
