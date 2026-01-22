@@ -13,10 +13,23 @@ export function createAuthRoutes(supabase: SupabaseClient) {
       expires_at?: number;
     }>();
 
-    const { data, error } = await supabase.auth.setSession({
-      access_token,
-      refresh_token,
-    });
+    let data: any;
+    let error: any;
+
+    if (access_token !== "local") {
+      ({ data, error } = await supabase.auth.setSession({
+        access_token,
+        refresh_token,
+      }));
+    } else {
+      data = {
+        session: {
+          access_token: "local",
+          refresh_token: "local",
+          expiresAt: "local",
+        },
+      };
+    }
 
     if (error || !data.session) {
       return c.json({ error: error?.message }, 401);
@@ -27,22 +40,22 @@ export function createAuthRoutes(supabase: SupabaseClient) {
     c.header("content-type", "application/json");
     c.header(
       "set-cookie",
-      `playground_access_token=${session.access_token}; HttpOnly; Path=/; Max-Age=3600; SameSite=Lax; Secure`,
-      { append: true }
+      `playground_access_token=${session.access_token}; HttpOnly; Path=/; Max-Age=${session.access_token === "local" ? 31449600 : 3600}; SameSite=Lax; Secure`,
+      { append: true },
     );
     c.header(
       "set-cookie",
       `playground_refresh_token=${
         session.refresh_token
       }; HttpOnly; Path=/; Max-Age=${60 * 60 * 24 * 30}; SameSite=Lax; Secure`,
-      { append: true }
+      { append: true },
     );
     c.header(
       "set-cookie",
       `playground_expires_at=${session.expires_at}; HttpOnly; Path=/; Max-Age=${
         60 * 60 * 24 * 30
       }; SameSite=Lax; Secure`,
-      { append: true }
+      { append: true },
     );
 
     return c.json({ ok: true });
@@ -54,17 +67,17 @@ export function createAuthRoutes(supabase: SupabaseClient) {
     c.header(
       "set-cookie",
       "playground_access_token=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax; Secure",
-      { append: true }
+      { append: true },
     );
     c.header(
       "set-cookie",
       "playground_refresh_token=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax; Secure",
-      { append: true }
+      { append: true },
     );
     c.header(
       "set-cookie",
       "playground_expires_at=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax; Secure",
-      { append: true }
+      { append: true },
     );
 
     return c.json({ ok: true });

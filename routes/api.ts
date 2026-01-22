@@ -10,6 +10,10 @@ export function createAPIRoutes(supabase: SupabaseClient) {
     const access_token = getCookie(c, "playground_access_token")!;
     const refresh_token = getCookie(c, "playground_refresh_token")!;
 
+    if (access_token === "local") {
+      return c.json({ status: "ok" }, 200);
+    }
+
     const { data, error } = await supabase.auth.setSession({
       access_token,
       refresh_token,
@@ -70,6 +74,10 @@ export function createAPIRoutes(supabase: SupabaseClient) {
   app.get("/worlds", async (c) => {
     const access_token = getCookie(c, "playground_access_token")!;
     const refresh_token = getCookie(c, "playground_refresh_token")!;
+
+    if (access_token === "local") {
+      return c.json([]);
+    }
 
     const { data, error } = await supabase.auth.setSession({
       access_token,

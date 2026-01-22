@@ -15,6 +15,15 @@ export function createWorldsRoutes(supabase: SupabaseClient) {
     const access_token = getCookie(c, "playground_access_token")!;
     const refresh_token = getCookie(c, "playground_refresh_token")!;
 
+    const worldId = c.req.param("world");
+
+    if (access_token === "local") {
+      let html = await Deno.readTextFile("./public/index.html");
+      html = html.replace("{{ AUTOMERGE_ID }}", worldId);
+
+      return c.html(html);
+    }
+
     const { data, error } = await supabase.auth.setSession({
       access_token,
       refresh_token,
@@ -23,8 +32,6 @@ export function createWorldsRoutes(supabase: SupabaseClient) {
     if (error) {
       return c.json({ error: error.message }, 401);
     }
-
-    const worldId = c.req.param("world");
 
     const { data: world, error: worldsError } = await supabase
       .from("world")
