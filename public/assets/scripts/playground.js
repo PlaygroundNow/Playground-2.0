@@ -39,8 +39,6 @@ window.automergeSyncPlugin = automergeSyncPlugin;
 
 const isProd = location.hostname.endsWith("playground.now");
 
-const userResponse = await supabase.auth.getUser();
-
 const repo = new Repo({
   storage: new IndexedDBStorageAdapter(),
   network: [new WebSocketClientAdapter("wss://sync.playground.now")],
