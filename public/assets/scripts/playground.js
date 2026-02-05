@@ -7,7 +7,6 @@ import {
 } from "https://esm.sh/@automerge/automerge-repo@2.5.1/slim?bundle-deps";
 import { IndexedDBStorageAdapter } from "https://esm.sh/@automerge/automerge-repo-storage-indexeddb@2.5.1?bundle-deps";
 import { WebSocketClientAdapter } from "https://esm.sh/@automerge/automerge-repo-network-websocket@2.5.1?bundle-deps";
-import { createClient } from "https://esm.sh/@supabase/supabase-js";
 
 import AlpineBlock from "./alpine-block.js";
 import Observer from "./observer.js";
@@ -30,12 +29,7 @@ document.body.innerHTML += `
 `;
 
 await initializeWasm(
-  fetch("https://esm.sh/@automerge/automerge@3.2.1/dist/automerge.wasm")
-);
-
-const supabase = createClient(
-  "https://ifteoortevgzwvlbkjev.supabase.co",
-  "sb_publishable_HVSLUqC4MdXCJzTbbJR24w_ylDOODOF"
+  fetch("https://esm.sh/@automerge/automerge@3.2.1/dist/automerge.wasm"),
 );
 
 window.lock = false;
@@ -46,12 +40,10 @@ window.automergeSyncPlugin = automergeSyncPlugin;
 const isProd = location.hostname.endsWith("playground.now");
 
 const userResponse = await supabase.auth.getUser();
-const username = userResponse?.data?.user?.user_metadata?.displayName;
 
 const repo = new Repo({
   storage: new IndexedDBStorageAdapter(),
   network: [new WebSocketClientAdapter("wss://sync.playground.now")],
-  peerId: username ? username + "-" + crypto.randomUUID() : undefined,
 });
 
 async function findWithBackoff(id, maxRetries = 3, delay = 300) {
@@ -137,7 +129,7 @@ function createObserved(doc) {
       });
       window.lock = false;
     },
-    { ignoreSameValueReassign: true }
+    { ignoreSameValueReassign: true },
   );
 }
 
@@ -157,7 +149,7 @@ Alpine.magic("id", (el) => {
 
 Alpine.magic("world", (el) => {
   return Alpine.$data(
-    document.querySelector("world-block").shadowRoot.querySelector("div")
+    document.querySelector("world-block").shadowRoot.querySelector("div"),
   );
 });
 
@@ -219,7 +211,7 @@ function defineBlock(pkg, tagName, template) {
 }
 
 const pkgs = Array.from(
-  new Set(["3JmVZBuZJrg6HK6kr9m9KRuZebxA", ...(handle.doc()?.packages || [])])
+  new Set(["3JmVZBuZJrg6HK6kr9m9KRuZebxA", ...(handle.doc()?.packages || [])]),
 );
 
 const blockTemplates = [];
