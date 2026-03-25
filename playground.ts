@@ -44,6 +44,7 @@ const app = new Hono();
 
 app.use("*", async (c, next) => {
   if (
+    c.req.path.startsWith("/demo") ||
     c.req.path.startsWith("/assets") ||
     c.req.path.startsWith("/api/auth") ||
     c.req.path.endsWith(".html")
