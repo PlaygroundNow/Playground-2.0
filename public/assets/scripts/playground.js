@@ -1,16 +1,16 @@
 //import Alpine from "https://esm.sh/alpinejs@3.15.0/builds/module.js";
-import Alpine from "./alpine-fork.js";
+import Alpine from "./alpine-fork.js"
 import {
   Automerge,
   Repo,
   initializeWasm,
-} from "https://esm.sh/@automerge/automerge-repo@2.5.1/slim?bundle-deps";
-import { IndexedDBStorageAdapter } from "https://esm.sh/@automerge/automerge-repo-storage-indexeddb@2.5.1?bundle-deps";
-import { WebSocketClientAdapter } from "https://esm.sh/@automerge/automerge-repo-network-websocket@2.5.1?bundle-deps";
+} from "https://esm.sh/@automerge/automerge-repo@2.5.1/slim?bundle-deps"
+import { IndexedDBStorageAdapter } from "https://esm.sh/@automerge/automerge-repo-storage-indexeddb@2.5.1?bundle-deps"
+import { WebSocketClientAdapter } from "https://esm.sh/@automerge/automerge-repo-network-websocket@2.5.1?bundle-deps"
 
-import AlpineBlock from "./alpine-block.js";
-import Observer from "./observer.js";
-import automergeSyncPlugin from "./automerge-sync-plugin.js";
+import AlpineBlock from "./alpine-block.js"
+import Observer from "./observer.js"
+import automergeSyncPlugin from "./automerge-sync-plugin.js"
 
 document.body.innerHTML += `
   <div id="page-loader" style="
@@ -26,160 +26,160 @@ document.body.innerHTML += `
   ">
     <img width="40" height="40" src="https://playground.now/assets/img/loading.svg" alt="Loading">
   </div>
-`;
+`
 
 await initializeWasm(
   fetch("https://esm.sh/@automerge/automerge@3.2.1/dist/automerge.wasm"),
-);
+)
 
-window.lock = false;
-window.Automerge = Automerge;
-window.Alpine = Alpine;
-window.automergeSyncPlugin = automergeSyncPlugin;
+window.lock = false
+window.Automerge = Automerge
+window.Alpine = Alpine
+window.automergeSyncPlugin = automergeSyncPlugin
 
-const isProd = location.hostname.endsWith("playground.now");
+const isProd = location.hostname.endsWith("playground.now")
 
 const repo = new Repo({
   storage: new IndexedDBStorageAdapter(),
   network: [new WebSocketClientAdapter("wss://sync.playground.now")],
-});
+})
 
 async function findWithBackoff(id, maxRetries = 3, delay = 300) {
-  let attempt = 0;
+  let attempt = 0
   while (attempt <= maxRetries) {
     try {
-      return await repo.find(id);
+      return await repo.find(id)
     } catch (e) {
-      console.log(e);
+      console.log(e)
       if (attempt === maxRetries) {
         try {
-          return await repo.findClassic(id);
+          return await repo.findClassic(id)
         } catch (classicErr) {
-          console.log(classicErr);
-          if (attempt === maxRetries) throw classicErr;
+          console.log(classicErr)
+          if (attempt === maxRetries) throw classicErr
         }
       }
-      await new Promise((res) => setTimeout(res, delay * Math.pow(2, attempt)));
+      await new Promise((res) => setTimeout(res, delay * Math.pow(2, attempt)))
     }
-    attempt++;
+    attempt++
   }
-  throw new Error(`Failed to find document with id: ${id}`);
+  throw new Error(`Failed to find document with id: ${id}`)
 }
 
-window.repo = repo;
-window.handle = null;
+window.repo = repo
+window.handle = null
 
-let docUrl = window.AUTOMERGE_ID || location.pathname.split("/").pop();
+let docUrl = window.AUTOMERGE_ID || location.pathname.split("/").pop()
 
 if (docUrl) {
-  handle = await findWithBackoff(docUrl);
+  handle = await findWithBackoff(docUrl)
 } else {
-  throw new Error("Automerge ID is required");
+  throw new Error("Automerge ID is required")
 }
 
-window.throttledQueue = [];
-window.throttledTimer = null;
+window.throttledQueue = []
+window.throttledTimer = null
 
 window.throttledTick = function () {
-  window.throttledTimer = null;
-  if (!window.throttledQueue.length) return;
-  const batch = window.throttledQueue;
-  window.throttledQueue = [];
+  window.throttledTimer = null
+  if (!window.throttledQueue.length) return
+  const batch = window.throttledQueue
+  window.throttledQueue = []
   try {
     handle.change((doc) => {
       for (const fn of batch) {
         try {
-          fn(doc);
+          fn(doc)
         } catch (e) {
-          console.error("throttledChange fn error:", e);
+          console.error("throttledChange fn error:", e)
         }
       }
-    });
+    })
   } finally {
     if (window.throttledQueue.length)
-      window.throttledTimer = setTimeout(window.throttledTick, 1000);
+      window.throttledTimer = setTimeout(window.throttledTick, 1000)
   }
-};
+}
 
 window.throttledChange = (fn) => {
-  window.throttledQueue.push(fn);
+  window.throttledQueue.push(fn)
   if (window.throttledTimer === null)
-    window.throttledTimer = setTimeout(window.throttledTick, 1000);
-};
+    window.throttledTimer = setTimeout(window.throttledTick, 1000)
+}
 
 function createObserved(doc) {
   return new Observer(
     structuredClone(doc),
     (evt) => {
       if (window.lock === true) {
-        window.lock = false;
-        return;
+        window.lock = false
+        return
       }
 
-      window.lock = true;
+      window.lock = true
       handle.change((doc) => {
-        const { action, object, name, oldValue } = evt || {};
-        const keyPath = (evt.keyPath || evt.keypath || "").split(".").slice(1); // drop OBSERVED-*
-        if (!keyPath.length) return;
+        const { action, object, name, oldValue } = evt || {}
+        const keyPath = (evt.keyPath || evt.keypath || "").split(".").slice(1) // drop OBSERVED-*
+        if (!keyPath.length) return
 
-        console.log(keyPath.join("."));
-        setByPath(doc, keyPath, object[name]);
-      });
-      window.lock = false;
+        console.log(keyPath.join("."))
+        setByPath(doc, keyPath, object[name])
+      })
+      window.lock = false
     },
     { ignoreSameValueReassign: true },
-  );
+  )
 }
 
 handle.on("change", (evt) => {
   if (!window.lock) {
-    Alpine.$data(document.body).doc = createObserved(evt.doc);
+    Alpine.$data(document.body).doc = createObserved(evt.doc)
   }
-});
+})
 
 Alpine.magic("id", (el) => {
-  let host = el.getRootNode().host;
+  let host = el.getRootNode().host
   while (host && !host.id) {
-    host = host.getRootNode().host;
+    host = host.getRootNode().host
   }
-  return host ? host.id : null;
-});
+  return host ? host.id : null
+})
 
 Alpine.magic("world", (el) => {
   return Alpine.$data(
     document.querySelector("world-block").shadowRoot.querySelector("div"),
-  );
-});
+  )
+})
 
 Alpine.magic("props", (el) => {
-  const host = el.getRootNode().host;
-  return host.props;
-});
+  const host = el.getRootNode().host
+  return host.props
+})
 
 Alpine.magic("host", (el) => {
-  return el.getRootNode().host;
-});
+  return el.getRootNode().host
+})
 
 Alpine.magic("broadcast", () => (type, data) => {
   handle.broadcast({
     type: "peer-" + type,
     ...data,
-  });
-});
+  })
+})
 
 function setByPath(obj, path, value) {
-  let current = obj;
-  const lastKey = path.at(-1);
+  let current = obj
+  const lastKey = path.at(-1)
 
   for (let key of path.slice(0, -1)) {
     if (!(key in current) || typeof current[key] !== "object") {
-      current[key] = {};
+      current[key] = {}
     }
 
-    current = current[key];
+    current = current[key]
   }
 
-  current[lastKey] = value;
+  current[lastKey] = value
 }
 
 Alpine.data("playground", () => {
@@ -187,61 +187,61 @@ Alpine.data("playground", () => {
     doc: createObserved(handle.doc()),
     init() {
       handle.on("ephemeral-message", ({ message, senderId }) => {
-        const { type, ...rest } = message;
-        this.$dispatch(type, { ...rest, senderId });
-      });
+        const { type, ...rest } = message
+        this.$dispatch(type, { ...rest, senderId })
+      })
     },
-  };
-});
+  }
+})
 
-Alpine.start();
+Alpine.start()
 
 function defineBlock(pkg, tagName, template) {
   if (!customElements.get(tagName)) {
     class AlpineBlockSFC extends AlpineBlock {}
-    AlpineBlockSFC.pkg = pkg;
-    AlpineBlockSFC.tagName = tagName;
-    AlpineBlockSFC.template = template;
-    customElements.define(tagName, AlpineBlockSFC);
+    AlpineBlockSFC.pkg = pkg
+    AlpineBlockSFC.tagName = tagName
+    AlpineBlockSFC.template = template
+    customElements.define(tagName, AlpineBlockSFC)
   } else {
-    customElements.get(tagName).template = template;
+    customElements.get(tagName).template = template
   }
 }
 
 const pkgs = Array.from(
   new Set(["3JmVZBuZJrg6HK6kr9m9KRuZebxA", ...(handle.doc()?.packages || [])]),
-);
+)
 
-const blockTemplates = [];
+const blockTemplates = []
 
 for (let pkg of pkgs) {
-  let pkgHandle = await findWithBackoff(pkg);
-  const pkgDoc = pkgHandle.doc();
+  let pkgHandle = await findWithBackoff(pkg)
+  const pkgDoc = pkgHandle.doc()
 
-  const files = Object.entries(pkgDoc);
+  const files = Object.entries(pkgDoc)
 
   for (let [name, source] of files) {
-    const template = document.createElement("template");
-    template.id = `${pkgDoc.name}-${name}`;
-    template.innerHTML = source;
-    document.body.appendChild(template);
+    const template = document.createElement("template")
+    template.id = `${pkgDoc.name}-${name}`
+    template.innerHTML = source
+    document.body.appendChild(template)
 
     if (name.split("-").pop() === "block") {
       blockTemplates.push({
         pkg: pkgDoc.name,
         name: name,
         template,
-      });
+      })
     }
   }
 }
 
 for (let block of blockTemplates) {
-  defineBlock(block.pkg, block.name, block.template);
+  defineBlock(block.pkg, block.name, block.template)
 }
 
-const loader = document.getElementById("page-loader");
+const loader = document.getElementById("page-loader")
 if (loader) {
-  loader.style.opacity = "0";
-  setTimeout(() => loader.remove(), 300);
+  loader.style.opacity = "0"
+  setTimeout(() => loader.remove(), 300)
 }
