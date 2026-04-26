@@ -226,7 +226,7 @@ for (let pkg of pkgs) {
     template.innerHTML = source
     document.body.appendChild(template)
 
-    if (name.split("-").pop() === "block") {
+    if (name.split("-").pop() === "block" || name.split("-").pop() === "cell") {
       blockTemplates.push({
         pkg: pkgDoc.name,
         name: name,
