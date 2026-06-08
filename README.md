@@ -5,7 +5,7 @@ To make the editing experience more ergonomic - all blocks/apps are dynamically 
 A good example of the syntax for a block is the [World](https://github.com/PlaygroundNow/Playground-2.0/blob/main/blocks/world-block.html).
 The file is plain HTML and a single root element + <script /> + <style /> form the web component. A write-up of what and why Playground is can be
 read on the homepage https://playground.now/. Within the Playground environment, which has been my personal scratchpad for the last year and a half
-there are a few experiments in UI editing. The library block is a sort of SmallTtalk code editor for the browser. The cell block is a draggable
+there are a few experiments in UI editing. The library block is a sort of SmallTalk code editor for the browser. The cell block is a draggable
 spreadsheet cell. The [1.0 version](https://github.com/PlaygroundNow/Playground) implemented a process manager and capability for running Deno scripts
 that are authored on the front end. The current version has a data table component. I built a Swift library and created a mobile app where you can drag
 and snap blocks that get rendered natively.
